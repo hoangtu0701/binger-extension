@@ -26,6 +26,7 @@ window.inSessionMode = function (context) {
       if (!callIframe) {
         callIframe = document.createElement("iframe");
         callIframe.className = "binger-call-iframe binger-call-hidden"; // hidden by default
+        callIframe.allow = "camera; microphone; autoplay; fullscreen";
         const width = 420, height = 315, margin = 8;
         const overlayRect = overlay.getBoundingClientRect();
         const computedStyle = window.getComputedStyle(overlay);
