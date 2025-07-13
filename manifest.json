@@ -37,7 +37,12 @@
 
   "web_accessible_resources": [
     {
-      "resources": ["binge.png", "cam.png"],
+      "resources": [
+        "binge.png",
+        "cam.png",
+        "call.html",
+        "call_assets/*"
+      ],
       "matches": ["https://phimbro.com/*"]
     }
   ]

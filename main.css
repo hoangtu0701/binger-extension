@@ -523,3 +523,12 @@
     height: 100%;
   }
 
+
+
+
+
+
+
+.binger-call-iframe.binger-call-hidden {
+  display: none !important;
+}

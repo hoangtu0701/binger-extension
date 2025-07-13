@@ -1,32 +1,70 @@
 // sessionMode.js
 
+let stopPlayerSync = null;
+let lastBufferStatus = null;
+let lastBufferTimeout = null;
+let callIframe = null;   // Only one per session
+let callIframeVisible = false; // Track state
+
 
 
 window.inSessionMode = function (context) {
     const { chrome } = context;
     const currentUserId = context.currentUser?.uid;
 
-    // Add visual in-session styling + Hide some buttons too
+    // Visual styling
     const overlay = document.getElementById("bingerOverlay");
-    if (overlay) {
-        overlay.classList.add("in-session");
-    }
+    if (overlay) overlay.classList.add("in-session");
 
-    // Enable the camera button while in-session
+    // Camera button logic — just toggles iframe visibility now
     const { cameraToggleBtn } = context;
-    if (cameraToggleBtn) cameraToggleBtn.disabled = false;
 
-    // Start movie syncing across users
     chrome.storage.local.get("bingerCurrentRoomId", ({ bingerCurrentRoomId }) => {
-        if (!bingerCurrentRoomId) {
-            return;
-        }
-        startPlayerSync(bingerCurrentRoomId, currentUserId);
+      if (!bingerCurrentRoomId) return;
+
+      // Create the call iframe ONCE per session
+      if (!callIframe) {
+        callIframe = document.createElement("iframe");
+        callIframe.className = "binger-call-iframe binger-call-hidden"; // hidden by default
+        const width = 420, height = 315, margin = 8;
+        const overlayRect = overlay.getBoundingClientRect();
+        const computedStyle = window.getComputedStyle(overlay);
+
+        Object.assign(callIframe.style, {
+          position: "fixed",
+          width: `${width}px`,
+          height: `${height}px`,
+          zIndex: "2147483646",
+          border: "none",
+          bottom: computedStyle.bottom
+        });
+        const leftPos = overlayRect.left - width - margin;
+        callIframe.style.left = `${leftPos}px`;
+
+        // Always join the call for the whole session
+        callIframe.src = chrome.runtime.getURL(`call.html?roomId=${bingerCurrentRoomId}`);
+
+        document.body.appendChild(callIframe);
+        callIframeVisible = false; // hidden at first
+      }
+
+      // Camera button now ONLY shows/hides the iframe
+      if (cameraToggleBtn) {
+        cameraToggleBtn.disabled = false;
+        cameraToggleBtn.onclick = () => {
+          if (!callIframe) return;
+          callIframeVisible = !callIframeVisible;
+          if (callIframeVisible) {
+            callIframe.classList.remove("binger-call-hidden");
+          } else {
+            callIframe.classList.add("binger-call-hidden");
+          }
+        };
+      }
+
+      // Start existing movie-sync
+      startPlayerSync(bingerCurrentRoomId, currentUserId);
     });
-
-
-
-    // Add more in-session features
 };
 
 
@@ -46,12 +84,15 @@ window.outSessionMode = function (context) {
     const { cameraToggleBtn } = context;    
     if (cameraToggleBtn) cameraToggleBtn.disabled = true;
 
+    // Destroy the call iframe if it exists
+    if (callIframe) {
+      callIframe.remove();
+      callIframe = null;
+      callIframeVisible = false;
+    }
+
     // Stop movie syncing
     if (typeof stopPlayerSync === "function") stopPlayerSync();
-
-
-    
-    // Add more off-session undos
 };
 
 
@@ -61,9 +102,7 @@ window.outSessionMode = function (context) {
 
 
 
-let stopPlayerSync = null;
-let lastBufferStatus = null;
-let lastBufferTimeout = null;
+
 
 function startPlayerSync(roomId, userId){
 
