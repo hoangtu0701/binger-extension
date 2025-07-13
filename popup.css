@@ -1,0 +1,232 @@
+
+/* When not on phimbro.com */
+
+#notOnSite .not-site-inner {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  padding: 20px;
+  position: relative;
+}
+
+#notOnSite .go-site-btn {
+  padding: 14px 24px;
+  margin-top: 40px;
+  font-size: 16px;
+  font-weight: bold;
+  border: 4px solid #ffffff;
+  border-radius: 20px;
+  background-color: transparent;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background-color 0.25s ease, color 0.25s ease;
+  margin-bottom: auto;
+}
+
+#notOnSite .go-site-btn:hover {
+  background-color: #ffffff;
+  color: #800020;
+}
+
+#notOnSite .not-on-site-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fffab4;
+  text-align: center;
+  line-height: 1.5;
+  max-width: 240px;
+  margin-top: auto;
+  padding-bottom: 10px;
+  word-break: break-word;
+}
+
+
+
+
+
+
+
+
+
+/* When on phimbro.com */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #38000e; 
+  color: #fffab4; 
+  width: 300px;
+  height: 230px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.popup-container {
+  /* Applies regardless of whether we're on phimbro.com */
+  text-align: center;
+  width: 100%;
+  height: 100%;
+}
+
+h1 {
+  margin-bottom: 23px;
+  margin-top: 20px;
+  font-size: 20px;
+}
+
+.icon {
+  /* Applies regardless of whether we're on phimbro.com */
+  width: 80px;
+  height: 80px;
+  margin-bottom: 17px;
+}
+
+.button-group {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+button {
+  padding: 8px 14px;
+  font-size: 14px;
+  border: 8px solid #111e41;
+  border-radius: 50px;
+  background-color: #fffcd2;
+  color: #000000;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+button:hover {
+  background-color: #f1af64;
+}
+
+
+
+
+
+
+/* When on Authentication popup */
+#authUI .auth-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  height: 40px; 
+}
+
+#authUI .back-arrow {
+  position: absolute;
+  left: 0;
+  top: 0%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  background-color: #fffcd2;
+  border-bottom-right-radius: 20px;
+  border-top-right-radius: 20px;
+}
+
+#authUI h2 {
+  font-size: 20px;
+  color: #fffab4;
+  margin: 0;
+}
+
+#authUI .auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 10px;
+  align-items: center;
+  justify-content: center;
+}
+
+#authUI .auth-form input {
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  font-size: 14px;
+  height: 10px;
+  width: 80%
+}
+
+#authUI .auth-form button {
+  margin-top: 12px;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 20px;
+  border: 2px solid #fff;
+  background-color: transparent;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+#authUI .auth-form button:hover {
+  background-color: #ffffff;
+  color: #800020;
+}
+
+.auth-status {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.auth-status.success {
+  color: #00ff88;
+}
+
+.auth-status.error {
+  color: #ff4d4d;
+}
+
+
+
+
+
+
+
+/* When successfully signed in */
+#signedInUI {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* vertical center */
+  align-items: center;     /* horizontal center */
+  height: 60%;            /* take full height of popup */
+  text-align: center;
+  padding: 15px;
+  box-sizing: border-box;
+}
+
+.signed-in-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fffab4;
+  margin-bottom: 12px;
+}
+
+.signout-btn {
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: bold;
+  border: 2px solid #ffffff;
+  border-radius: 20px;
+  background-color: transparent;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.signout-btn:hover {
+  background-color: #ffffff;
+  color: #800020;
+}

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Binger Popup</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+
+  <!-- On phimbro Intro View -->
+  <div id="mainUI" class="popup-container" style="display: none;">
+    <h1>Hey Binger!</h1>
+    <img src="popcorn.png" alt="Popcorn Icon" class="icon" />
+    <div class="button-group">
+      <button id="signupBtn">Sign up</button>
+      <button id="signinBtn">Sign in</button>
+    </div>
+  </div>
+
+  <!-- Not on phimbro Intro View -->
+  <div id="notOnSite" class="popup-container" style="display: none;">
+    <div class="not-site-inner">
+        <button class="go-site-btn" id="goToPhimbro">Go to phimbro.com</button>
+        <p class="not-on-site-text">Binger🍿 only works on <strong>phimbro.com</strong>!</p>
+    </div>
+  </div>
+
+  <!-- Auth View (Sign Up / Sign In) -->
+  <div id="authUI" class="popup-container" style="display: none;">
+    <div class="auth-header">
+        <img src="back_arrow.png" alt="Back" id="backBtn" class="back-arrow" />
+        <h2 id="authTitle">Let’s get you on board!</h2>
+    </div>
+
+    <div class="auth-form">
+        <input type="text" id="usernameInput" placeholder="Username" />
+        <input type="password" id="passwordInput" placeholder="Password (at least 6 characters)" />
+        <button id="authSubmitBtn">Submit</button>
+    </div>
+
+    <p id="authStatus" class="auth-status"></p>
+  </div>
+
+  <!-- Signed In View -->
+  <div id="signedInUI" class="popup-container" style="display: none;">
+    <p class="signed-in-text">Enjoy your movie time!🍿</p>
+    <button id="signOutBtn" class="signout-btn">Sign out</button>
+  </div>
+
+
+  <script src="popup.js"></script>
+</body>
+</html>
