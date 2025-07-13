@@ -11,7 +11,7 @@
     "storage",
     "scripting"
   ],
-  "host_permissions": ["<all_urls>"],
+  "host_permissions": ["https://phimbro.com/*"],
 
   "background": {
     "service_worker": "background.js"
@@ -19,7 +19,7 @@
 
   "content_scripts": [
     {
-        "matches": ["*://phimbro.com/*"],
+        "matches": ["https://phimbro.com/*"],
         "js": ["sessionMode.js", "fullscreenMode.js", "main.js"],
         "css": ["main.css"],
         "run_at": "document_idle"
@@ -38,7 +38,7 @@
   "web_accessible_resources": [
     {
       "resources": ["binge.png", "cam.png"],
-      "matches": ["<all_urls>"]
+      "matches": ["https://phimbro.com/*"]
     }
   ]
 }
