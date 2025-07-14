@@ -471,7 +471,7 @@ try {
                 return;
             }
 
-            if (currentUsers.length >= 3) {
+            if (currentUsers.length >= 2) {
                 sendResponse({ status: "error", error: "Room is full" });
                 return;
             }
