@@ -14,7 +14,13 @@
 
     // Remember overlay’s home 
     const overlayOriginalParent = overlay.parentNode;           
-    const overlayNextSibling = overlay.nextSibling;   
+    const overlayNextSibling = overlay.nextSibling;  
+    
+    // Handle iframe video app
+    let iframe = null;
+    let iframeOriginalParent = null;
+    let iframeNextSibling = null;
+    let iframeOriginalStyles = null;
 
     let wrapper = null;
     let videoRegion = null;
@@ -34,8 +40,14 @@
       }
 
       if (isFS) {
-        overlay.classList.add("fullscreen");
-        
+        // Find call iframe
+        iframe = document.querySelector("iframe.binger-call-iframe");
+        if (iframe) {
+          iframeOriginalParent = iframe.parentNode;
+          iframeNextSibling = iframe.nextSibling;
+          iframeOriginalStyles = iframe.getAttribute("style");
+        }
+
         console.log("[Binger] 🎥 Entered fullscreen");
 
         if (document.getElementById("binger-video-region")) {
@@ -85,22 +97,43 @@
         });
 
         // Create Overlay wrapper (40%)
+        const fsRow = document.createElement("div");
+        fsRow.id = "binger-fullscreen-row";
+        Object.assign(fsRow.style, {
+          display: "flex",
+          flexDirection: "row",
+          width: "100%",
+          height: "40%",
+          justifyContent: "center",
+          alignItems: "stretch",
+          gap: "12px"
+        });
+        vjsContainer.appendChild(fsRow);
+
+        // Create overlay wrapper inside the row (for layout control)
         wrapper = document.createElement("div");
         wrapper.id = "binger-wrapper";
         Object.assign(wrapper.style, {
-          height: "40%",
-          width: "100%",
-          maxWidth: "600px",
-          margin: "0 auto",
+          height: "100%",
+          width: "660px",
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
           zIndex: "999999",
+          flexShrink: 1,
         });
-        vjsContainer.appendChild(wrapper);
 
-        wrapper.appendChild(overlay);   
+        // Move iframe and overlay into the right wrappers
+        if (iframe) {  
+          fsRow.prepend(iframe);     
+        }
+        fsRow.appendChild(wrapper);
+        wrapper.appendChild(overlay);
+
+        // Make them fullscreen
+        overlay.classList.add("fullscreen");
+        iframe.classList.add("fullscreen"); 
 
         // Setup restore function
         restoreFn = () => {
@@ -122,6 +155,10 @@
             }
             currentVideoRegion.remove();
           }
+
+          // Remove fullscreen row (which contains iframe + wrapper)
+          const currentFSRow = document.getElementById("binger-fullscreen-row");
+          if (currentFSRow) currentFSRow.remove();
 
           // Remove wrapper
           const currentWrapper = document.getElementById("binger-wrapper");
@@ -148,6 +185,21 @@
 
           if (typeof video.player === "function") {
             setTimeout(() => video.player().resize?.(), 0);
+          }
+
+          // Restore iframe
+          if (iframe && iframeOriginalParent) {
+            iframe.classList.remove("fullscreen");
+
+            // Move iframe back to original spot
+            iframeOriginalParent.insertBefore(iframe, iframeNextSibling);
+
+            // Restore inline styles
+            if (iframeOriginalStyles) {
+              iframe.setAttribute("style", iframeOriginalStyles);
+            } else {
+              iframe.removeAttribute("style");
+            }
           }
 
           // Reset refs
@@ -186,7 +238,9 @@
             currentVideoRegion.remove();
           }
 
-          if (currentWrapper) currentWrapper.remove();
+          // Remove fullscreen row wrapper (which contains both iframe + overlay wrapper)
+          const currentFSRow = document.getElementById("binger-fullscreen-row");
+          if (currentFSRow) currentFSRow.remove();
 
           vjsContainer.removeAttribute("style");
           video.removeAttribute("style");
@@ -200,6 +254,22 @@
           if (typeof video.player === "function") {
             setTimeout(() => video.player().resize?.(), 0);
           }
+
+          const iframe = document.querySelector("iframe.binger-call-iframe");
+          if (iframe && iframeOriginalParent) {
+            iframe.classList.remove("fullscreen");
+
+            // Move iframe back to original spot
+            iframeOriginalParent.insertBefore(iframe, iframeNextSibling);
+
+            // Restore inline styles
+            if (iframeOriginalStyles) {
+              iframe.setAttribute("style", iframeOriginalStyles);
+            } else {
+              iframe.removeAttribute("style");
+            }
+          }
+
         }
       }
     });
