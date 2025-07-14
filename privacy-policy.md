@@ -1,6 +1,6 @@
 # Privacy Policy for Binger
 
-**Last updated:** [Insert today’s date]
+**Last updated:** 7/15/2025
 
 **Binger** is a Chrome extension that allows users to watch movies together on Phimbro.com with real-time synced playback, chat, and optional video calls.
 
