@@ -1,26 +1,54 @@
 # Privacy Policy for Binger
 
-Binger is a Chrome extension that allows users to watch movies together on Phimbro.com with real-time synced playback and chat.
+**Last updated:** [Insert today’s date]
+
+**Binger** is a Chrome extension that allows users to watch movies together on Phimbro.com with real-time synced playback, chat, and optional video calls.
+
+---
 
 ## Data Collection
-We collect only the minimum data necessary to support core functionality:
-- **Chat messages** shared in rooms are temporarily stored and are not shared with third parties.
-- **Usernames and passwords** (if used) are stored securely using Firebase Authentication and are not used for tracking or advertising.
 
-We do not collect:
-- Personally identifiable information (e.g., full name, address)
-- Financial, health, or location data
-- Web browsing history
+We only collect the minimum data required to enable core functionality:
+
+- **Chat messages** shared during a session are temporarily stored in Firebase and deleted automatically when the session ends.
+- **Anonymous user identifiers** are used internally to manage room access and prevent duplication. No names, emails, or passwords are collected or required.
+
+---
+
+## What We Do Not Collect
+
+- No personally identifiable information (e.g., full name, address, email)
+- No financial, health, or location data
+- No web browsing history
+- No behavioral tracking, analytics, or advertising identifiers
+
+---
 
 ## Data Usage
-- Chat messages are used solely for communication during watch sessions.
-- Authentication info is used to uniquely identify users for room access.
 
-## Third-party Services
-- Firebase is used for authentication and real-time communication.
+- Chat messages are used solely for real-time communication between users during a shared watch session.
+- Anonymous identifiers are used only to manage session participation and are not persisted beyond the session.
 
-## Your Consent
-By using Binger, you consent to this privacy policy.
+---
+
+## Third-Party Services
+
+- We use [Firebase](https://firebase.google.com/) by Google for:
+  - Anonymous authentication
+  - Real-time database communication (chat, room sync)
+
+All data is transmitted securely and is not shared with any third parties.
+
+---
+
+## Consent
+
+By using Binger, you consent to this privacy policy and the handling of session-based communication data as described.
+
+---
 
 ## Contact
-If you have questions, contact us at tunghx0701@gmail.com.
+
+If you have any questions or concerns about this privacy policy, feel free to contact us at:
+
+📧 **tunghx0701@gmail.com**
