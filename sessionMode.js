@@ -25,20 +25,12 @@ window.inSessionMode = function (context) {
       // Create the call iframe ONCE per session
       if (!callIframe) {
         callIframe = document.createElement("iframe");
-        callIframe.className = "binger-call-iframe binger-call-hidden"; // hidden by default
+        // Hidden by default
+        callIframe.className = "binger-call-iframe binger-call-hidden"; 
         callIframe.allow = "camera; microphone; autoplay; fullscreen";
-        const width = 420, height = 315, margin = 8;
-        const overlayRect = overlay.getBoundingClientRect();
-        const computedStyle = window.getComputedStyle(overlay);
 
-        Object.assign(callIframe.style, {
-          position: "fixed",
-          width: `${width}px`,
-          height: `${height}px`,
-          zIndex: "2147483646",
-          border: "none",
-          bottom: computedStyle.bottom
-        });
+        const width = 420, margin = 8;
+        const overlayRect = overlay.getBoundingClientRect();
         const leftPos = overlayRect.left - width - margin;
         callIframe.style.left = `${leftPos}px`;
 

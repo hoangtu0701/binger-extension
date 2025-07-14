@@ -527,8 +527,29 @@
 
 
 
+  
 
+.binger-call-iframe {
+  position: fixed;
+  width: 420px;
+  height: 315px;
+  z-index: 2147483646;
+  border: none;
+  bottom: 20px; 
+  border-radius: 20px;
+}
 
 .binger-call-iframe.binger-call-hidden {
   display: none !important;
+}
+
+.binger-call-iframe.fullscreen {
+  position: static !important;
+  left: unset !important;
+  width: 400px;
+  height: 100%;
+  border-radius: 20px;
+  z-index: auto;
+  flex-shrink: 0;
+  align-self: stretch;
 }
