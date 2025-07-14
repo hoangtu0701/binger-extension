@@ -2,12 +2,19 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="data:,">
+    <link rel="icon" href="data:," />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Binger Call</title>
-    <script src="call_assets/index-ulEXnzj2.js"></script>
-    <link rel="stylesheet" href="call_assets/index-Ncdi3zO7.css" />
+
+    <!-- Firebase SDKs (CSP-safe local versions) -->
+    <script src="firebase/firebase-app.js"></script>
+    <script src="firebase/firebase-auth.js"></script>
+    <script src="firebase/firebase-database.js"></script>
+
+    <!-- Vite bundled JS (non-module, renamed path) -->
+    <script src="call_assets/index.js"></script>
   </head>
+
   <body>
     <h2>🎥 Binger 1-on-1 Video Call (P2P)</h2>
 
@@ -20,6 +27,5 @@
       <button id="btnToggleMic" disabled>🔇 Mic</button>
       <button id="btnToggleCam" disabled>🚫 Cam</button>
     </div>
-
   </body>
 </html>
