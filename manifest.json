@@ -8,7 +8,8 @@
   },
 
   "permissions": [
-    "storage"
+    "storage",
+    "scripting"
   ],
   
   "host_permissions": ["https://phimbro.com/*"],
