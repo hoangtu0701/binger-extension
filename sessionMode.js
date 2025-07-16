@@ -29,7 +29,7 @@ window.inSessionMode = function (context) {
         callIframe.className = "binger-call-iframe binger-call-hidden"; 
         callIframe.allow = "camera; microphone; autoplay; fullscreen";
 
-        const width = 420, margin = 8;
+        const width = 700, margin = 8;
         const overlayRect = overlay.getBoundingClientRect();
         const leftPos = overlayRect.left - width - margin;
         callIframe.style.left = `${leftPos}px`;

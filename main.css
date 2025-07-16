@@ -531,8 +531,8 @@
 
 .binger-call-iframe {
   position: fixed;
-  width: 420px;
-  height: 315px;
+  width: 700px;
+  height: 280px;
   z-index: 2147483646;
   border: none;
   bottom: 20px; 
@@ -546,10 +546,10 @@
 .binger-call-iframe.fullscreen {
   position: static !important;
   left: unset !important;
-  width: 400px;
+  aspect-ratio: 5/2;
   height: 100%;
   border-radius: 20px;
   z-index: auto;
   flex-shrink: 0;
-  align-self: stretch;
+  align-self: center;
 }
