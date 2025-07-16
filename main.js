@@ -1117,11 +1117,6 @@ joinRoomBtn.addEventListener("click", () => {
 
 
 
-// Testing my push. Nothing to see here.
-
-
-
-
 // Handle leaving the room
 leaveRoomBtn.addEventListener("click", () => {
 
