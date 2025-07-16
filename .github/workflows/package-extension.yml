@@ -16,7 +16,7 @@ jobs:
       - name: Create ZIP and place in docs/
         run: |
           mkdir -p docs
-          zip -r docs/Binger.zip . -x ".git/*" "docs/*" ".github/*" "privacy-policy.md" "index.html" ".gitignore"
+          zip -r docs/Binger.zip . -x ".git/*" "docs/*" ".github/*" "privacy-policy.md" "index.html" ".gitignore" "README.md"
 
       - name: Commit and Push ZIP
         run: |
