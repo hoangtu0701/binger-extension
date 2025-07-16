@@ -1,0 +1,27 @@
+name: Package Binger Extension
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-zip:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Create ZIP and place in docs/
+        run: |
+          mkdir -p docs
+          zip -r docs/Binger.zip . -x ".git/*" "docs/*" ".github/*" "privacy-policy.md" "index.html" ".gitignore"
+
+      - name: Commit and Push ZIP
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add docs/Binger.zip
+          git commit -m "Auto-build Binger.zip" || echo "No changes to commit"
+          git push
