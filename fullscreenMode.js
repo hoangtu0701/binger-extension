@@ -96,7 +96,7 @@
           objectFit: "contain",
         });
 
-        // Create Overlay wrapper (35%)
+        // Create Overlay & Call App wrapper (35%)
         const fsRow = document.createElement("div");
         fsRow.id = "binger-fullscreen-row";
         Object.assign(fsRow.style, {
@@ -110,7 +110,7 @@
         });
         vjsContainer.appendChild(fsRow);
 
-        // Create overlay wrapper inside the row (for layout control)
+        // Create Overlay wrapper inside the row (for layout control)
         wrapper = document.createElement("div");
         wrapper.id = "binger-wrapper";
         Object.assign(wrapper.style, {
