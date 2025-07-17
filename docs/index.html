@@ -2,8 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Binger – Sync & Call with Friends</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Binger – Watch Together</title>
     <style>
       body {
         margin: 0;
@@ -16,18 +16,31 @@
         justify-content: flex-start;
         min-height: 100vh;
         padding: 2rem 1rem;
-        text-align: center;
       }
 
-      h1 {
+      header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        animation: fadeIn 1s ease;
+      }
+
+      header img {
+        width: 64px;
+        height: 64px;
+      }
+
+      header h1 {
         font-size: 3rem;
-        margin-bottom: 0.5rem;
+        margin: 0;
       }
 
-      h2 {
-        font-weight: 400;
+      h2.tagline {
         color: #8b949e;
-        margin-bottom: 2rem;
+        font-weight: 400;
+        margin-bottom: 3rem;
+        animation: fadeIn 1.5s ease;
       }
 
       .features {
@@ -35,17 +48,24 @@
         flex-wrap: wrap;
         justify-content: center;
         gap: 2rem;
-        max-width: 800px;
-        margin-bottom: 3rem;
+        max-width: 900px;
+        margin-bottom: 4rem;
+        animation: slideUp 1s ease forwards;
       }
 
       .feature {
         background: #161b22;
         border: 1px solid #30363d;
-        border-radius: 12px;
-        padding: 1.5rem;
-        width: 250px;
-        box-shadow: 0 0 10px rgba(240, 246, 252, 0.05);
+        border-radius: 16px;
+        padding: 2rem;
+        width: 280px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        transition: transform 0.3s, box-shadow 0.3s;
+      }
+
+      .feature:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 30px rgba(0, 0, 0, 0.6);
       }
 
       .feature h3 {
@@ -56,142 +76,144 @@
       .cta {
         background: #238636;
         color: white;
-        padding: 1rem 2rem;
-        border-radius: 8px;
-        font-size: 1.1rem;
+        padding: 1rem 2.5rem;
+        border-radius: 10px;
+        font-size: 1.2rem;
         text-decoration: none;
         transition: background 0.3s ease;
-        cursor: pointer;
-        margin-bottom: 1.5rem;
+        margin-bottom: 3rem;
       }
 
       .cta:hover {
         background: #2ea043;
       }
 
-      .setup-guide {
-        max-width: 800px;
-        margin: 2rem auto 4rem;
-        padding: 1rem;
+      .guide-section {
         background: #161b22;
         border: 1px solid #30363d;
-        border-radius: 12px;
-        box-shadow: 0 0 12px rgba(240, 246, 252, 0.05);
+        border-radius: 16px;
+        max-width: 950px;
+        width: 100%;
+        padding: 2rem;
+        margin-bottom: 4rem;
+        animation: fadeIn 2s ease;
       }
-      
-      .guide-header {
+
+      .guide-section h2 {
         font-size: 1.8rem;
-        margin-bottom: 2rem;
         color: #58a6ff;
+        margin-bottom: 2rem;
         text-align: center;
       }
-      
+
       .step {
         display: flex;
         align-items: center;
-        margin-bottom: 1.5rem;
-        gap: 1rem;
-        text-align: left;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
       }
-      
+
       .step img {
-        width: 80px;
-        height: 80px;
-        border-radius: 8px;
+        width: 100px;
+        height: 100px;
+        border-radius: 12px;
         object-fit: cover;
         border: 1px solid #30363d;
       }
-      
+
       .step .text {
         flex: 1;
-        font-size: 1rem;
         color: #c9d1d9;
+        font-size: 1rem;
       }
-      
+
+      footer {
+        font-size: 0.9rem;
+        color: #8b949e;
+        margin-top: auto;
+        padding: 2rem 0;
+      }
+
+      @keyframes fadeIn {
+        0% { opacity: 0; }
+        100% { opacity: 1; }
+      }
+
+      @keyframes slideUp {
+        0% { transform: translateY(20px); opacity: 0; }
+        100% { transform: translateY(0); opacity: 1; }
+      }
+
       @media (max-width: 600px) {
         .step {
           flex-direction: column;
           align-items: flex-start;
         }
-      
+
         .step img {
           width: 100%;
           height: auto;
         }
       }
-
-
-      footer {
-        font-size: 0.9rem;
-        color: #8b949e;
-      }
     </style>
   </head>
   <body>
-    <div style="display: flex; align-items: center; margin-bottom: 0.5rem;">
-      <img src="icon.png" alt="Binger icon" style="width: 64px; height: 64px; margin-right: 12px;" />
-      <h1 style="margin: 0; font-size: 2.8rem;">Binger</h1>
-    </div>
+    <header>
+      <img src="icon.png" alt="Binger logo" />
+      <h1>Binger</h1>
+    </header>
 
-    <h2>Watch movies. Chat. And now... Video Call with friends.</h2>
-  
+    <h2 class="tagline">Watch together. Chat. Call. All in sync.</h2>
+
     <div class="features">
       <div class="feature">
         <h3>🕒 Real-Time Sync</h3>
-        <p>Watch shows together with perfect sync across devices.</p>
+        <p>Watch shows perfectly in sync across friends, devices, and tabs.</p>
       </div>
       <div class="feature">
         <h3>💬 In-Overlay Chat</h3>
-        <p>Talk with friends in a seamless, floating chatbox — even fullscreen.</p>
+        <p>Chat while watching — fullscreen friendly and beautifully integrated.</p>
       </div>
       <div class="feature">
-        <h3>📹 One-on-One Calls</h3>
-        <p>Fire up smooth peer-to-peer video calls inside the overlay.</p>
+        <h3>📹 Peer-to-Peer Calls</h3>
+        <p>Instant one-on-one video calls right inside the movie overlay.</p>
       </div>
     </div>
-  
-    <a href="Binger.zip" download class="cta">
-      ⬇ Download Binger Extension
-    </a>
 
-    <!-- Place this below the download button and before <footer> -->
-    <section class="setup-guide">
-      <h2 class="guide-header">🧠 Install in 60 Seconds — No Tech Skills Needed</h2>
+    <a href="Binger.zip" download class="cta">⬇ Download Binger Extension</a>
+
+    <section class="guide-section">
+      <h2>📸 How to Install — It’s Crazy Simple</h2>
+
       <div class="step">
-        <img src="steps/step1.png" alt="Step 1: Download" />
-        <div class="text">
-          <strong>Step 1:</strong> Click the green button above to download <code>Binger.zip</code>.
-        </div>
+        <img src="steps/step1.png" alt="Download Binger.zip" />
+        <div class="text"><strong>Step 1:</strong> Click the green button above to download <code>Binger.zip</code>.</div>
       </div>
+
       <div class="step">
-        <img src="steps/step2.png" alt="Step 2: Extract ZIP" />
-        <div class="text">
-          <strong>Step 2:</strong> Right-click the ZIP and choose <strong>“Extract All...”</strong>. Open the extracted <code>Binger</code> folder.
-        </div>
+        <img src="steps/step2.png" alt="Extract ZIP" />
+        <div class="text"><strong>Step 2:</strong> Right-click the ZIP file → <strong>"Extract All…"</strong> and open the extracted folder.</div>
       </div>
+
       <div class="step">
-        <img src="steps/step3.png" alt="Step 3: Open Extensions Page" />
-        <div class="text">
-          <strong>Step 3:</strong> Go to <code>chrome://extensions</code> and turn on <strong>Developer mode</strong> (top right).
-        </div>
+        <img src="steps/step3.png" alt="Chrome Extensions" />
+        <div class="text"><strong>Step 3:</strong> Open <code>chrome://extensions</code> in a new tab, and enable <strong>Developer mode</strong>.</div>
       </div>
+
       <div class="step">
-        <img src="steps/step4.png" alt="Step 4: Load Unpacked" />
-        <div class="text">
-          <strong>Step 4:</strong> Click <strong>“Load unpacked”</strong> and select the extracted <code>Binger</code> folder.
-        </div>
+        <img src="steps/step4.png" alt="Load Unpacked" />
+        <div class="text"><strong>Step 4:</strong> Click <strong>“Load unpacked”</strong> and select the Binger folder.</div>
       </div>
+
       <div class="step">
-        <img src="steps/step5.png" alt="Step 5: Done" />
-        <div class="text">
-          <strong>Step 5:</strong> Binger is now installed! You’ll see it in your extensions bar — ready to sync and chat.
-        </div>
+        <img src="steps/step5.png" alt="Done" />
+        <div class="text"><strong>Step 5:</strong> That’s it! You’ll see the Binger icon in your browser — ready to party 🎉</div>
       </div>
     </section>
 
-  
     <footer>
-      © 2025 Binger Extension. Built with 🍿 and WebRTC.
+      © 2025 Binger. Made with 🍿, 💬, and WebRTC.
     </footer>
   </body>
 </html>
