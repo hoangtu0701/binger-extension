@@ -112,14 +112,14 @@
       .step {
         display: flex;
         align-items: center;
-        gap: 2rem;
-        margin-bottom: 1.8rem;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
         background: #0d1117;
         border: 1px solid #30363d;
-        border-radius: 16px;
-        padding: 1rem 1.2rem;
+        border-radius: 14px;
+        padding: 0.8rem 1rem;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
-        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
       }
 
       .step:nth-child(even) {
@@ -127,14 +127,13 @@
       }
 
       .step:hover img {
-        transform: scale(1.08);
+        transform: scale(1.06);
       }
 
       .step img {
-        width: 40vw;
-        max-width: 500px;
-        height: auto;
-        border-radius: 14px;
+        width: 32vw;
+        max-width: 400px;
+        border-radius: 12px;
         object-fit: cover;
         border: 1px solid #30363d;
         transition: transform 0.3s ease;
@@ -143,8 +142,15 @@
       .step .text {
         flex: 1;
         color: #c9d1d9;
-        font-size: 1.15rem;
-        line-height: 1.6;
+        font-size: 1.2rem;
+        line-height: 1.5;
+      }
+
+      .step .text strong {
+        display: block;
+        font-size: 1.3rem;
+        margin-bottom: 0.3rem;
+        color: #58a6ff;
       }
 
       footer {
