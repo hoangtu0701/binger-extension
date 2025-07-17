@@ -16,7 +16,7 @@ try {
     console.error("[Binger] importScripts failed:", e);
   }
 
-  // My own Firebase config
+  // Firebase config
   const firebaseConfig = {
     apiKey: "AIzaSyCOBk1uGy_Mb29zeww7KlwaTcvvfKrzKoo",
     authDomain: "binger-extension.firebaseapp.com",
@@ -45,7 +45,7 @@ try {
   // Automatically delete room if inactive (no users) for over 20 minutes
   setInterval(() => {
     const now = Date.now();
-    const expiration = now - 20 * 60 * 1000; // 20 minutes ago
+    const expiration = now - 20 * 60 * 1000;
 
     firebase.database().ref("rooms").once("value").then((snapshot) => {
         const rooms = snapshot.val();
@@ -693,7 +693,7 @@ try {
                 // User still in room
                 sendResponse({ status: "rejoined" });
             } else if (lastLeave >= oneMinuteAgo) {
-                // Was recently in room → re-add
+                // Was recently in room --> Re-add
                 const updates = {};
                 updates[`users/${user.uid}`] = {
                 email: user.email,
@@ -957,7 +957,7 @@ try {
         const unsub = ref.on("value", snap => {
         const data = snap.val();
         if (!data) return;
-        // Relay to *all* tabs in that room
+        // Relay to all tabs in that room
         chrome.tabs.query({}, tabs => {
             tabs.forEach(tab => {
             chrome.tabs.sendMessage(tab.id, {
