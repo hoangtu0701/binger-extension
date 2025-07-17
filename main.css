@@ -319,16 +319,16 @@
 }
 
 #bingerChatLog::-webkit-scrollbar-track {
-  background: #fff; /* match white chat wrapper */
+  background: #fff; 
 }
 
 #bingerChatLog::-webkit-scrollbar-thumb {
-  background-color: #800020; /* match primary maroon red */
+  background-color: #800020;
   border-radius: 4px;
 }
 
 #bingerChatLog::-webkit-scrollbar-thumb:hover {
-  background-color: #a00030; /* slightly brighter on hover */
+  background-color: #a00030; 
 }
 
 /* Firefox support */
@@ -390,11 +390,11 @@
 }
 
 #bingerOverlay.in-session #bingerChatLog::-webkit-scrollbar-track {
-  background: #0a2540; /* match wrapper */
+  background: #0a2540; 
 }
 
 #bingerOverlay.in-session #bingerChatLog::-webkit-scrollbar-thumb {
-  background-color: #375a7f; /* match button */
+  background-color: #375a7f;
   border-radius: 4px;
 }
 

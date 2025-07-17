@@ -343,6 +343,7 @@ function startPlayerSync(roomId, userId){
   });
 }
 
+// Wait for video component to load
 function waitForVideo(callback) {
   const attempt = () => {
     const video = document.querySelector("video.vjs-tech") || document.querySelector("video");

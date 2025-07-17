@@ -434,7 +434,7 @@ function activateChatbox(roomId) {
       }, (res) => {
         if (res?.status === "success") {
           console.log("[Binger] Message sent:", msgData);
-          chatInput.value = ""; // Clear input on success
+          chatInput.value = "";
         } else {
           console.error("[Binger] Failed to send message:", res?.error);
         }
@@ -1114,8 +1114,6 @@ joinRoomBtn.addEventListener("click", () => {
     });
   });
 });
-
-// Testing here. Nothing to see
 
 // Handle leaving the room
 leaveRoomBtn.addEventListener("click", () => {

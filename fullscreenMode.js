@@ -137,7 +137,7 @@
 
         // Setup restore function
         restoreFn = () => {
-          console.log("[Binger] 🧹 Restoring fullscreen layout");
+          console.log("[Binger] Restoring fullscreen layout");
 
           // Move back overlay
           if (overlayOriginalParent) {                           
