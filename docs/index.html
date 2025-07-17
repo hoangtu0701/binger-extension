@@ -69,29 +69,57 @@
         background: #2ea043;
       }
 
-      .instructions {
-        max-width: 600px;
-        text-align: left;
-        font-size: 0.95rem;
+      .setup-guide {
+        max-width: 800px;
+        margin: 2rem auto 4rem;
+        padding: 1rem;
         background: #161b22;
         border: 1px solid #30363d;
-        border-radius: 10px;
-        padding: 1.5rem;
-        line-height: 1.6;
+        border-radius: 12px;
+        box-shadow: 0 0 12px rgba(240, 246, 252, 0.05);
+      }
+      
+      .guide-header {
+        font-size: 1.8rem;
+        margin-bottom: 2rem;
+        color: #58a6ff;
+        text-align: center;
+      }
+      
+      .step {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        gap: 1rem;
+        text-align: left;
+      }
+      
+      .step img {
+        width: 80px;
+        height: 80px;
+        border-radius: 8px;
+        object-fit: cover;
+        border: 1px solid #30363d;
+      }
+      
+      .step .text {
+        flex: 1;
+        font-size: 1rem;
         color: #c9d1d9;
-        margin-bottom: 3rem;
+      }
+      
+      @media (max-width: 600px) {
+        .step {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      
+        .step img {
+          width: 100%;
+          height: auto;
+        }
       }
 
-      .instructions ol {
-        padding-left: 1.2rem;
-      }
-
-      .instructions code {
-        background: #21262d;
-        padding: 0.1rem 0.4rem;
-        border-radius: 4px;
-        font-family: monospace;
-      }
 
       footer {
         font-size: 0.9rem;
@@ -126,17 +154,41 @@
       ⬇ Download Binger Extension
     </a>
 
-    <div class="instructions">
-      <strong>How to Install Binger Extension (for Chrome / Opera):</strong>
-      <ol>
-        <li>Click the green button above to download <code>Binger.zip</code>.</li>
-        <li>Right-click the ZIP file and choose <strong>"Extract All..."</strong>.</li>
-        <li>Open <code>chrome://extensions</code> in a new browser tab.</li>
-        <li>Turn on <strong>Developer mode</strong> (top-right corner).</li>
-        <li>Click <strong>“Load unpacked”</strong> and select the extracted <code>Binger</code> folder.</li>
-        <li>Binger will now appear in your extensions bar — you're ready to go!</li>
-      </ol>
-    </div>
+    <!-- Place this below the download button and before <footer> -->
+    <section class="setup-guide">
+      <h2 class="guide-header">🧠 Install in 60 Seconds — No Tech Skills Needed</h2>
+      <div class="step">
+        <img src="steps/step1.png" alt="Step 1: Download" />
+        <div class="text">
+          <strong>Step 1:</strong> Click the green button above to download <code>Binger.zip</code>.
+        </div>
+      </div>
+      <div class="step">
+        <img src="steps/step2.png" alt="Step 2: Extract ZIP" />
+        <div class="text">
+          <strong>Step 2:</strong> Right-click the ZIP and choose <strong>“Extract All...”</strong>. Open the extracted <code>Binger</code> folder.
+        </div>
+      </div>
+      <div class="step">
+        <img src="steps/step3.png" alt="Step 3: Open Extensions Page" />
+        <div class="text">
+          <strong>Step 3:</strong> Go to <code>chrome://extensions</code> and turn on <strong>Developer mode</strong> (top right).
+        </div>
+      </div>
+      <div class="step">
+        <img src="steps/step4.png" alt="Step 4: Load Unpacked" />
+        <div class="text">
+          <strong>Step 4:</strong> Click <strong>“Load unpacked”</strong> and select the extracted <code>Binger</code> folder.
+        </div>
+      </div>
+      <div class="step">
+        <img src="steps/step5.png" alt="Step 5: Done" />
+        <div class="text">
+          <strong>Step 5:</strong> Binger is now installed! You’ll see it in your extensions bar — ready to sync and chat.
+        </div>
+      </div>
+    </section>
+
   
     <footer>
       © 2025 Binger Extension. Built with 🍿 and WebRTC.
