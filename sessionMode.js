@@ -181,11 +181,22 @@ function startPlayerSync(roomId, userId){
     const keyBlocker = (e) => {
       if (!playLockActive) return;
 
+      const activeEl = document.activeElement;
+      const isTyping =
+        activeEl &&
+        (activeEl.tagName === "INPUT" ||
+        activeEl.tagName === "TEXTAREA" ||
+        activeEl.isContentEditable);
+
+      // Don't block if user is typing
+      if (isTyping) return;
+
       if (e.key === " ") {
         e.preventDefault();
         e.stopImmediatePropagation();
       }
     };
+
     window.addEventListener("keydown", keyBlocker, true);
 
 
