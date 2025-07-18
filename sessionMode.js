@@ -212,6 +212,7 @@ function startPlayerSync(roomId, userId){
         blockers.push(blocker);
     }
 
+    // Apply blockers in both fullscreen and normal modes
     function applyClickBlockers() {
         blockers.forEach(el => el.remove());
         blockers.length = 0;
