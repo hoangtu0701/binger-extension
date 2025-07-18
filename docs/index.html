@@ -209,17 +209,12 @@
       .faq-answer {
         max-height: 0;
         overflow: hidden;
-        transition: max-height 0.4s ease;
+        transition: max-height 0.4s ease, padding 0.3s ease;
         background: #0d1117;
         padding: 0 1rem;
         border-left: 3px solid #58a6ff;
         margin-top: 0.5rem;
         border-radius: 0 0 8px 8px;
-      }
-
-      .faq-item.open .faq-answer {
-        max-height: 200px;
-        padding: 1rem;
       }
 
       @keyframes pulse {
@@ -349,9 +344,34 @@
       document.querySelectorAll('.faq-question').forEach(btn => {
         btn.addEventListener('click', () => {
           const item = btn.parentElement;
-          item.classList.toggle('open');
+          const answer = item.querySelector('.faq-answer');
+          const isOpen = item.classList.contains('open');
+
+          // Collapse
+          if (isOpen) {
+            answer.style.maxHeight = answer.scrollHeight + 'px';
+            requestAnimationFrame(() => {
+              answer.style.maxHeight = '0px';
+            });
+            item.classList.remove('open');
+          } 
+          // Expand
+          else {
+            item.classList.add('open');
+            answer.style.maxHeight = answer.scrollHeight + 'px';
+          }
+        });
+      });
+
+      // Reset maxHeight after transition ends
+      document.querySelectorAll('.faq-answer').forEach(answer => {
+        answer.addEventListener('transitionend', () => {
+          if (!answer.parentElement.classList.contains('open')) {
+            answer.style.maxHeight = '';
+          }
         });
       });
     </script>
+
   </body>
 </html>
