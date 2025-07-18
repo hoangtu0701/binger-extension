@@ -305,6 +305,7 @@ function startPlayerSync(roomId, userId){
       reportBufferStatus("ready");
     });
 
+    // Make sure 'ready' state gets delivered
     video.addEventListener("seeked", () => {
       setTimeout(() => {
         if (!video.waiting) {
