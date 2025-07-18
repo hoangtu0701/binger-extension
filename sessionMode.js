@@ -208,7 +208,7 @@ function startPlayerSync(roomId, userId){
           background: rgba(0,0,0,0);
           cursor: not-allowed;
         `;
-        document.body.appendChild(blocker);
+        (document.fullscreenElement || document.body).appendChild(blocker);
         blockers.push(blocker);
     }
 
@@ -216,7 +216,8 @@ function startPlayerSync(roomId, userId){
         blockers.forEach(el => el.remove());
         blockers.length = 0;
         const targets = [
-          document.querySelector("video.vjs-tech")
+          document.querySelector("video.vjs-tech"),
+          document.querySelector("#binger-video-region video")
         ];
         targets.forEach(el => {
           if (el) addClickBlocker(el);
@@ -304,14 +305,17 @@ function startPlayerSync(roomId, userId){
       reportBufferStatus("ready");
     });
 
-    video.addEventListener("seeking", () => {
-      // Only treat as buffering if video is paused (not already playing)
-      if (video.paused) {
-        reportBufferStatus("buffering");
-      }
+    video.addEventListener("seeked", () => {
+      setTimeout(() => {
+        if (!video.waiting) {
+          setTimeout(() => {
+            if (video.readyState >= 3) {
+              reportBufferStatus("ready");
+            }
+          }, 200);
+        }
+      }, 100);
     });
-
-
 
     // Handle messages FROM background.js --> apply to video
     const msgHandler = (msg) => {
