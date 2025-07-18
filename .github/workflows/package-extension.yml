@@ -13,15 +13,46 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v3
 
-      - name: Create ZIP and place in docs/
+      - name: Read and Increment Version
+        id: versioning
+        run: |
+          # Read current version
+          version=$(cat .version)
+          IFS='.' read -r major minor patch <<< "$version"
+
+          # Increment patch
+          patch=$((patch + 1))
+
+          # Handle rollover
+          if [ "$patch" -gt 5 ]; then
+            patch=0
+            minor=$((minor + 1))
+            if [ "$minor" -gt 5 ]; then
+              minor=0
+              major=$((major + 1))
+            fi
+          fi
+
+          new_version="$major.$minor.$patch"
+
+          echo "$new_version" > .version
+          echo "VERSION=$new_version" >> $GITHUB_ENV
+
+      - name: Create versioned ZIP
         run: |
           mkdir -p docs
-          zip -r docs/Binger.zip . -x ".git/*" "docs/*" ".github/*" "privacy-policy.md" "index.html" ".gitignore" "README.md"
+          zip -r "docs/Binger v$VERSION.zip" . \
+            -x ".git/*" "docs/*" ".github/*" ".github/workflows/*" \
+            "privacy-policy.md" "index.html" ".gitignore" "README.md" ".version"
 
-      - name: Commit and Push ZIP
+      - name: Update index.html with version
+        run: |
+          sed -i "s/version v[0-9.]\+/version v$VERSION/" docs/index.html
+
+      - name: Commit version + zip
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add docs/Binger.zip
-          git commit -m "Auto-build Binger.zip" || echo "No changes to commit"
+          git add .version docs/
+          git commit -m "v$VERSION: Auto-build and update"
           git push
