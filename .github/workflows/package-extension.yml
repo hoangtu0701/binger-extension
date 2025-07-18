@@ -38,6 +38,10 @@ jobs:
           echo "$new_version" > .version
           echo "VERSION=$new_version" >> $GITHUB_ENV
 
+      - name: Delete old ZIPs in docs
+        run: |
+          rm -f docs/Binger\ v*.zip
+
       - name: Create versioned ZIP
         run: |
           mkdir -p docs
@@ -45,9 +49,13 @@ jobs:
             -x ".git/*" "docs/*" ".github/*" ".github/workflows/*" \
             "privacy-policy.md" "index.html" ".gitignore" "README.md" ".version"
 
-      - name: Update index.html with version
+      - name: Update index.html with version and download link
         run: |
+          # Update visible version number
           sed -i "s/version v[0-9.]\+/version v$VERSION/" docs/index.html
+
+          # Update the download link to new ZIP name
+          sed -i "s|href=\"Binger v[0-9.]\+.zip\"|href=\"Binger v$VERSION.zip\"|" docs/index.html
 
       - name: Commit version + zip
         run: |
