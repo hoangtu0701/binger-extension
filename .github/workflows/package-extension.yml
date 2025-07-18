@@ -57,6 +57,9 @@ jobs:
           # Update the download link to new ZIP name
           sed -i "s|href=\"Binger v[0-9.]\+.zip\"|href=\"Binger v$VERSION.zip\"|" docs/index.html
 
+          # Update the button label text (e.g. Download Binger v1.0.1)
+          sed -i "s/Download Binger v[0-9.]\+/Download Binger v$VERSION/" docs/index.html
+
       - name: Commit version + zip
         run: |
           git config user.name "github-actions"
