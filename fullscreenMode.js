@@ -110,7 +110,7 @@
         });
         vjsContainer.appendChild(fsRow);
 
-        // Create Overlay wrapper inside the row (for layout control)
+        // Create Overlay wrapper inside the row for layout control
         wrapper = document.createElement("div");
         wrapper.id = "binger-wrapper";
         Object.assign(wrapper.style, {
