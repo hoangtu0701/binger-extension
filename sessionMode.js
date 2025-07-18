@@ -6,7 +6,59 @@ let lastBufferTimeout = null;
 let callIframe = null;   // Only one per session
 let callIframeVisible = false; // Track state
 
+// Listen to message from call app about restrictive network
+window.addEventListener("message", (event) => {
+  if (event.data?.type === "network-warning") {
+    showNetworkWarningBanner();
+  }
+});
 
+function showNetworkWarningBanner() {
+  // Avoid duplicates
+  if (document.getElementById("bingerNetworkWarning")) return;
+
+  const banner = document.createElement("div");
+  banner.id = "bingerNetworkWarning";
+  banner.innerHTML = `
+    ⚠️ <strong>Someone in the room may be on a network that blocks video calls.</strong>
+    Try switching connections for a smoother experience.
+    <span id="bingerBannerClose">✕</span>
+  `;
+  Object.assign(banner.style, {
+    background: "#ffcc00",
+    color: "#000",
+    padding: "20px 16px 16px 16px",
+    margin: "0 auto",
+    maxWidth: "800px",
+    borderRadius: "10px",
+    fontWeight: "500",
+    fontSize: "1rem",
+    textAlign: "center",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+    position: "fixed",
+    top: "20px",
+    left: "50%",
+    transform: "translateX(-50%)",
+    zIndex: "999999",
+  });
+
+  document.body.appendChild(banner);
+
+  const closeBtn = document.getElementById("bingerBannerClose");
+  Object.assign(closeBtn.style, {
+    position: "absolute",
+    top: "6px",
+    right: "10px",
+    fontSize: "14px",
+    color: "#000",
+    cursor: "pointer",
+    fontWeight: "bold"
+  });
+
+  closeBtn.onclick = () => {
+    banner.remove();
+  };
+}
 
 window.inSessionMode = function (context) {
     const { chrome } = context;
