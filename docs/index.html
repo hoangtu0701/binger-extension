@@ -344,5 +344,14 @@
     <footer>
       © 2025 Binger. Made with 🍿, 💬, and WebRTC.
     </footer>
+
+    <script>
+      document.querySelectorAll('.faq-question').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const item = btn.parentElement;
+          item.classList.toggle('open');
+        });
+      });
+    </script>
   </body>
 </html>
