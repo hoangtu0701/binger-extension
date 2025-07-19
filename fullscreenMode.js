@@ -138,6 +138,15 @@
           if (wasHidden) newIframe.classList.add("binger-call-hidden");
           newIframe.allow = "camera; microphone; autoplay; fullscreen";
 
+          // Load current mic and cam states to iframe
+          newIframe.onload = () => {
+            const { camOn, micOn } = window.BINGER.camMicState;
+            newIframe.contentWindow.postMessage(
+              { type: "restoreCamMic", camOn, micOn },
+              "*"
+            );
+          };
+
           fsRow.prepend(newIframe);
           iframe = newIframe;
 
@@ -239,6 +248,15 @@
                 newIframe.removeAttribute("style");
               }
 
+              // Load current mic and cam states to iframe
+              newIframe.onload = () => {
+                const { camOn, micOn } = window.BINGER.camMicState;
+                newIframe.contentWindow.postMessage(
+                  { type: "restoreCamMic", camOn, micOn },
+                  "*"
+                );
+              };
+
               iframeOriginalParent.insertBefore(newIframe, iframeNextSibling);
               iframe = newIframe;
 
@@ -335,6 +353,15 @@
               } else {
                 newIframe.removeAttribute("style");
               }
+
+              // Load current mic and cam states to iframe
+              newIframe.onload = () => {
+                const { camOn, micOn } = window.BINGER.camMicState;
+                newIframe.contentWindow.postMessage(
+                  { type: "restoreCamMic", camOn, micOn },
+                  "*"
+                );
+              };
 
               iframeOriginalParent.insertBefore(newIframe, iframeNextSibling);
               iframe = newIframe;
