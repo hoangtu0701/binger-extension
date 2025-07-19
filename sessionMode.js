@@ -164,6 +164,11 @@ function startPlayerSync(roomId, userId){
     time: 0
   });
 
+  chrome.runtime.sendMessage({ 
+    command: "startResetIframeListener", 
+    roomId 
+  });
+
   waitForVideo((video) => {
 
     let lastStateSent = null;          // either "play" or "pause"
@@ -338,6 +343,55 @@ function startPlayerSync(roomId, userId){
     // Handle messages FROM background.js --> apply to video
     const msgHandler = (msg) => {
 
+        /* ---------- RESET IFRAME DUE TO OTHER GOING IN/OUT OF FULLSCREEN ----------- */
+        if (msg.command === "resetCallIframe") {
+
+          if (!callIframe) {
+            return;
+          }
+
+          const roomId    = new URL(callIframe.src).searchParams.get("roomId");
+          const wasHidden = callIframe.classList.contains("binger-call-hidden");
+          const wasFS     = callIframe.classList.contains("fullscreen");
+          const oldStyle  = callIframe.getAttribute("style");
+
+          // Tear down old iframe
+          callIframe.remove();
+
+          // Build fresh iframe
+          const fresh = document.createElement("iframe");
+          fresh.src       = chrome.runtime.getURL(`call.html?roomId=${roomId}`);
+          fresh.className = "binger-call-iframe";
+          if (wasHidden)  fresh.classList.add("binger-call-hidden");
+          if (wasFS)      fresh.classList.add("fullscreen");
+          fresh.allow     = "camera; microphone; autoplay; fullscreen";
+
+          // Insert in the right spot
+          if (wasFS && document.getElementById("binger-fullscreen-row")) {
+            document.getElementById("binger-fullscreen-row").prepend(fresh);
+          } else {
+            if (oldStyle) {
+              fresh.setAttribute("style", oldStyle);
+            } else {
+              const overlay = document.getElementById("bingerOverlay");
+              if (overlay) {
+                const { left } = overlay.getBoundingClientRect();
+                fresh.style.left = `${left - 700 - 8}px`;
+              }
+            }
+            document.body.appendChild(fresh);
+          }
+
+          callIframe = fresh;
+          callIframeVisible = !wasHidden;
+          if (typeof window.bingerSetCallIframe === "function") {
+            window.bingerSetCallIframe(fresh);
+          }
+
+          sendResponse({ ack: true });
+          return true;
+        }
+
         /* ---------- RESUME PLAY ----------- */
         if (msg.command === "resumePlay" && msg.roomId === roomId) {
             unlockPlaybackControls();
@@ -398,6 +452,7 @@ function startPlayerSync(roomId, userId){
         // Stop Firebase listeners
         chrome.runtime.sendMessage({ command: "stopPlayerListener", roomId });
         chrome.runtime.sendMessage({ command: "stopBufferStatusListener", roomId });
+        chrome.runtime.sendMessage({ command: "stopResetIframeListener", roomId });
 
         // Remove the click blockers
         removeClickBlockers();
