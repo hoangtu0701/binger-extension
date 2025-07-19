@@ -124,16 +124,34 @@
           flexShrink: 1,
         });
 
-        // Move iframe and overlay into the right wrappers
-        if (iframe) {  
-          fsRow.prepend(iframe);     
+        // Recreate iframe and move it along with overlay into the right wrappers
+        if (iframe) {
+          const roomId = new URL(iframe.src).searchParams.get("roomId");
+          const wasHidden = iframe.classList.contains("binger-call-hidden");
+
+          iframe.remove();
+
+          const newIframe = document.createElement("iframe");
+          newIframe.src = chrome.runtime.getURL(`call.html?roomId=${roomId}`);
+          newIframe.className = "binger-call-iframe fullscreen";
+          // Preserve hidden state if any
+          if (wasHidden) newIframe.classList.add("binger-call-hidden");
+          newIframe.allow = "camera; microphone; autoplay; fullscreen";
+
+          fsRow.prepend(newIframe);
+          iframe = newIframe;
+
+          // Sync back to sessionMode.js if it's tracking iframe globally
+          if (typeof window.bingerSetCallIframe === "function") {
+            window.bingerSetCallIframe(newIframe);
+          }
         }
+
         fsRow.appendChild(wrapper);
         wrapper.appendChild(overlay);
 
-        // Make them fullscreen
+        // Make Overlay fullscreen (iframe already is)
         overlay.classList.add("fullscreen");
-        iframe.classList.add("fullscreen"); 
 
         // Setup restore function
         restoreFn = () => {
@@ -187,18 +205,41 @@
             setTimeout(() => video.player().resize?.(), 0);
           }
 
-          // Restore iframe
-          if (iframe && iframeOriginalParent) {
-            iframe.classList.remove("fullscreen");
+          // Recreate iframe in original position
+          if (iframeOriginalParent) {
+            const roomId = (() => {
+              try {
+                return new URL(iframe?.src).searchParams.get("roomId");
+              } catch {
+                console.warn("[Binger] Failed to extract roomId from exiting iframe.");
+                return null;
+              }
+            })();
 
-            // Move iframe back to original spot
-            iframeOriginalParent.insertBefore(iframe, iframeNextSibling);
+            const wasHidden = iframe?.classList.contains("binger-call-hidden");
+            iframe?.remove();
 
-            // Restore inline styles
-            if (iframeOriginalStyles) {
-              iframe.setAttribute("style", iframeOriginalStyles);
-            } else {
-              iframe.removeAttribute("style");
+            if (roomId) {
+              const newIframe = document.createElement("iframe");
+              newIframe.src = chrome.runtime.getURL(`call.html?roomId=${roomId}`);
+              newIframe.className = "binger-call-iframe";
+              if (wasHidden) newIframe.classList.add("binger-call-hidden");
+              newIframe.allow = "camera; microphone; autoplay; fullscreen";
+
+              // Restore inline styles for proper left position
+              if (iframeOriginalStyles) {
+                newIframe.setAttribute("style", iframeOriginalStyles);
+              } else {
+                newIframe.removeAttribute("style");
+              }
+
+              iframeOriginalParent.insertBefore(newIframe, iframeNextSibling);
+              iframe = newIframe;
+
+              // Sync back to sessionMode.js
+              if (typeof window.bingerSetCallIframe === "function") {
+                window.bingerSetCallIframe(newIframe);
+              }
             }
           }
 
@@ -255,18 +296,41 @@
             setTimeout(() => video.player().resize?.(), 0);
           }
 
-          const iframe = document.querySelector("iframe.binger-call-iframe");
-          if (iframe && iframeOriginalParent) {
-            iframe.classList.remove("fullscreen");
+          // Recreate iframe in original position
+          if (iframeOriginalParent) {
+            const roomId = (() => {
+              try {
+                return new URL(iframe?.src).searchParams.get("roomId");
+              } catch {
+                console.warn("[Binger] Failed to extract roomId from exiting iframe.");
+                return null;
+              }
+            })();
 
-            // Move iframe back to original spot
-            iframeOriginalParent.insertBefore(iframe, iframeNextSibling);
+            const wasHidden = iframe?.classList.contains("binger-call-hidden");
+            iframe?.remove();
 
-            // Restore inline styles
-            if (iframeOriginalStyles) {
-              iframe.setAttribute("style", iframeOriginalStyles);
-            } else {
-              iframe.removeAttribute("style");
+            if (roomId) {
+              const newIframe = document.createElement("iframe");
+              newIframe.src = chrome.runtime.getURL(`call.html?roomId=${roomId}`);
+              newIframe.className = "binger-call-iframe";
+              if (wasHidden) newIframe.classList.add("binger-call-hidden");
+              newIframe.allow = "camera; microphone; autoplay; fullscreen";
+
+              // Restore inline styles for proper left position
+              if (iframeOriginalStyles) {
+                newIframe.setAttribute("style", iframeOriginalStyles);
+              } else {
+                newIframe.removeAttribute("style");
+              }
+
+              iframeOriginalParent.insertBefore(newIframe, iframeNextSibling);
+              iframe = newIframe;
+
+              // Sync back to sessionMode.js
+              if (typeof window.bingerSetCallIframe === "function") {
+                window.bingerSetCallIframe(newIframe);
+              }
             }
           }
 

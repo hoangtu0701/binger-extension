@@ -6,6 +6,8 @@ let lastBufferTimeout = null;
 let callIframe = null;   // Only one per session
 let callIframeVisible = false; // Track state
 
+window.bingerSetCallIframe = (ref) => { callIframe = ref; };
+
 // Listen to message from call app about restrictive network
 window.addEventListener("message", (event) => {
   if (event.data?.type === "network-warning") {
@@ -91,6 +93,9 @@ window.inSessionMode = function (context) {
 
         document.body.appendChild(callIframe);
         callIframeVisible = false; // hidden at first
+
+        // Keep global reference in sync
+        window.bingerSetCallIframe(callIframe);
       }
 
       // Camera button now ONLY shows/hides the iframe
