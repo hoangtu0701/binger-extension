@@ -5,15 +5,25 @@ let lastBufferStatus = null;
 let lastBufferTimeout = null;
 let callIframe = null;   // Only one per session
 let callIframeVisible = false; // Track state
+let networkWarningListener = null;
+let camMicMessageListener = null;
+
+// Trackers for cam and mic state
+window.BINGER = window.BINGER || {};
+window.BINGER.camMicState = {
+  camOn: false,
+  micOn: false,
+  set({ camOn, micOn }) {
+    if (typeof camOn === "boolean") this.camOn = camOn;
+    if (typeof micOn === "boolean") this.micOn = micOn;
+  },
+  reset() {
+    this.camOn = false;
+    this.micOn = false;
+  }
+};
 
 window.bingerSetCallIframe = (ref) => { callIframe = ref; };
-
-// Listen to message from call app about restrictive network
-window.addEventListener("message", (event) => {
-  if (event.data?.type === "network-warning") {
-    showNetworkWarningBanner();
-  }
-});
 
 function showNetworkWarningBanner() {
   // Avoid duplicates
@@ -66,6 +76,23 @@ window.inSessionMode = function (context) {
     const { chrome } = context;
     const currentUserId = context.currentUser?.uid;
 
+    // Attach listeners to mic and cam updates
+    camMicMessageListener = (event) => {
+      const { type, camOn, micOn } = event.data || {};
+      if (type === "updateCamMic") {
+        window.BINGER.camMicState.set({ camOn, micOn });
+      }
+    };
+    window.addEventListener("message", camMicMessageListener);
+
+    // Network issue listener for banner
+    const networkWarningListener = (event) => {
+      if (event.data?.type === "network-warning") {
+        showNetworkWarningBanner();
+      }
+    };
+    window.addEventListener("message", networkWarningListener);
+
     // Visual styling
     const overlay = document.getElementById("bingerOverlay");
     if (overlay) overlay.classList.add("in-session");
@@ -90,6 +117,15 @@ window.inSessionMode = function (context) {
 
         // Always join the call for the whole session
         callIframe.src = chrome.runtime.getURL(`call.html?roomId=${bingerCurrentRoomId}`);
+
+        // Load current cam and mic states onto the iframe
+        callIframe.onload = () => {
+          const { camOn, micOn } = window.BINGER.camMicState;
+          callIframe.contentWindow.postMessage(
+            { type: "restoreCamMic", camOn, micOn },
+            "*"
+          );
+        };
 
         document.body.appendChild(callIframe);
         callIframeVisible = false; // hidden at first
@@ -124,6 +160,18 @@ window.inSessionMode = function (context) {
 window.outSessionMode = function (context) {
     const { chrome } = context;
 
+    // Detach mic and cam updates listener
+    if (camMicMessageListener) {
+      window.removeEventListener("message", camMicMessageListener);
+      camMicMessageListener = null;
+    }
+
+    // Detach the listener for network issue
+    if (networkWarningListener) {
+      window.removeEventListener("message", networkWarningListener);
+      networkWarningListener = null;
+    }
+
     // Remove in-session styling + Show some buttons back
     const overlay = document.getElementById("bingerOverlay");
     if (overlay) {
@@ -155,6 +203,9 @@ window.outSessionMode = function (context) {
 
 
 function startPlayerSync(roomId, userId){
+
+  // Default OFF state for both cam and mic
+  window.BINGER.camMicState.reset();
 
   // Force everyone to seek to time 0 on first join
   chrome.runtime.sendMessage({
@@ -365,6 +416,15 @@ function startPlayerSync(roomId, userId){
           if (wasHidden)  fresh.classList.add("binger-call-hidden");
           if (wasFS)      fresh.classList.add("fullscreen");
           fresh.allow     = "camera; microphone; autoplay; fullscreen";
+          
+          // Load current cam and mic states onto the iframe
+          fresh.onload = () => {
+            const { camOn, micOn } = window.BINGER.camMicState;
+            fresh.contentWindow.postMessage(
+              { type: "restoreCamMic", camOn, micOn },
+              "*"
+            );
+          };
 
           // Insert in the right spot
           if (wasFS && document.getElementById("binger-fullscreen-row")) {
@@ -437,6 +497,10 @@ function startPlayerSync(roomId, userId){
     chrome.runtime.onMessage.addListener(msgHandler);
 
     stopPlayerSync = () => {
+
+        // Clearing cam and mic states for future sessions
+        window.BINGER.camMicState.reset();
+
         // Remove sync-related video event listeners
         video.removeEventListener("play", onPlay);
         video.removeEventListener("pause", onPause);
