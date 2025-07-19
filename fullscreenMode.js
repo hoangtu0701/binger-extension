@@ -141,6 +141,12 @@
           fsRow.prepend(newIframe);
           iframe = newIframe;
 
+          // Broadcast to other user to sync
+          chrome.runtime.sendMessage({
+            command: "broadcastCallReset",
+            roomId   
+          });
+          
           // Sync back to sessionMode.js if it's tracking iframe globally
           if (typeof window.bingerSetCallIframe === "function") {
             window.bingerSetCallIframe(newIframe);
@@ -236,6 +242,12 @@
               iframeOriginalParent.insertBefore(newIframe, iframeNextSibling);
               iframe = newIframe;
 
+              // Broadcast to other user to sync
+              chrome.runtime.sendMessage({
+                command: "broadcastCallReset",
+                roomId   
+              });
+
               // Sync back to sessionMode.js
               if (typeof window.bingerSetCallIframe === "function") {
                 window.bingerSetCallIframe(newIframe);
@@ -326,6 +338,12 @@
 
               iframeOriginalParent.insertBefore(newIframe, iframeNextSibling);
               iframe = newIframe;
+
+              // Broadcast to other user to sync
+              chrome.runtime.sendMessage({
+                command: "broadcastCallReset",
+                roomId   
+              });
 
               // Sync back to sessionMode.js
               if (typeof window.bingerSetCallIframe === "function") {

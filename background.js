@@ -40,6 +40,7 @@ try {
   const inSessionListeners = {}; // key: roomId, value: callback
   const playerListeners = {};   // keyed by roomId  -->  unsubscribeFn
   const bufferListeners = {};
+  const resetIframeListeners = {}; 
 
 
   // Automatically delete room if inactive (no users) for over 20 minutes
@@ -1061,6 +1062,89 @@ try {
         const { roomId } = msg;
         bufferListeners[roomId]?.();
         delete bufferListeners[roomId];
+    }
+
+    // Broadcasting call to reset iframes
+    if (msg.command === "broadcastCallReset") {
+        const { roomId } = msg;
+        const user = firebase.auth().currentUser;
+        if (!user) return true;
+
+        const flagRef = firebase.database().ref(`rooms/${roomId}/resetIframeFlag`);
+        flagRef.set({
+            by: user.uid,
+            at: Date.now()
+        }).then(() => {
+            console.log(`[Binger] Set resetIframeFlag for room ${roomId}`);
+        }).catch(err => {
+            console.error("[Binger] Failed to write resetIframeFlag:", err);
+        });
+
+        return true;
+    }
+
+    // Listen to call and detect if current user set the flag. If not, then reset iframe
+    if (msg.command === "startResetIframeListener") {
+        const { roomId } = msg;
+        const user = firebase.auth().currentUser;
+        if (!user) {
+            sendResponse({ status: "error", error: "not signed in" });
+            return true;
+        }
+
+        if (resetIframeListeners[roomId]) {
+            sendResponse({ status: "already attached" });
+            return true;
+        }
+
+        const ref = firebase.database().ref(`rooms/${roomId}/resetIframeFlag`);
+        const cb = (snap) => {
+            const data = snap.val();
+            if (!data) return;
+
+            const senderUid = data.by;
+            if (senderUid === user.uid) {
+            console.log("[Binger] Ignoring self-triggered resetIframeFlag");
+            return;
+            }
+
+            console.log("[Binger] Detected external resetIframeFlag — triggering local reset");
+
+            // Dispatch to local content script
+            chrome.tabs.query({ url: "*://phimbro.com/*" }, (tabs) => {
+            tabs.forEach((tab) => {
+                chrome.tabs.sendMessage(tab.id, {
+                command: "resetCallIframe",
+                roomId,
+                });
+            });
+            });
+
+            // Cleanup the flag
+            ref.remove().then(() => {
+            console.log("[Binger] resetIframeFlag removed after broadcast");
+            });
+        };
+
+        ref.on("value", cb);
+        resetIframeListeners[roomId] = () => ref.off("value", cb);
+        sendResponse({ status: "attached" });
+        return true;
+    }
+
+    // Stop the listener for Iframe Reset
+    if (msg.command === "stopResetIframeListener") {
+        const { roomId } = msg;
+
+        const off = resetIframeListeners[roomId];
+        if (off) {
+            off();
+            delete resetIframeListeners[roomId];
+            console.log(`[Binger] resetIframeListener detached for room ${roomId}`);
+        }
+
+        sendResponse({ status: "detached" });
+        return true;
     }
 
     // Placeholder for other command handlers
