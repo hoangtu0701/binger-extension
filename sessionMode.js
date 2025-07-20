@@ -141,9 +141,11 @@ window.inSessionMode = function (context) {
           if (!callIframe) return;
           callIframeVisible = !callIframeVisible;
           if (callIframeVisible) {
-            callIframe.classList.remove("binger-call-hidden");
+            callIframe.classList.remove("binger-call-hidden");     
+            cameraToggleBtn.classList.add("binger-cam-active");
           } else {
-            callIframe.classList.add("binger-call-hidden");
+            callIframe.classList.add("binger-call-hidden");          
+            cameraToggleBtn.classList.remove("binger-cam-active");
           }
         };
       }
@@ -158,7 +160,12 @@ window.inSessionMode = function (context) {
 
 
 window.outSessionMode = function (context) {
-    const { chrome } = context;
+    const {  cameraToggleBtn: localCameraToggleBtn, chrome } = context;
+
+    if (localCameraToggleBtn) {
+      localCameraToggleBtn.disabled = true;
+      localCameraToggleBtn.classList.remove("binger-cam-active");
+    }
 
     // Detach mic and cam updates listener
     if (camMicMessageListener) {
