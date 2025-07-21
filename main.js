@@ -7,7 +7,7 @@ const attachFullscreenListener = window.attachFullscreenListener;
 
 // ── Fullscreen hook helper ───────────────────────────────
 function ensureFullscreenHook() {
-  if (window.__bingerFullscreenHooked) return;   // prevent double-attach
+  if (window.__bingerFullscreenHooked) return;   // prevent double-attaching
   window.__bingerFullscreenHooked = true;
   attachFullscreenListener("#bingerOverlay");
 }
