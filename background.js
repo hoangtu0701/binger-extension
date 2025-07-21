@@ -135,6 +135,12 @@ try {
 
         console.log("[Binger] Persistent connection established with tab", tabId);
 
+        port.onMessage.addListener(msg => {
+            if (msg.type === "ping") {
+            // Do nothing, but it wakes the worker
+            }
+        });
+
         port.onDisconnect.addListener(() => {
             console.log("[Binger] Tab closed or reloaded — cleaning up");
 
@@ -1146,6 +1152,12 @@ try {
         }
 
         sendResponse({ status: "detached" });
+        return true;
+    }
+
+    if (msg.type === "ping") {
+        // Do nothing, but it wakes the worker
+        sendResponse();  
         return true;
     }
 
