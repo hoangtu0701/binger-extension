@@ -8,7 +8,7 @@ let callIframeVisible = false; // Track state
 let networkWarningListener = null;
 let camMicMessageListener = null;
 
-// Trackers for cam and mic state
+// Trackers for cam and mic states
 window.BINGER = window.BINGER || {};
 window.BINGER.camMicState = {
   camOn: false,
