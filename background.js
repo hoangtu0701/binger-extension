@@ -114,7 +114,7 @@ try {
         });
 
         // Send to all tabs, not just active one
-        chrome.tabs.query({}, (tabs) => {
+        chrome.tabs.query({url: "*://phimbro.com/*"}, (tabs) => {
             tabs.forEach((tab) => {
             if (tab.id) {
                 chrome.tabs.sendMessage(tab.id, {
@@ -518,7 +518,7 @@ try {
         // Create and store the new listener callback
         const callback = (snapshot) => {
             const newMessage = snapshot.val();
-            chrome.tabs.query({}, (tabs) => {
+            chrome.tabs.query({url: "*://phimbro.com/*"}, (tabs) => {
             tabs.forEach((tab) => {
                 if (tab.id) {
                 chrome.tabs.sendMessage(tab.id, {
@@ -570,20 +570,22 @@ try {
             });
 
             firebase.database().ref(`rooms/${roomId}/host`).once("value").then((hostSnap) => {
-            const hostUid = hostSnap.val();
-            const finalDisplay = Object.entries(usersData).map(([uid, user]) => {
-                const name = user.email.split("@")[0];
-                return uid === hostUid ? `${name} (host)` : name;
-            });
+                const hostUid = hostSnap.val();
+                const finalDisplay = Object.entries(usersData).map(([uid, user]) => {
+                    const name = user.email.split("@")[0];
+                    return uid === hostUid ? `${name} (host)` : name;
+                });
 
-            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-                if (tabs[0]?.id) {
-                    chrome.tabs.sendMessage(tabs[0].id, {
-                    command: "updateUserList",
-                    users: finalDisplay
+                chrome.tabs.query({url: "*://phimbro.com/*"}, (tabs) => {
+                    tabs.forEach((tab) => {
+                        if (tab.id) {
+                        chrome.tabs.sendMessage(tab.id, {
+                            command: "updateUserList",
+                            users: finalDisplay
+                        });
+                        }
                     });
-                }
-            });
+                });
 
             });
         });
@@ -778,7 +780,7 @@ try {
         const callback = (snapshot) => {
             const invite = snapshot.val();
 
-            chrome.tabs.query({}, (tabs) => {
+            chrome.tabs.query({url: "*://phimbro.com/*"}, (tabs) => {
                 tabs.forEach((tab) => {
                     if (tab.id) {
                         chrome.tabs.sendMessage(tab.id, {
@@ -813,7 +815,7 @@ try {
                             console.log("[Binger] Deleted active invite after full acceptance");
 
                             // Broadcast to all tabs that session is starting
-                            chrome.tabs.query({}, (tabs) => {
+                            chrome.tabs.query({url: "*://phimbro.com/*"}, (tabs) => {
                                 tabs.forEach((tab) => {
                                     if (tab.id) {
                                     chrome.tabs.sendMessage(tab.id, {
@@ -872,7 +874,7 @@ try {
             console.log(`[Binger] inSession changed: ${isInSession} for room ${roomId}`);
 
             // Broadcast update to all tabs
-            chrome.tabs.query({}, (tabs) => {
+            chrome.tabs.query({url: "*://phimbro.com/*"}, (tabs) => {
                 tabs.forEach((tab) => {
                     if (tab.id) {
                     chrome.tabs.sendMessage(tab.id, {
@@ -959,7 +961,7 @@ try {
         const data = snap.val();
         if (!data) return;
         // Relay to all tabs in that room
-        chrome.tabs.query({}, tabs => {
+        chrome.tabs.query({url: "*://phimbro.com/*"}, tabs => {
             tabs.forEach(tab => {
             chrome.tabs.sendMessage(tab.id, {
                 command: "playerStateUpdated",
@@ -1016,7 +1018,7 @@ try {
                 // Wait 300ms before sending resumePlay
                 if (!resumeTimeout) {
                     resumeTimeout = setTimeout(() => {
-                        chrome.tabs.query({}, (tabs) => {
+                        chrome.tabs.query({url: "*://phimbro.com/*"}, (tabs) => {
                             tabs.forEach(tab => {
                                 chrome.tabs.sendMessage(tab.id, {
                                     command: "resumePlay",
@@ -1034,7 +1036,7 @@ try {
                     resumeTimeout = null;
                 }
 
-                chrome.tabs.query({}, (tabs) => {
+                chrome.tabs.query({url: "*://phimbro.com/*"}, (tabs) => {
                     tabs.forEach(tab => {
                         chrome.tabs.sendMessage(tab.id, {
                             command: "blockPlay",
