@@ -4,6 +4,32 @@ const inSessionMode = window.inSessionMode;
 const outSessionMode = window.outSessionMode;
 const attachFullscreenListener = window.attachFullscreenListener;
 
+// Keeping background port alive
+let bgPort = null;
+let keepAliveTimer = null;
+
+function connectToBackground() {
+  if (bgPort) return bgPort;   
+
+  bgPort = chrome.runtime.connect({ name: "binger-connection" });
+
+  // Ping every 30 seconds
+  keepAliveTimer = setInterval(() => {
+    try { bgPort.postMessage({ type: "ping" }); } catch (_) {}
+  }, 30000);
+
+  bgPort.onDisconnect.addListener(() => {
+    console.warn("[Binger] Port lost — rebooting connection");
+    clearInterval(keepAliveTimer);
+    bgPort = null;
+    keepAliveTimer = null;
+    // Give the worker a bit of time to spin back up
+    setTimeout(connectToBackground, 500);
+  });
+
+  return bgPort;
+}
+
 
 // ── Fullscreen hook helper ───────────────────────────────
 function ensureFullscreenHook() {
@@ -253,6 +279,7 @@ layoutContainer.appendChild(bottomBtnBar);
 overlay.style.display = "none";
 overlay.style.zIndex = '2147483647';
 document.body.appendChild(overlay);
+connectToBackground();   
 
 // Save global references
 let currentUser = null;
@@ -358,23 +385,10 @@ watchTogetherBtn.onclick = handleDefaultBingeClick;
 
 
 
-
 // Boolean tracker for messages subscription
 let isChatSubscribed = false;
 let progressBar;
 
-
-
-
-const port = chrome.runtime.connect({ name: "binger-connection" });
-
-port.onDisconnect.addListener(() => {
-  console.log("[Binger] Port disconnected — tab likely closed");
-});
-
-
-
- 
 
 
 // Enables the chatbox when user joins a room
