@@ -8,6 +8,23 @@ const attachFullscreenListener = window.attachFullscreenListener;
 let bgPort = null;
 let keepAliveTimer = null;
 
+function ResubscribeRoomListeners() {
+  chrome.storage.local.get("bingerCurrentRoomId", ({ bingerCurrentRoomId: roomId }) => {
+    if (!roomId) return;
+
+    chrome.runtime.sendMessage({ command: "unsubscribeFromUsers", roomId }, () => {
+      chrome.runtime.sendMessage({ command: "subscribeToUsers", roomId });
+    });
+
+    chrome.runtime.sendMessage({ command: "subscribeToMessages", roomId });
+    chrome.runtime.sendMessage({ command: "subscribeToActiveInvite", roomId });
+    chrome.runtime.sendMessage({ command: "startInSessionListener", roomId });
+    chrome.runtime.sendMessage({ command: "startPlayerListener", roomId });
+    chrome.runtime.sendMessage({ command: "startBufferStatusListener", roomId });
+    chrome.runtime.sendMessage({ command: "startResetIframeListener", roomId });
+  });
+}
+
 function connectToBackground() {
   if (bgPort) return bgPort;   
 
@@ -15,16 +32,19 @@ function connectToBackground() {
 
   // Ping every 30 seconds
   keepAliveTimer = setInterval(() => {
-    try { bgPort.postMessage({ type: "ping" }); } catch (_) {}
+    chrome.runtime.sendMessage({ type: "ping" }, () => { /* no-op */ });
   }, 30000);
 
   bgPort.onDisconnect.addListener(() => {
-    console.warn("[Binger] Port lost — rebooting connection");
+    alert("⚠️ Binger connection lost — reconnecting now");
     clearInterval(keepAliveTimer);
     bgPort = null;
     keepAliveTimer = null;
     // Give the worker a bit of time to spin back up
-    setTimeout(connectToBackground, 500);
+    setTimeout(() => {
+      connectToBackground();
+      ResubscribeRoomListeners();
+    }, 500);
   });
 
   return bgPort;
