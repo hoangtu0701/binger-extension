@@ -5,9 +5,17 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
 jobs:
   build-and-zip:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Checkout Repo
@@ -16,14 +24,10 @@ jobs:
       - name: Read and Increment Version
         id: versioning
         run: |
-          # Read current version
           version=$(cat .version)
           IFS='.' read -r major minor patch <<< "$version"
 
-          # Increment patch
           patch=$((patch + 1))
-
-          # Handle rollover
           if [ "$patch" -gt 5 ]; then
             patch=0
             minor=$((minor + 1))
@@ -51,10 +55,7 @@ jobs:
 
       - name: Update index.html with version and download link
         run: |
-          # Update visible version number
           sed -i "s/version v[0-9.]\+/version v$VERSION/" docs/index.html
-
-          # Update the download link to new ZIP name
           sed -i "s|href=\"Binger v[0-9.]\+.zip\"|href=\"Binger v$VERSION.zip\"|" docs/index.html
 
       - name: Commit version + zip
@@ -64,3 +65,14 @@ jobs:
           git add .version docs/
           git commit -m "v$VERSION: Auto-build and update"
           git push
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: docs
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
