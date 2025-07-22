@@ -86,7 +86,7 @@ window.inSessionMode = function (context) {
     window.addEventListener("message", camMicMessageListener);
 
     // Network issue listener for banner
-    const networkWarningListener = (event) => {
+    networkWarningListener = (event) => {
       if (event.data?.type === "network-warning") {
         showNetworkWarningBanner();
       }
