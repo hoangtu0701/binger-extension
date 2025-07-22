@@ -988,25 +988,32 @@ try {
     /***************  START firebase LISTENER  ********************/
     if (msg.command === "startPlayerListener") {
         const { roomId } = msg;
-        if (playerListeners[roomId]) return;          // already attached
+        
+        // Always clear previous listener if exists
+        if (playerListeners[roomId]) {
+            playerListeners[roomId]();              
+            delete playerListeners[roomId];
+        }
 
         const ref = firebase.database().ref(`rooms/${roomId}/playerState`);
-        const unsub = ref.on("value", snap => {
-        const data = snap.val();
-        if (!data) return;
-        // Relay to all tabs in that room
-        chrome.tabs.query({url: "*://phimbro.com/*"}, tabs => {
-            tabs.forEach(tab => {
-            chrome.tabs.sendMessage(tab.id, {
-                command: "playerStateUpdated",
-                roomId,
-                data
-            });
-            });
-        });
-        });
+        const onPlayerStateChange = (snap) => {
+            const data = snap.val();
+            if (!data) return;
 
-        playerListeners[roomId] = () => ref.off("value", unsub);
+            // Relay to all tabs in that room
+            chrome.tabs.query({ url: "*://phimbro.com/*" }, (tabs) => {
+                tabs.forEach((tab) => {
+                    chrome.tabs.sendMessage(tab.id, {
+                        command: "playerStateUpdated",
+                        roomId,
+                        data
+                    });
+                });
+            });
+        };
+
+        ref.on("value", onPlayerStateChange);
+        playerListeners[roomId] = () => ref.off("value", onPlayerStateChange);
         sendResponse({ status: "listening" });
         return true;
     }
@@ -1014,8 +1021,12 @@ try {
     /***************  STOP firebase LISTENER  *********************/
     if (msg.command === "stopPlayerListener") {
         const { roomId } = msg;
-        playerListeners[roomId]?.();
-        delete playerListeners[roomId];
+        if (playerListeners[roomId]) {
+            playerListeners[roomId](); 
+            delete playerListeners[roomId];
+        }
+        sendResponse({ status: "playerState listener removed" });
+        return true;
     }
 
 
@@ -1139,9 +1150,10 @@ try {
             return true;
         }
 
+        // Always destroy any prior listener
         if (resetIframeListeners[roomId]) {
-            sendResponse({ status: "already attached" });
-            return true;
+            resetIframeListeners[roomId]();
+            delete resetIframeListeners[roomId];
         }
 
         const ref = firebase.database().ref(`rooms/${roomId}/resetIframeFlag`);
@@ -1182,14 +1194,11 @@ try {
     // Stop the listener for Iframe Reset
     if (msg.command === "stopResetIframeListener") {
         const { roomId } = msg;
-
-        const off = resetIframeListeners[roomId];
-        if (off) {
-            off();
+        if (resetIframeListeners[roomId]) {
+            resetIframeListeners[roomId]();
             delete resetIframeListeners[roomId];
             console.log(`[Binger] resetIframeListener detached for room ${roomId}`);
         }
-
         sendResponse({ status: "detached" });
         return true;
     }
