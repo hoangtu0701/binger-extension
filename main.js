@@ -3,53 +3,7 @@
 const inSessionMode = window.inSessionMode;
 const outSessionMode = window.outSessionMode;
 const attachFullscreenListener = window.attachFullscreenListener;
-
-// Keeping background port alive
-let bgPort = null;
-let keepAliveTimer = null;
-
-function ResubscribeRoomListeners() {
-  chrome.storage.local.get("bingerCurrentRoomId", ({ bingerCurrentRoomId: roomId }) => {
-    if (!roomId) return;
-
-    chrome.runtime.sendMessage({ command: "unsubscribeFromUsers", roomId }, () => {
-      chrome.runtime.sendMessage({ command: "subscribeToUsers", roomId });
-    });
-
-    chrome.runtime.sendMessage({ command: "subscribeToMessages", roomId });
-    chrome.runtime.sendMessage({ command: "subscribeToActiveInvite", roomId });
-    chrome.runtime.sendMessage({ command: "startInSessionListener", roomId });
-    chrome.runtime.sendMessage({ command: "startPlayerListener", roomId });
-    chrome.runtime.sendMessage({ command: "startBufferStatusListener", roomId });
-    chrome.runtime.sendMessage({ command: "startResetIframeListener", roomId });
-  });
-}
-
-function connectToBackground() {
-  if (bgPort) return bgPort;   
-
-  bgPort = chrome.runtime.connect({ name: "binger-connection" });
-
-  // Ping every 30 seconds
-  keepAliveTimer = setInterval(() => {
-    chrome.runtime.sendMessage({ type: "ping" }, () => { /* no-op */ });
-  }, 30000);
-
-  bgPort.onDisconnect.addListener(() => {
-    alert("⚠️ Binger connection lost — reconnecting now");
-    clearInterval(keepAliveTimer);
-    bgPort = null;
-    keepAliveTimer = null;
-    // Give the worker a bit of time to spin back up
-    setTimeout(() => {
-      connectToBackground();
-      ResubscribeRoomListeners();
-    }, 500);
-  });
-
-  return bgPort;
-}
-
+let port = chrome.runtime.connect({ name: "binger-connection" });
 
 // ── Fullscreen hook helper ───────────────────────────────
 function ensureFullscreenHook() {
@@ -299,12 +253,12 @@ layoutContainer.appendChild(bottomBtnBar);
 overlay.style.display = "none";
 overlay.style.zIndex = '2147483647';
 document.body.appendChild(overlay);
-connectToBackground();   
+
+
 
 // Save global references
 let currentUser = null;
 let currentUsersInRoom = [];
-
 
 
 
