@@ -3,7 +3,14 @@
 const inSessionMode = window.inSessionMode;
 const outSessionMode = window.outSessionMode;
 const attachFullscreenListener = window.attachFullscreenListener;
-let port = chrome.runtime.connect({ name: "binger-connection" });
+const port = chrome.runtime.connect({ name: "binger-connection" });
+function keepAlive() {
+  if (port) {
+    port.postMessage({ type: "ping" });
+    setTimeout(keepAlive, 15000);
+  }
+}
+keepAlive();
 
 // ── Fullscreen hook helper ───────────────────────────────
 function ensureFullscreenHook() {

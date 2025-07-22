@@ -128,14 +128,48 @@ try {
     }
 
 
+
+  // Track the number of active ports
+  let activePorts = 0;
+  
+  // Handle alarm events
+  chrome.alarms.onAlarm.addListener(alarm => {
+    if (alarm.name === "binger_keepAlive") {
+        // no-op; this event just wakes the worker
+    }
+  });
+
   // Handle closing tabs  
   chrome.runtime.onConnect.addListener((port) => {
     if (port.name === "binger-connection") {
+        // Register the port
+        activePorts++;
+        console.log(`Port connected — activePorts = ${activePorts}`);
+
+        // On the first port, start the keep‑alive alarm
+        if (activePorts === 1) {
+            chrome.alarms.create("binger_keepAlive", { periodInMinutes: 1 });
+            console.log("keepAlive alarm STARTED");
+        }
+
         const tabId = port.sender.tab.id;
 
         console.log("[Binger] Persistent connection established with tab", tabId);
 
         port.onDisconnect.addListener(() => {
+            // Track the removed port
+            activePorts--;
+            console.log(`Port disconnected — activePorts = ${activePorts}`);
+
+            // Once all ports are gone, clear the alarm so the worker can unload
+            if (activePorts === 0) {
+                chrome.alarms.clear("binger_keepAlive", wasCleared => {
+                if (wasCleared) {
+                    console.log("keepAlive alarm CLEARED — SW can sleep now");
+                }
+                });
+            }
+
             console.log("[Binger] Tab closed or reloaded — cleaning up");
 
             chrome.storage.local.get(
