@@ -370,23 +370,9 @@ function startPlayerSync(roomId, userId){
     const onPause = () => push("pause");
     const onSeeked = () => push("seek");
     const onSeeking = () => push("seek");
-
-    video.addEventListener("play", onPlay);
-    video.addEventListener("pause", onPause);
-    video.addEventListener("seeked", onSeeked);
-    video.addEventListener("seeking", onSeeking);
-
-    // Listen to buffer status report
-    video.addEventListener("waiting", () => {
-      reportBufferStatus("buffering");
-    });
-
-    video.addEventListener("canplay", () => {
-      reportBufferStatus("ready");
-    });
-
-    // Make sure 'ready' state gets delivered
-    video.addEventListener("seeked", () => {
+    const onBuffering = () => reportBufferStatus("buffering");
+    const onCanPlay = () => reportBufferStatus("ready");
+    const onSeekedCheckReady = () => {
       setTimeout(() => {
         if (!video.waiting) {
           setTimeout(() => {
@@ -396,7 +382,15 @@ function startPlayerSync(roomId, userId){
           }, 200);
         }
       }, 100);
-    });
+    };
+
+    video.addEventListener("play", onPlay);
+    video.addEventListener("pause", onPause);
+    video.addEventListener("seeked", onSeeked);
+    video.addEventListener("seeking", onSeeking);
+    video.addEventListener("waiting", onBuffering);
+    video.addEventListener("canplay", onCanPlay);
+    video.addEventListener("seeked", onSeekedCheckReady);
 
     // Handle messages FROM background.js --> apply to video
     const msgHandler = (msg) => {
@@ -513,6 +507,9 @@ function startPlayerSync(roomId, userId){
         video.removeEventListener("pause", onPause);
         video.removeEventListener("seeked", onSeeked);
         video.removeEventListener("seeking", onSeeking);
+        video.removeEventListener("waiting", onBuffering);
+        video.removeEventListener("canplay", onCanPlay);
+        video.removeEventListener("seeked", onSeekedCheckReady);
 
         // Remove keyboard blocker
         window.removeEventListener("keydown", keyBlocker, true);
