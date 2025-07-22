@@ -1035,7 +1035,11 @@ try {
     if (msg.command === "startBufferStatusListener") {
         const { roomId } = msg;
 
-        if (bufferListeners[roomId]) return; // already listening
+        // Always destroy any prior listener for this room
+        if (bufferListeners[roomId]) {
+        bufferListeners[roomId]();
+        delete bufferListeners[roomId];
+        }
 
         const ref = firebase.database().ref(`rooms/${roomId}/bufferStatus`);
 
@@ -1081,6 +1085,9 @@ try {
             }
         });
 
+        // attach new listener
+        ref.on("value", onValue);
+
         bufferListeners[roomId] = () => {
             ref.off("value", unsub);
             if (resumeTimeout) {
@@ -1095,9 +1102,13 @@ try {
 
     // Remove the buffer status listener
     if (msg.command === "stopBufferStatusListener") {
-        const { roomId } = msg;
-        bufferListeners[roomId]?.();
-        delete bufferListeners[roomId];
+        // Clean up on demand
+        if (bufferListeners[roomId]) {
+            bufferListeners[roomId]();
+            delete bufferListeners[roomId];
+        }
+        sendResponse({ status: "bufferStatus listener removed" });
+        return true;
     }
 
     // Broadcasting call to reset iframes
