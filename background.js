@@ -577,11 +577,13 @@ try {
     // subscribe to real time changes in the room on Firebase and feed back info to main.js
     if (msg.command === "subscribeToMessages") {
         const { roomId } = msg;
+        const ref = firebase.database().ref(`rooms/${roomId}/messages`);
 
         // If there's already a listener for this room, remove it
         if (messageListeners[roomId]) {
-            firebase.database().ref(`rooms/${roomId}/messages`).off("child_added", messageListeners[roomId]);
+            ref.off("child_added", messageListeners[roomId]);
             console.log(`[Binger] Removed old message listener for room ${roomId}`);
+            delete messageListeners[roomId];
         }
 
         // Create and store the new listener callback
@@ -599,7 +601,7 @@ try {
             });
         };
 
-        firebase.database().ref(`rooms/${roomId}/messages`).on("child_added", callback);
+        ref.on("child_added", callback);
         messageListeners[roomId] = callback;
 
         console.log(`[Binger] Subscribed to messages in room ${roomId}`);
