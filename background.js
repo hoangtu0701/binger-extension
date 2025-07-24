@@ -65,7 +65,42 @@ try {
     });
   }, 5 * 60 * 1000); // run every 5 minutes
 
+  function monitorPhimbroTabsContinuously() {
+    chrome.tabs.query({ url: "*://phimbro.com/*" }, async (tabs) => {
+        const overlayTabs = [];
 
+        // Ask each tab if overlay is shown
+        const responses = await Promise.all(tabs.map(tab => {
+        return new Promise((resolve) => {
+            chrome.tabs.sendMessage(tab.id, { command: "isOverlayShown" }, (res) => {
+            resolve({ id: tab.id, hasOverlay: res?.overlay === true });
+            });
+        });
+        }));
+
+        // Filter only overlay-visible tabs
+        const activeOverlayTabs = responses.filter(r => r.hasOverlay);
+
+        if (activeOverlayTabs.length > 1) {
+        activeOverlayTabs.forEach(t => {
+            chrome.tabs.sendMessage(t.id, { command: "showMultiTabWarning" });
+        });
+        } else {
+        activeOverlayTabs.forEach(t => {
+            chrome.tabs.sendMessage(t.id, { command: "hideMultiTabWarning" });
+        });
+        }
+    });
+  }
+
+  // Hook it up to tab events
+  chrome.tabs.onCreated.addListener(monitorPhimbroTabsContinuously);
+  chrome.tabs.onRemoved.addListener(() => setTimeout(monitorPhimbroTabsContinuously, 200));
+  chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    if (changeInfo.status === "complete") {
+        monitorPhimbroTabsContinuously();
+    }
+  });
 
   // Auto-delete expired invites upon checking every 5 seconds
   function startInviteExpiryCheckerForRoom(roomId) {

@@ -600,6 +600,10 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         const overlayEl = document.getElementById("bingerOverlay");
         if (overlayEl) overlayEl.style.display = "none";
 
+        // Remove the yellow multi-tab banner if it exists
+        const banner = document.getElementById("bingerMultiTabWarning");
+        if (banner) banner.remove();
+
         leaveRoomAndCleanup(() => {
             deactivateChatbox();
             sendResponse();
@@ -950,9 +954,43 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     }
   }
 
+  if (msg.command === "isOverlayShown") {
+    const overlayEl = document.getElementById("bingerOverlay");
+    const isVisible = overlayEl && overlayEl.style.display !== "none";
+    sendResponse({ overlay: isVisible });
+    return true;
+  }
 
+  if (msg.command === "showMultiTabWarning") {
+    if (!document.getElementById("bingerMultiTabWarning")) {
+      const warning = document.createElement("div");
+      warning.id = "bingerMultiTabWarning";
+      warning.textContent = "⚠️ Multiple Phimbro tabs open — please close the others to avoid sync issues.";
+      Object.assign(warning.style, {
+        position: "fixed",
+        top: "0px",
+        left: "50%",
+        transform: "translateX(-50%)",
+        backgroundColor: "#fff3cd",
+        color: "#856404",
+        padding: "12px 20px",
+        fontSize: "16px",
+        fontWeight: "600",
+        border: "1px solid #ffeeba",
+        borderRadius: "0 0 12px 12px",
+        zIndex: "9999999",
+        fontFamily: "Figtree",
+        boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+        pointerEvents: "none"
+      });
+      document.body.appendChild(warning);
+    }
+  }
 
-
+  if (msg.command === "hideMultiTabWarning") {
+    const existing = document.getElementById("bingerMultiTabWarning");
+    if (existing) existing.remove();
+  }
 });
 
 
