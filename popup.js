@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const versionText = document.getElementById("versionText");
     if (versionText) versionText.textContent = `Version: v${version}`;
 
-    // If not on phimbro, click the button to go to phimbro
+    // If not on phimbro, click the button to go to phimbro page
     document.getElementById("goToPhimbro").addEventListener("click", () => {
         chrome.tabs.create({ url: "https://phimbro.com" });
     });
