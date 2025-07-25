@@ -6,9 +6,8 @@ let listenerAttached = false;
 
 const soundFiles = {
   fart: "binger_assets/soundboard/fart.mp3",
-  bruh: "binger_assets/soundboard/bruh.mp3",
-  vineboom: "binger_assets/soundboard/boom.mp3",
-  gasp: "binger_assets/soundboard/gasp.mp3"
+  pipe: "binger_assets/soundboard/pipe.mp3",
+  rose: "binger_assets/soundboard/rose.mp3"
 };
 
 const audioMap = {};
@@ -31,9 +30,8 @@ function createSoundboardUI() {
     // Create buttons
     const sounds = [
         { id: "fart", emoji: "💨" },
-        { id: "bruh", emoji: "🧍" },
-        { id: "vineboom", emoji: "💥" },
-        { id: "gasp", emoji: "😱" }
+        { id: "pipe", emoji: "🔩" },
+        { id: "rose", emoji: "🥀" }
     ];
 
     for (const { id, emoji } of sounds) {
