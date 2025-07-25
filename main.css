@@ -624,3 +624,13 @@
 .binger-sound-btn:hover {
   transform: scale(1.25);
 }
+
+#bingerSoundboard.fullscreen {
+  position: static !important;
+  bottom: unset !important;
+  left: unset !important;
+  margin-left: 12px;
+  align-self: center;
+  flex-shrink: 0;
+  height: 100%;
+}
