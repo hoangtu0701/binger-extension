@@ -561,3 +561,23 @@
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
   transition: all 0.2s ease;
 }
+
+.bingerTypingBubble {
+  font-style: italic;
+  font-size: 14px;
+  color: #aaa;
+  margin: 6px 0;
+  padding-left: 10px;
+  animation: fadeIn 0.3s ease;
+  transition: opacity 0.3s ease;
+  opacity: 1;
+}
+
+.bingerTypingBubble.fade-out {
+  opacity: 0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}

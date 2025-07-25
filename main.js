@@ -408,6 +408,30 @@ function activateChatbox(roomId) {
     }
   });
 
+  let typingTimeout;
+  chatInput.addEventListener("input", () => {
+    chrome.runtime.sendMessage({ command: "checkAuth" }, (res) => {
+      if (!res?.user) return;
+      const uid = res.user.uid;
+
+      // Tell background user is typing
+      chrome.runtime.sendMessage({
+        command: "iAmTyping",
+        roomId,
+        uid
+      });
+
+      if (typingTimeout) clearTimeout(typingTimeout);
+      typingTimeout = setTimeout(() => {
+        chrome.runtime.sendMessage({
+          command: "iStoppedTyping",
+          roomId,
+          uid
+        });
+      }, 1200);
+    });
+  });
+
   sendBtn.addEventListener("click", () => {
     const messageText = chatInput.value.trim();
     if (!messageText) return;
@@ -434,6 +458,15 @@ function activateChatbox(roomId) {
           console.error("[Binger] Failed to send message:", res?.error);
         }
       });
+
+      // Immediately clear typing state
+      const uid = response.user.uid;
+      chrome.runtime.sendMessage({
+        command: "iStoppedTyping",
+        roomId,
+        uid
+      });
+
     });
   });
 
@@ -444,6 +477,9 @@ function activateChatbox(roomId) {
     chrome.runtime.sendMessage({ command: "subscribeToMessages", roomId });
     isChatSubscribed = true;
   }
+
+  // Subscribe to users typing
+  chrome.runtime.sendMessage({ command: "subscribeToTyping", roomId });
 
   
 
@@ -470,6 +506,7 @@ function deactivateChatbox() {
     if (roomId) {
       chrome.runtime.sendMessage({ command: "unsubscribeFromUsers", roomId });
       chrome.runtime.sendMessage({ command: "unsubscribeFromMessages", roomId });
+      chrome.runtime.sendMessage({ command: "unsubscribeFromTyping", roomId });
     }
   });
 
@@ -501,6 +538,7 @@ function leaveRoomAndCleanup(callback = () => {}) {
     chrome.runtime.sendMessage({ command: "leaveRoom", roomId }, () => {
       chrome.runtime.sendMessage({ command: "unsubscribeFromUsers", roomId }, () => {
         chrome.runtime.sendMessage({ command: "unsubscribeFromMessages", roomId }, () => {
+          chrome.runtime.sendMessage({ command: "unsubscribeFromTyping", roomId });
           chrome.storage.local.remove("bingerCurrentRoomId", () => {
             console.log("[Binger] Cleaned up room on exit.");
             callback();
@@ -991,6 +1029,37 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     const existing = document.getElementById("bingerMultiTabWarning");
     if (existing) existing.remove();
   }
+
+  if (msg.command === "typingStatusUpdated") {
+    const { users } = msg;
+    const chatLog = document.getElementById("bingerChatLog");
+    if (!chatLog) return;
+
+    const incomingUids = new Set(users.map(u => u.uid));
+
+    document.querySelectorAll(".bingerTypingBubble").forEach(el => {
+      const uid = el.id.replace("typing-", "");
+      if (!incomingUids.has(uid)) {
+        el.classList.add("fade-out");
+        setTimeout(() => el.remove(), 300); 
+      }
+    });
+
+    users.forEach(({ uid, username }) => {
+      if (currentUser?.uid === uid) return;
+
+      const existing = document.getElementById(`typing-${uid}`);
+      if (!existing) {
+        const bubble = document.createElement("div");
+        bubble.className = "bingerTypingBubble";
+        bubble.id = `typing-${uid}`;
+        bubble.textContent = `${username} is typing...`;
+        chatLog.appendChild(bubble);
+        chatLog.scrollTop = chatLog.scrollHeight;
+      }
+    });
+  }
+
 });
 
 
@@ -1057,6 +1126,7 @@ createRoomBtn.addEventListener("click", () => {
           chrome.runtime.sendMessage({ command: "leaveRoom", roomId: oldRoomId }, () => {
             chrome.runtime.sendMessage({ command: "unsubscribeFromUsers", roomId: oldRoomId }, () => {
               chrome.runtime.sendMessage({ command: "unsubscribeFromMessages", roomId: oldRoomId }, () => {
+                chrome.runtime.sendMessage({ command: "unsubscribeFromTyping", roomId: oldRoomId });
                 chrome.storage.local.remove("bingerCurrentRoomId", resolve);
               });
             });
@@ -1159,6 +1229,7 @@ leaveRoomBtn.addEventListener("click", () => {
       if (response?.status === "success") {
         chrome.runtime.sendMessage({ command: "unsubscribeFromUsers", roomId });
         chrome.runtime.sendMessage({ command: "unsubscribeFromMessages", roomId });
+        chrome.runtime.sendMessage({ command: "unsubscribeFromTyping", roomId });
         chrome.storage.local.remove("bingerCurrentRoomId", () => {
             console.log(`[Binger] Left room: ${roomId}`);
             deactivateChatbox();
