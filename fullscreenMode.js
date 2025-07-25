@@ -29,6 +29,10 @@
     let originalVJSStyles = null;
     let originalVideoStyles = null;
 
+    // Handle soundboard
+    let soundboardOriginalParent = null;
+    let soundboardNextSibling = null;
+
     document.addEventListener("fullscreenchange", () => {
       const isFS = !!document.fullscreenElement;
       const vjsContainer = document.querySelector(".video-js.vjs-fullscreen") || document.querySelector(".video-js");
@@ -165,6 +169,18 @@
         fsRow.appendChild(wrapper);
         wrapper.appendChild(overlay);
 
+        // Append the soundboard to the right of overlay
+        const soundboard = document.getElementById("bingerSoundboard");
+        if (soundboard) {
+          if (!soundboardOriginalParent) {
+            soundboardOriginalParent = soundboard.parentNode;
+            soundboardNextSibling = soundboard.nextSibling;
+          }
+
+          soundboard.classList.add("fullscreen");
+          fsRow.appendChild(soundboard);
+        }
+
         // Make Overlay fullscreen (iframe already is)
         overlay.classList.add("fullscreen");
 
@@ -179,6 +195,13 @@
               overlayNextSibling
             );
           } 
+
+          // Move back soundboard
+          const soundboard = document.getElementById("bingerSoundboard");
+          if (soundboard && soundboardOriginalParent) {
+            soundboard.classList.remove("fullscreen");
+            soundboardOriginalParent.insertBefore(soundboard, soundboardNextSibling);
+          }
 
           // Move back video children
           const currentVideoRegion = document.getElementById("binger-video-region");
@@ -297,6 +320,13 @@
 
           if (overlayOriginalParent) {
             overlayOriginalParent.insertBefore(overlay, overlayNextSibling);
+          }
+
+          // Move back soundboard
+          const soundboard = document.getElementById("bingerSoundboard");
+          if (soundboard && soundboardOriginalParent) {
+            soundboard.classList.remove("fullscreen");
+            soundboardOriginalParent.insertBefore(soundboard, soundboardNextSibling);
           }
 
           const currentVideoRegion = document.getElementById("binger-video-region");
