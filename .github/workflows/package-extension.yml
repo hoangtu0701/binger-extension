@@ -48,6 +48,11 @@ jobs:
             -x ".git/*" "docs/*" ".github/*" ".github/workflows/*" \
             "privacy-policy.md" "index.html" ".gitignore" "README.md" ".version"
 
+      - name: Update manifest.json version
+        run: |
+          jq --arg version "$VERSION" '.version = $version' manifest.json > manifest.tmp.json
+          mv manifest.tmp.json manifest.json
+          
       - name: Update index.html with version and download link
         run: |
           sed -i "s/version v[0-9.]\+/version v$VERSION/" docs/index.html
@@ -57,6 +62,6 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add .version docs/
+          git add .version manifest.json docs/
           git commit -m "v$VERSION: Auto-build and update"
           git push
