@@ -37,6 +37,11 @@ jobs:
           echo "$new_version" > .version
           echo "VERSION=$new_version" >> $GITHUB_ENV
 
+      - name: Update manifest.json version
+        run: |
+          jq --arg version "$VERSION" '.version = $version' manifest.json > manifest.tmp.json
+          mv manifest.tmp.json manifest.json
+
       - name: Delete old ZIPs in docs
         run: |
           rm -f docs/Binger\ v*.zip
@@ -47,11 +52,6 @@ jobs:
           zip -r "docs/Binger v$VERSION.zip" . \
             -x ".git/*" "docs/*" ".github/*" ".github/workflows/*" \
             "privacy-policy.md" "index.html" ".gitignore" "README.md" ".version"
-
-      - name: Update manifest.json version
-        run: |
-          jq --arg version "$VERSION" '.version = $version' manifest.json > manifest.tmp.json
-          mv manifest.tmp.json manifest.json
           
       - name: Update index.html with version and download link
         run: |
