@@ -29,8 +29,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     const version = chrome.runtime.getManifest().version;
-    const versionText = document.getElementById("versionText");
-    if (versionText) versionText.textContent = `Version: v${version}`;
+    document.querySelectorAll(".versionText").forEach(el => {
+      el.textContent = `Version: v${version}`;
+    });
 
     // If not on phimbro, click the button to go to phimbro page
     document.getElementById("goToPhimbro").addEventListener("click", () => {
