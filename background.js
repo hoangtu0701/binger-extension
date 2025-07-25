@@ -233,120 +233,134 @@ try {
 
                 // If switching rooms → clean only OLD room, not current
                 if (switchingFromRoom && switchingFromRoom !== roomId) {
-                const userRef = firebase.database().ref(`rooms/${switchingFromRoom}/users/${user.uid}`);
+                    const userRef = firebase.database().ref(`rooms/${switchingFromRoom}/users/${user.uid}`);
 
-                // Mark the leaving time of this specific user
-                const leaveRef = firebase.database().ref(`rooms/${switchingFromRoom}/lastLeaves/${user.uid}`);
-                leaveRef.set(Date.now()).catch(err => console.error("[Binger] leave-write error:", err));
-                
-                firebase.database().ref(`rooms/${switchingFromRoom}/typing/${user.uid}`).remove();
-                chrome.runtime.sendMessage({ command: "unsubscribeFromTyping", roomId: switchingFromRoom });
-
-                userRef
-                    .remove()
-                    .then(() => {
-                        console.log(`[Binger] Removed user from OLD room ${switchingFromRoom}`);
-
-                        // If active invite exists → delete it
-                        const inviteRef = firebase.database().ref(`rooms/${switchingFromRoom}/activeInvite`);
-                        inviteRef.once("value").then((snapshot) => {
-                            const invite = snapshot.val();
-                            if (!invite) return;
-
-                            inviteRef.remove()
-                            .then(() => {
-                                console.log("[Binger] Active invite deleted due to user leaving OLD room while switching");
-                            })
-                            .catch((err) => {
-                                console.error("[Binger] Failed to remove invite on room switch:", err);
-                            });
-                        });
+                    // Mark the leaving time of this specific user
+                    const leaveRef = firebase.database().ref(`rooms/${switchingFromRoom}/lastLeaves/${user.uid}`);
+                    leaveRef.set(Date.now()).catch(err => console.error("[Binger] leave-write error:", err));
                     
-                        // Reset inSession flag to false
-                        firebase.database().ref(`rooms/${switchingFromRoom}/inSession`).set(false)
-                        .then(() => console.log(`[Binger] inSession set to false on tab close`))
-                        .catch((err) => console.error(`[Binger] Failed to reset inSession:`, err));
+                    firebase.database().ref(`rooms/${switchingFromRoom}/typing/${user.uid}`).remove();
+                    chrome.runtime.sendMessage({ command: "unsubscribeFromTyping", roomId: switchingFromRoom });
 
-                    })
+                    userRef
+                        .remove()
+                        .then(() => {
+                            console.log(`[Binger] Removed user from OLD room ${switchingFromRoom}`);
 
-                    .catch((err) =>
-                    console.error("[Binger] Cleanup error (switching):", err)
-                    );
+                            // If active invite exists → delete it
+                            const inviteRef = firebase.database().ref(`rooms/${switchingFromRoom}/activeInvite`);
+                            inviteRef.once("value").then((snapshot) => {
+                                const invite = snapshot.val();
+                                if (!invite) return;
 
-                firebase
-                    .database()
-                    .ref(`rooms/${switchingFromRoom}/users`)
-                    .once("value")
-                    .then((snap) => {
-                    if (!snap.exists()) {
-                        firebase
+                                inviteRef.remove()
+                                .then(() => {
+                                    console.log("[Binger] Active invite deleted due to user leaving OLD room while switching");
+                                })
+                                .catch((err) => {
+                                    console.error("[Binger] Failed to remove invite on room switch:", err);
+                                });
+                            });
+                        
+                            // Reset inSession flag to false
+                            firebase.database().ref(`rooms/${switchingFromRoom}/inSession`).set(false)
+                            .then(() => console.log(`[Binger] inSession set to false on tab close`))
+                            .catch((err) => console.error(`[Binger] Failed to reset inSession:`, err));
+
+                        })
+
+                        .catch((err) =>
+                        console.error("[Binger] Cleanup error (switching):", err)
+                        );
+
+                    firebase
                         .database()
-                        .ref(`rooms/${switchingFromRoom}/lastUserLeftAt`)
-                        .set(Date.now());
-                    }
-                    });
+                        .ref(`rooms/${switchingFromRoom}/users`)
+                        .once("value")
+                        .then((snap) => {
+                        if (!snap.exists()) {
+                            firebase
+                            .database()
+                            .ref(`rooms/${switchingFromRoom}/lastUserLeftAt`)
+                            .set(Date.now());
+                        }
+                        });
 
-                chrome.storage.local.remove("bingerSwitchingFromRoom");
-                return;
+                    chrome.storage.local.remove("bingerSwitchingFromRoom");
+                    return;
                 }
 
                 // Normal case: user closed tab while in room
                 if (roomId) {
-                const userRef = firebase.database().ref(`rooms/${roomId}/users/${user.uid}`);
+                    const userRef = firebase.database().ref(`rooms/${roomId}/users/${user.uid}`);
 
-                // Mark the leaving time of this specific user
-                const leaveRef = firebase.database().ref(`rooms/${roomId}/lastLeaves/${user.uid}`);
-                leaveRef.set(Date.now()).catch(err => console.error("[Binger] leave-write error:", err));
+                    // Mark the leaving time of this specific user
+                    const leaveRef = firebase.database().ref(`rooms/${roomId}/lastLeaves/${user.uid}`);
+                    leaveRef.set(Date.now()).catch(err => console.error("[Binger] leave-write error:", err));
 
-                userRef
-                    .remove()
-                    .then(() => {
-                        console.log(`[Binger] Removed user from room ${roomId}`);
+                    userRef
+                        .remove()
+                        .then(() => {
+                            console.log(`[Binger] Removed user from room ${roomId}`);
 
-                        // Clean up typing listener
-                        firebase.database().ref(`rooms/${roomId}/typing/${user.uid}`).remove()
-                        .then(() => console.log(`[Binger] Removed typing status for ${user.uid}`))
-                        .catch(err => console.error("[Binger] Failed to remove typing status:", err));
-                        chrome.runtime.sendMessage({ command: "unsubscribeFromTyping", roomId });
+                            // Clean up typing listener
+                            firebase.database().ref(`rooms/${roomId}/typing/${user.uid}`).remove()
+                            .then(() => console.log(`[Binger] Removed typing status for ${user.uid}`))
+                            .catch(err => console.error("[Binger] Failed to remove typing status:", err));
+                            chrome.runtime.sendMessage({ command: "unsubscribeFromTyping", roomId });
 
-                        // If active invite exists → delete it
-                        const inviteRef = firebase.database().ref(`rooms/${roomId}/activeInvite`);
-                        inviteRef.once("value").then((snapshot) => {
+                            // If active invite exists --> Conditionally delete it
+                            const inviteRef = firebase.database().ref(`rooms/${roomId}/activeInvite`);
+                            inviteRef.once("value").then((snapshot) => {
                             const invite = snapshot.val();
                             if (!invite) return;
 
-                            inviteRef.remove()
-                            .then(() => {
-                                console.log("[Binger] Active invite deleted due to user leaving via tab close or reload");
-                            })
-                            .catch((err) => {
-                                console.error("[Binger] Failed to remove invite on disconnect:", err);
+                            // Wait 1.5 seconds and then check room state to see if invite should be deleted
+                            setTimeout(() => {
+                                firebase.database().ref(`rooms/${roomId}/users`).once("value").then((userSnap) => {
+                                const users = userSnap.val();
+                                const numUsers = users ? Object.keys(users).length : 0;
+
+                                if (numUsers < 2) {
+                                    inviteRef.remove()
+                                    .then(() => {
+                                        console.log("[Binger] Active invite deleted after 1.5s of low user count");
+                                    })
+                                    .catch((err) => {
+                                        console.error("[Binger] Failed to remove invite after delay:", err);
+                                    });
+                                } else {
+                                    console.log("[Binger] Kept invite — user count recovered in time");
+                                }
+                                }).catch((err) => {
+                                console.error("[Binger] Failed to check user count for delayed invite deletion:", err);
+                                });
+                            }, 1500);
                             });
-                        });
 
-                        // Reset inSession flag to false
-                        firebase.database().ref(`rooms/${roomId}/inSession`).set(false)
-                        .then(() => console.log(`[Binger] inSession set to false on tab close`))
-                        .catch((err) => console.error(`[Binger] Failed to reset inSession:`, err));
+                            // Reset inSession flag to false
+                            firebase.database().ref(`rooms/${roomId}/inSession`).set(false)
+                            .then(() => console.log(`[Binger] inSession set to false on tab close`))
+                            .catch((err) => console.error(`[Binger] Failed to reset inSession:`, err));
 
-                    })
+                        })
 
-                    .catch((err) =>
-                    console.error("[Binger] Cleanup error (normal):", err)
-                    );
+                        .catch((err) =>
+                        console.error("[Binger] Cleanup error (normal):", err)
+                        );
 
-                firebase
-                    .database()
-                    .ref(`rooms/${roomId}/users`)
-                    .once("value")
-                    .then((snap) => {
-                    if (!snap.exists()) {
-                        firebase
+                    firebase
                         .database()
-                        .ref(`rooms/${roomId}/lastUserLeftAt`)
-                        .set(Date.now());
-                    }
-                    });
+                        .ref(`rooms/${roomId}/users`)
+                        .once("value")
+                        .then((snap) => {
+                        if (!snap.exists()) {
+                            firebase
+                            .database()
+                            .ref(`rooms/${roomId}/lastUserLeftAt`)
+                            .set(Date.now());
+                        }
+                        });
                 }
             }
             );
