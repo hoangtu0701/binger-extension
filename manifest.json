@@ -1,41 +1,45 @@
 {
   "manifest_version": 3,
   "name": "Binger",
-  "version": "1.0",
+  "version": "2.0.5",
   "description": "Watch movies together with real-time synced chat and playback.",
   "icons": {
     "128": "icon.png"
   },
-
   "permissions": [
     "alarms",
     "storage",
     "scripting"
   ],
-  "host_permissions": ["https://phimbro.com/*"],
-
+  "host_permissions": [
+    "https://phimbro.com/*"
+  ],
   "background": {
     "service_worker": "background.js"
   },
-
   "content_scripts": [
     {
-        "matches": ["https://phimbro.com/*"],
-        "js": ["sessionMode.js", "fullscreenMode.js", "main.js"],
-        "css": ["main.css"],
-        "run_at": "document_idle"
+      "matches": [
+        "https://phimbro.com/*"
+      ],
+      "js": [
+        "sessionMode.js",
+        "fullscreenMode.js",
+        "main.js"
+      ],
+      "css": [
+        "main.css"
+      ],
+      "run_at": "document_idle"
     }
   ],
-
   "action": {
     "default_popup": "popup.html",
     "default_icon": "icon.png"
   },
-
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'; frame-src 'self';"
   },
-
   "web_accessible_resources": [
     {
       "resources": [
@@ -44,7 +48,9 @@
         "call.html",
         "call_assets/*"
       ],
-      "matches": ["https://phimbro.com/*"]
+      "matches": [
+        "https://phimbro.com/*"
+      ]
     }
   ]
 }
