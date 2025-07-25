@@ -42,28 +42,7 @@ try {
   const bufferListeners = {};
   const resetIframeListeners = {}; 
 
-
-  // Automatically delete room if inactive (no users) for over 20 minutes
-  setInterval(() => {
-    const now = Date.now();
-    const expiration = now - 20 * 60 * 1000;
-
-    firebase.database().ref("rooms").once("value").then((snapshot) => {
-        const rooms = snapshot.val();
-        if (!rooms) return;
-
-        Object.entries(rooms).forEach(([roomId, room]) => {
-        const users = room.users || {};
-        const lastLeft = room.lastUserLeftAt || 0;
-
-        if (Object.keys(users).length === 0 && lastLeft < expiration) {
-            firebase.database().ref(`rooms/${roomId}`).remove()
-            .then(() => console.log(`[Binger] Deleted room ${roomId} due to inactivity`))
-            .catch((err) => console.error(`[Binger] Failed to delete room ${roomId}`, err));
-        }
-        });
-    });
-  }, 5 * 60 * 1000); // run every 5 minutes
+  
 
   function monitorPhimbroTabsContinuously() {
     chrome.tabs.query({ url: "*://phimbro.com/*" }, async (tabs) => {
