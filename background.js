@@ -211,6 +211,7 @@ try {
             ["bingerCurrentRoomId", "bingerSwitchingFromRoom", "bingerIsReloading"],
             (result) => {
                 const roomId = result.bingerCurrentRoomId;
+                chrome.runtime.sendMessage({ command: "unsubscribeFromTyping", roomId });
 
                 // Skip cleanup if we're just reloading (only applicable to our forced reload, not clicking on the reload button of the page)
                 if (result.bingerIsReloading) {
@@ -237,6 +238,9 @@ try {
                 // Mark the leaving time of this specific user
                 const leaveRef = firebase.database().ref(`rooms/${switchingFromRoom}/lastLeaves/${user.uid}`);
                 leaveRef.set(Date.now()).catch(err => console.error("[Binger] leave-write error:", err));
+                
+                firebase.database().ref(`rooms/${switchingFromRoom}/typing/${user.uid}`).remove();
+                chrome.runtime.sendMessage({ command: "unsubscribeFromTyping", roomId: switchingFromRoom });
 
                 userRef
                     .remove()
@@ -298,6 +302,12 @@ try {
                     .remove()
                     .then(() => {
                         console.log(`[Binger] Removed user from room ${roomId}`);
+
+                        // Clean up typing listener
+                        firebase.database().ref(`rooms/${roomId}/typing/${user.uid}`).remove()
+                        .then(() => console.log(`[Binger] Removed typing status for ${user.uid}`))
+                        .catch(err => console.error("[Binger] Failed to remove typing status:", err));
+                        chrome.runtime.sendMessage({ command: "unsubscribeFromTyping", roomId });
 
                         // If active invite exists → delete it
                         const inviteRef = firebase.database().ref(`rooms/${roomId}/activeInvite`);
@@ -686,6 +696,9 @@ try {
             sendResponse({ status: "error", error: "Not signed in" });
             return true;
         }
+
+        firebase.database().ref(`rooms/${roomId}/typing/${user.uid}`).remove();
+        chrome.runtime.sendMessage({ command: "unsubscribeFromTyping", roomId });
 
         const userRef = firebase.database().ref(`rooms/${roomId}/users/${user.uid}`);
         userRef.remove()
@@ -1237,6 +1250,66 @@ try {
             console.log(`[Binger] resetIframeListener detached for room ${roomId}`);
         }
         sendResponse({ status: "detached" });
+        return true;
+    }
+
+    if (msg.command === "iAmTyping") {
+        const ref = firebase.database().ref(`rooms/${msg.roomId}/typing/${msg.uid}`);
+        ref.set("") 
+            .then(() => console.log(`[Binger] ${msg.uid} is typing (path added)`));
+        return;
+    }
+
+    if (msg.command === "iStoppedTyping") {
+        const ref = firebase.database().ref(`rooms/${msg.roomId}/typing/${msg.uid}`);
+        ref.remove()
+            .then(() => console.log(`[Binger] ${msg.uid} stopped typing (path removed)`));
+        return;
+    }
+
+    // Start the listener for typing users
+    if (msg.command === "subscribeToTyping") {
+        const { roomId } = msg;
+        const typingRef = firebase.database().ref(`rooms/${roomId}/typing`);
+
+        // Remove old listeners
+        typingRef.off();
+
+        typingRef.on("value", (snapshot) => {
+            const typingData = snapshot.val() || {};
+            const typingUids = Object.keys(typingData);
+
+            // Fetch usernames
+            firebase.database().ref(`rooms/${roomId}/users`).once("value").then((snap) => {
+            const users = snap.val() || {};
+            const typingUsers = typingUids.map((uid) => ({
+                uid,
+                username: users[uid]?.email?.split("@")[0] || "unknown"
+            }));
+
+            // Broadcast to all tabs
+            chrome.tabs.query({ url: "*://phimbro.com/*" }, (tabs) => {
+                tabs.forEach((tab) => {
+                chrome.tabs.sendMessage(tab.id, {
+                    command: "typingStatusUpdated",
+                    users: typingUsers
+                });
+                });
+            });
+            });
+        });
+
+        console.log(`[Binger] Subscribed to typing changes for room ${roomId}`);
+        sendResponse({ status: "typing listener attached" });
+        return true;
+    }
+
+    // Remove listener for typing users
+    if (msg.command === "unsubscribeFromTyping") {
+        const { roomId } = msg;
+        const ref = firebase.database().ref(`rooms/${roomId}/typing`);
+        ref.off(); // Unsub from all typing listeners
+        sendResponse({ status: "unsubscribed from typing" });
         return true;
     }
 
