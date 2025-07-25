@@ -156,15 +156,6 @@ chrome.storage.local.get(["pendingMovieUrl", "bingerCurrentRoomId"], ({ pendingM
 
 
 
-
-window.addEventListener("beforeunload", () => {
-  chrome.storage.local.set({ bingerIsReloading: true });
-});
-
-
-
-
-
 // The Overlay
 
 const overlay = document.createElement("div");
