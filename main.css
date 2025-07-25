@@ -573,6 +573,17 @@
   opacity: 1;
 }
 
+#bingerOverlay.in-session .bingerTypingBubble {
+  font-style: italic !important;
+  font-size: 14px !important;
+  color: #aaa !important;
+  margin: 6px 0 !important;
+  padding-left: 10px !important;
+  animation: fadeIn 0.3s ease !important;
+  transition: opacity 0.3s ease !important;
+  opacity: 1 !important;
+}
+
 .bingerTypingBubble.fade-out {
   opacity: 0;
 }
