@@ -230,3 +230,11 @@ button:hover {
   background-color: #ffffff;
   color: #800020;
 }
+
+
+#versionText {
+  font-size: 12px;
+  color: #999;
+  text-align: center;
+  margin-top: 12px;
+}
