@@ -41,6 +41,7 @@ try {
   const playerListeners = {};   // keyed by roomId  -->  unsubscribeFn
   const bufferListeners = {};
   const resetIframeListeners = {}; 
+  const soundboardListeners = {}; 
 
   
 
@@ -1304,6 +1305,74 @@ try {
         ref.off(); // Unsub from all typing listeners
         sendResponse({ status: "unsubscribed from typing" });
         return true;
+    }
+
+    // Toggle soundboard on/off
+    if (msg.command === "toggleSoundboard") {
+    chrome.tabs.query({ url: "*://phimbro.com/*" }, (tabs) => {
+        tabs.forEach((tab) => {
+        chrome.tabs.sendMessage(tab.id, {
+            command: "toggleSoundboard",
+            inSession: msg.inSession
+        });
+        });
+    });
+    }
+
+    // Tell the room to play sound
+    if (msg.command === "playSoundEffect") {
+        chrome.storage.local.get("bingerCurrentRoomId", ({ bingerCurrentRoomId }) => {
+            if (!bingerCurrentRoomId) return;
+
+            firebase.database().ref(`rooms/${bingerCurrentRoomId}/soundboard/${msg.soundId}`)
+            .set(Date.now());
+        });
+    }
+
+    // Attach the listener to sounds
+    if (msg.command === "startSoundboardListener") {
+        const { roomId } = msg;
+
+        // Remove old listener if it exists
+        if (soundboardListeners[roomId]) {
+            soundboardListeners[roomId](); 
+            delete soundboardListeners[roomId];
+        }
+
+        const ref = firebase.database().ref(`rooms/${roomId}/soundboard`);
+
+        const onSoundChange = (snap) => {
+            const soundId = snap.key;
+            const timestamp = snap.val();
+
+            // Broadcast only this sound
+            chrome.tabs.query({ url: "*://phimbro.com/*" }, (tabs) => {
+            tabs.forEach((tab) => {
+                chrome.tabs.sendMessage(tab.id, {
+                command: "playSoundEffect",
+                soundId
+                });
+            });
+            });
+        };
+
+        ref.on("child_changed", onSoundChange);
+
+        // Store unsubscribe function
+        soundboardListeners[roomId] = () => ref.off("child_changed", onSoundChange);
+
+        sendResponse({ status: "soundboard listener attached" });
+        return true;
+    }
+
+    // Delete the listener to sounds
+    if (msg.command === "stopSoundboardListener") {
+        const { roomId } = msg;
+        if (soundboardListeners[roomId]) {
+            soundboardListeners[roomId]();
+            delete soundboardListeners[roomId];
+            sendResponse({ status: "soundboard listener removed" });
+        }
     }
 
     // Placeholder for other command handlers

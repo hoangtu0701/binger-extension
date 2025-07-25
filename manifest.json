@@ -25,7 +25,8 @@
       "js": [
         "sessionMode.js",
         "fullscreenMode.js",
-        "main.js"
+        "main.js",
+        "soundboard.js"
       ],
       "css": [
         "main.css"
@@ -46,7 +47,8 @@
         "binge.png",
         "cam.png",
         "call.html",
-        "call_assets/*"
+        "call_assets/*",
+        "binger_assets/soundboard/*"
       ],
       "matches": [
         "https://phimbro.com/*"

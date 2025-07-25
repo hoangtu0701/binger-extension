@@ -152,6 +152,12 @@ window.inSessionMode = function (context) {
 
       // Start existing movie-sync
       startPlayerSync(bingerCurrentRoomId, currentUserId);
+
+      // Tell soundboard to show up
+      chrome.runtime.sendMessage({
+        command: "toggleSoundboard",
+        inSession: true
+      });
     });
 };
 
@@ -195,6 +201,12 @@ window.outSessionMode = function (context) {
       callIframe = null;
       callIframeVisible = false;
     }
+
+    // Tell soundboard to clean itself up
+    chrome.runtime.sendMessage({
+      command: "toggleSoundboard",
+      inSession: false
+    });
 
     // Stop movie syncing
     if (typeof stopPlayerSync === "function") stopPlayerSync();
