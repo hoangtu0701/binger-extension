@@ -1320,7 +1320,7 @@ try {
     }
 
     // Tell the room to play sound
-    if (msg.command === "playSoundEffect") {
+    if (msg.command === "requestSoundEffect") {
         chrome.storage.local.get("bingerCurrentRoomId", ({ bingerCurrentRoomId }) => {
             if (!bingerCurrentRoomId) return;
 
