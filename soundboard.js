@@ -1,8 +1,16 @@
 // soundboard.js
 
+
+
 let soundboardEl = null;
 let currentRoomId = null;
 let listenerAttached = false;
+
+
+
+// Preload audio immediately when file is loaded
+const audioMap = {};
+const readyAudioSet = new Set();
 
 const soundFiles = {
   fart: "binger_assets/soundboard/fart.mp3",
@@ -10,7 +18,14 @@ const soundFiles = {
   rose: "binger_assets/soundboard/rose.mp3"
 };
 
-const audioMap = {};
+for (const [id, path] of Object.entries(soundFiles)) {
+  const audio = new Audio(chrome.runtime.getURL(path));
+  audio.addEventListener("canplaythrough", () => {
+    readyAudioSet.add(id);
+  }, { once: true });
+  audio.load(); 
+  audioMap[id] = audio;
+}
 
 
 
@@ -21,11 +36,6 @@ function createSoundboardUI() {
     soundboardEl = document.createElement("div");
     soundboardEl.id = "bingerSoundboard";
     soundboardEl.className = "binger-soundboard";
-
-    // Preload audio files
-    for (const [id, path] of Object.entries(soundFiles)) {
-        audioMap[id] = new Audio(chrome.runtime.getURL(path));
-    }
 
     // Create buttons
     const sounds = [
@@ -54,10 +64,10 @@ function createSoundboardUI() {
         btn.innerText = emoji;
         btn.title = id;
         btn.onclick = () => {
-        chrome.runtime.sendMessage({
-            command: "playSoundEffect",
-            soundId: id
-        });
+            chrome.runtime.sendMessage({
+                command: "requestSoundEffect",
+                soundId: id
+            });
         };
         soundboardEl.appendChild(btn);
     }
