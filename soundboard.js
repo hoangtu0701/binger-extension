@@ -31,7 +31,21 @@ function createSoundboardUI() {
     const sounds = [
         { id: "fart", emoji: "💨" },
         { id: "pipe", emoji: "🔩" },
-        { id: "rose", emoji: "🥀" }
+        { id: "rose", emoji: "🥀" },
+
+        // Mock - To change
+        { id: "drum", emoji: "🥁" },
+        { id: "fire", emoji: "🔥" },
+        { id: "laugh", emoji: "😂" },
+        { id: "clap", emoji: "👏" },
+        { id: "boo", emoji: "👎" },
+        { id: "yay", emoji: "👍" },
+        { id: "bell", emoji: "🔔" },
+        { id: "ghost", emoji: "👻" },
+        { id: "heart", emoji: "❤️" },
+        { id: "bell", emoji: "🔔" },
+        { id: "ghost", emoji: "👻" },
+        { id: "heart", emoji: "❤️" },
     ];
 
     for (const { id, emoji } of sounds) {
