@@ -573,7 +573,7 @@
   opacity: 1;
 }
 
-#bingerOverlay.in-session .bingerTypingBubble {
+.bingerTypingBubble.session-mode {
   font-style: italic !important;
   font-size: 14px !important;
   color: #aaa !important;
@@ -581,11 +581,11 @@
   padding-left: 10px !important;
   animation: fadeIn 0.3s ease !important;
   transition: opacity 0.3s ease !important;
-  opacity: 1 !important;
+  opacity: 1;
 }
 
 .bingerTypingBubble.fade-out {
-  opacity: 0;
+  opacity: 0 !important;
 }
 
 @keyframes fadeIn {

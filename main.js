@@ -1045,6 +1045,11 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         bubble.className = "bingerTypingBubble";
         bubble.id = `typing-${uid}`;
         bubble.textContent = `${username} is typing...`;
+
+        if (document.getElementById("bingerOverlay")?.classList.contains("in-session")) {
+          bubble.classList.add("session-mode");
+        }
+
         chatLog.appendChild(bubble);
         chatLog.scrollTop = chatLog.scrollHeight;
       }
