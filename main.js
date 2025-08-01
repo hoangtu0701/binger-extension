@@ -653,7 +653,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
 
 
-  // Handle incoming chat messages (including Binge invites)
+  // Handle incoming chat messages (including Binge session invites)
   if (msg.command === "newChatMessage") {
     const chatLog = document.getElementById("bingerChatLog");
 
