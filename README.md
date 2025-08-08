@@ -12,18 +12,8 @@ It lets you and your friends **watch movies together in perfect sync**, chat liv
 - 💬 **Real-time group chat** — share thoughts while you watch
 - 🔐 **Private room system** — create or join using 6-digit room codes
 - 🧠 **Auto-sync on page reload and fullscreen**
-- 📞 **Optional video call integration**
-- 🧪 **Experimental features** like mood-based overlays, soundboards, and session invites
-
----
-
-## 🛠 How to Use
-
-1. Clone or download this repo.
-2. Go to `chrome://extensions/`
-3. Enable **Developer mode**
-4. Click **Load unpacked** and select this folder.
-5. Head to `phimbro.com`, sign in, and click the **Binger** overlay.
+- 📞 **Video call integration**
+- 🧪 **Experimental features** like soundboards, mood-based overlays, and more coming soon!
 
 ---
 
@@ -38,22 +28,9 @@ binger-extension/
 ├── popup.js / popup.css    # Popup UI logic and styling
 ├── sessionMode.js          # Handles session syncing, call iframe, etc.
 ├── fullscreenMode.js       # Handles fullscreen repositioning
-├── call.html               # Embedded video call app (optional)
+├── soundboard.js           # Handles soundboard
+├── call.html               # Embedded video call app
 ├── assets/                 # Icons, images, and emoji
 ```
 
 ---
-
-## 🔐 License
-
-This project is licensed under **CC BY-NC-ND 4.0**.  
-You can use it, share it, and run it — but **you can’t resell, modify, or rebrand it**.
-
-Author: **Tung Hoang (hoangtu0701)**  
-License: [LICENSE_Binger_TungHoang.txt](LICENSE_Binger_TungHoang.txt)
-
----
-
-## 🚀 Status
-
-Actively maintained — feedback, features, and PRs are welcome.
