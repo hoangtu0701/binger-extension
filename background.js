@@ -1404,7 +1404,9 @@ try {
                 chrome.storage.local.get("bingerCurrentRoomId", ({ bingerCurrentRoomId }) => {
                     roomId = bingerCurrentRoomId;
                     if (roomId) {
-                        firebase.database().ref(`rooms/${roomId}/typing/${BOT_UID}`).set(true);
+                        setTimeout(() => {
+                            firebase.database().ref(`rooms/${roomId}/typing/${BOT_UID}`).set(true);
+                        }, 150);
                     }
                     resolve();
                 });
