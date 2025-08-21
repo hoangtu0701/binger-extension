@@ -373,6 +373,30 @@ function activateChatbox(roomId) {
   const chatLog = document.getElementById("bingerChatLog");
   const leaveRoomBtn = document.getElementById("bingerLeaveRoom");
 
+  // Binger mention pill (created once)
+  const inputBar = document.getElementById("bingerChatInputBar");
+  let mentionPill = document.getElementById("bingerMentionPill");
+  if (!mentionPill && inputBar && chatInput) {
+    mentionPill = document.createElement("span");
+    mentionPill.id = "bingerMentionPill";
+    mentionPill.textContent = "@binger";
+    Object.assign(mentionPill.style, {
+      display: "none",
+      alignSelf: "center",
+      padding: "2px 8px",
+      marginRight: "6px",
+      borderRadius: "9999px",
+      fontSize: "12px",
+      fontWeight: "600",
+      fontFamily: "Figtree, system-ui, sans-serif",
+      background: "#ffe58f",
+      color: "#7a4d00",
+      border: "1px solid #ffd666",
+      whiteSpace: "nowrap"
+    });
+    inputBar.insertBefore(mentionPill, chatInput);
+  }
+
   if (!chatWrapper || !chatInput || !sendBtn || !roomDisplay || !userListDisplay || !chatLog) return;
 
   // Enable UI
@@ -401,6 +425,10 @@ function activateChatbox(roomId) {
 
   let typingTimeout;
   chatInput.addEventListener("input", () => {
+    // Show pill only when input starts with exactly "@binger" or "@binger "
+    const pill = document.getElementById("bingerMentionPill");
+    if (pill) pill.style.display = /^@binger/.test(chatInput.value) ? "inline-flex" : "none";
+
     chrome.runtime.sendMessage({ command: "checkAuth" }, (res) => {
       if (!res?.user) return;
       const uid = res.user.uid;
@@ -480,6 +508,8 @@ function activateChatbox(roomId) {
         if (res?.status === "success") {
           console.log("[Binger] Message sent:", msgData);
           chatInput.value = "";
+          const pill = document.getElementById("bingerMentionPill");
+          if (pill) pill.style.display = "none";
         } else {
           console.error("[Binger] Failed to send message:", res?.error);
         }
