@@ -1290,7 +1290,9 @@ try {
             const users = snap.val() || {};
             const typingUsers = typingUids.map((uid) => ({
                 uid,
-                username: users[uid]?.email?.split("@")[0] || "unknown"
+                username: uid === "BINGER_BOT"
+                ? "Binger Bot"
+                : (users[uid]?.email?.split("@")[0] || "unknown")
             }));
 
             // Broadcast to all tabs
@@ -1389,6 +1391,7 @@ try {
 
     // Handle bot queries
     if (msg.command === "botQuery") {
+        const BOT_UID = "BINGER_BOT";
         loadKey("openrouter").then(async (key) => {
             if (!key) {
                 console.warn("[Binger] No OpenRouter key found — replying with fallback.");
@@ -1396,20 +1399,31 @@ try {
                 return;
             }
 
+            let roomId;
+            await new Promise((resolve) => {
+                chrome.storage.local.get("bingerCurrentRoomId", ({ bingerCurrentRoomId }) => {
+                    roomId = bingerCurrentRoomId;
+                    if (roomId) {
+                        firebase.database().ref(`rooms/${roomId}/typing/${BOT_UID}`).set(true);
+                    }
+                    resolve();
+                });
+            });
+
             try {
             const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
                 method: "POST",
                 headers: {
-                "Authorization": `Bearer ${key}`,
-                "Content-Type": "application/json",
+                    "Authorization": `Bearer ${key}`,
+                    "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                model: "openai/gpt-4o-mini", 
-                max_tokens: 50,
-                messages: [
-                    { role: "system", content: "You are Binger, a concise movie expert bot. Always reply in 1-2 short sentences." },
-                    { role: "user", content: msg.prompt },
-                ],
+                    model: "openai/gpt-4o-mini",
+                    max_tokens: 50,
+                    messages: [
+                        { role: "system", content: "You are Binger, a concise movie expert bot. Always reply in 1-2 short sentences." },
+                        { role: "user", content: msg.prompt },
+                    ],
                 }),
             });
 
@@ -1419,10 +1433,14 @@ try {
             } catch (err) {
                 console.error("[Binger] botQuery error:", err);
                 sendResponse({ error: err.message });
+            } finally {
+                if (roomId) {
+                    firebase.database().ref(`rooms/${roomId}/typing/${BOT_UID}`).remove();
+                }
             }
         });
 
-        return true; 
+        return true;
     }
 
     // Placeholder for other command handlers
