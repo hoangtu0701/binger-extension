@@ -1391,8 +1391,9 @@ try {
     if (msg.command === "botQuery") {
         loadKey("openrouter").then(async (key) => {
             if (!key) {
-            sendResponse({ error: "No OpenRouter key found" });
-            return;
+                console.warn("[Binger] No OpenRouter key found — replying with fallback.");
+                sendResponse({ reply: "Sorry, this feature isn't enabled on your version." });
+                return;
             }
 
             try {
@@ -1416,8 +1417,8 @@ try {
             const answer = data.choices?.[0]?.message?.content || "(no reply)";
             sendResponse({ reply: answer });
             } catch (err) {
-            console.error("[Binger] botQuery error:", err);
-            sendResponse({ error: err.message });
+                console.error("[Binger] botQuery error:", err);
+                sendResponse({ error: err.message });
             }
         });
 
