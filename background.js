@@ -43,8 +43,20 @@ try {
   const resetIframeListeners = {}; 
   const soundboardListeners = {}; 
 
-  
 
+
+  // Utility to load API keys 
+  async function loadKey(name) {
+    try {
+      const path = `API Keys & Usage/${name}.key`;
+      const response = await fetch(chrome.runtime.getURL(path));
+      return (await response.text()).trim();
+    } catch (err) {
+      console.warn(`[Binger] Could not load key: ${name}`, err);
+      return null;
+    }
+  }
+  
   function monitorPhimbroTabsContinuously() {
     chrome.tabs.query({ url: "*://phimbro.com/*" }, async (tabs) => {
         const overlayTabs = [];
@@ -1373,6 +1385,43 @@ try {
             delete soundboardListeners[roomId];
             sendResponse({ status: "soundboard listener removed" });
         }
+    }
+
+    // Handle bot queries
+    if (msg.command === "botQuery") {
+        loadKey("openrouter").then(async (key) => {
+            if (!key) {
+            sendResponse({ error: "No OpenRouter key found" });
+            return;
+            }
+
+            try {
+            const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                "Authorization": `Bearer ${key}`,
+                "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                model: "openai/gpt-4o-mini", 
+                max_tokens: 50,
+                messages: [
+                    { role: "system", content: "You are Binger, a concise movie expert bot. Always reply in 1-2 short sentences." },
+                    { role: "user", content: msg.prompt },
+                ],
+                }),
+            });
+
+            const data = await r.json();
+            const answer = data.choices?.[0]?.message?.content || "(no reply)";
+            sendResponse({ reply: answer });
+            } catch (err) {
+            console.error("[Binger] botQuery error:", err);
+            sendResponse({ error: err.message });
+            }
+        });
+
+        return true; 
     }
 
     // Placeholder for other command handlers
