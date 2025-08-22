@@ -459,34 +459,9 @@ function activateChatbox(roomId) {
     if (messageText.startsWith("@binger")) {
       const question = messageText.replace("@binger", "").trim();
 
-      // Ask background.js --> OpenRouter
-      chrome.runtime.sendMessage({ command: "botQuery", prompt: question }, (res) => {
-        if (res?.reply) {
-          // Store bot reply in Firebase for everyone
-          chrome.runtime.sendMessage({ command: "checkAuth" }, (response) => {
-            if (!response?.user) return;
-
-            const msgData = {
-              sender: "Binger Bot",
-              text: res.reply,
-              timestamp: Date.now()
-            };
-
-            chrome.runtime.sendMessage({
-              command: "post",
-              path: `rooms/${roomId}/messages`,
-              data: msgData
-            }, (resp) => {
-              if (resp?.status === "success") {
-                console.log("[Binger] Bot reply sent:", msgData);
-              } else {
-                console.error("[Binger] Failed to post bot reply:", resp?.error);
-              }
-            });
-          });
-        } else {
-          console.error("[Binger] botQuery error:", res?.error);
-        }
+      // Fire-and-forget - Background will post the reply to Firebase
+      chrome.runtime.sendMessage({ command: "botQuery", prompt: question }, () => {
+        // No-op
       });
     }
 
