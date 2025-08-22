@@ -1416,6 +1416,30 @@ try {
 
             // Prompt the LLM model
             try {
+                // Gather context
+                const [usersSnap, sessionSnap, chatSnap] = await Promise.all([
+                    firebase.database().ref(`rooms/${roomId}/users`).once("value"),
+                    firebase.database().ref(`rooms/${roomId}/inSession`).once("value"),
+                    firebase.database().ref(`rooms/${roomId}/messages`).limitToLast(10).once("value")
+                ]);
+
+                const usersData = usersSnap.val() || {};
+                const userNames = Object.values(usersData).map(u => u.email.split("@")[0]);
+                const inSession = !!sessionSnap.val();
+                const lastMsgs = Object.values(chatSnap.val() || {}).map(m => `${m.sender}: ${m.text}`);
+
+                let movieLine;
+                if (!msg.movieContext) {
+                    movieLine = "Not watching any specific movie";
+                } else {
+                    const { title, year, minutes } = msg.movieContext;
+                    if (minutes > 0) {
+                        movieLine = `Watching Movie: ${title || "Unknown"} (${year || "Unknown"}), at ${minutes} minutes`;
+                    } else {
+                        movieLine = `Selected Movie: ${title || "Unknown"} (${year || "Unknown"})`;
+                    }
+                }
+
                 const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
                     method: "POST",
                     headers: {
@@ -1424,75 +1448,24 @@ try {
                     },
                     body: JSON.stringify({
                         model: "openai/gpt-4o-mini",
-                        max_tokens: 40,
+                        max_tokens: 60,
                         messages: [
-                            { role: "system", content: `You are Binger Lite.
-                            Your ONLY job is to decide whether you can answer the user's question EFFICIENTLY and  IMMEDIATELY without any context.
-                            - If you can answer well in 1-2 sentences, do so.
-                            - If you think more context is better, reply with the exact word: ESCALATE
-                            Nothing else.` },
-                            { role: "user", content: msg.prompt },
+                            { role: "system", content: `You are Binger, a concise movie expert bot in the room with human users. 
+                                    Context:
+                                    - Users: ${userNames.join(", ")} (${userNames.length} total)
+                                    - Users currently watching together: ${inSession}
+                                    - Recent chat: ${lastMsgs.join(" | ")}
+                                    - ${movieLine}
+                                    Always reply in 2-3 short sentences, as if you're in the room with them.` },
+                            { role: "user", content: msg.prompt }
                         ],
                     }),
                 });
 
                 const data = await r.json();
-                let answer = (data?.choices?.[0]?.message?.content || "(no reply)").trim();
+                answer = (data?.choices?.[0]?.message?.content || "(no reply)").trim();
                 
-                if (answer === "ESCALATE") {
-                    console.log("[Binger] Escalating query...");
-
-                    // Gather context
-                    const [usersSnap, sessionSnap, chatSnap] = await Promise.all([
-                        firebase.database().ref(`rooms/${roomId}/users`).once("value"),
-                        firebase.database().ref(`rooms/${roomId}/inSession`).once("value"),
-                        firebase.database().ref(`rooms/${roomId}/messages`).limitToLast(10).once("value")
-                    ]);
-
-                    const usersData = usersSnap.val() || {};
-                    const userNames = Object.values(usersData).map(u => u.email.split("@")[0]);
-                    const inSession = !!sessionSnap.val();
-                    const lastMsgs = Object.values(chatSnap.val() || {}).map(m => `${m.sender}: ${m.text}`);
-                    let movieLine;
-                    if (!msg.movieContext) {
-                        movieLine = "Not watching any specific movie";
-                    } else {
-                        const { title, year, minutes } = msg.movieContext;
-                        if (minutes > 0) {
-                            movieLine = `Watching Movie: ${title || "Unknown"} (${year || "Unknown"}), at ${minutes} minutes`;
-                        } else {
-                            movieLine = `Selected Movie: ${title || "Unknown"} (${year || "Unknown"})`;
-                        }
-                    }
-
-                    // Second call with context
-                    const r2 = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-                        method: "POST",
-                        headers: {
-                            "Authorization": `Bearer ${key}`,
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({
-                            model: "openai/gpt-4o-mini",
-                            max_tokens: 60,
-                            messages: [
-                                { role: "system", content: `You are Binger, a concise movie expert bot in the room with human users. 
-                                        Context:
-                                        - Users: ${userNames.join(", ")} (${userNames.length} total)
-                                        - Users currently watching together: ${inSession}
-                                        - Recent chat: ${lastMsgs.join(" | ")}
-                                        - ${movieLine}
-                                        Always reply in 2-3 short sentences, as if you're in the room with them.` },
-                                { role: "user", content: msg.prompt }
-                            ],
-                        }),
-                    });
-
-                    const data2 = await r2.json();
-                    answer = (data2?.choices?.[0]?.message?.content || "(no reply)").trim();
-                }
-
-                // Persist the reply to chat (DB-first; UI will render from subscribeToMessages)
+                // Push the reply to chat
                 await firebase.database().ref(`rooms/${roomId}/messages`).push({
                     sender: "Binger Bot",
                     type: "bot",
