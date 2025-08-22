@@ -1453,6 +1453,17 @@ try {
                     const userNames = Object.values(usersData).map(u => u.email.split("@")[0]);
                     const inSession = !!sessionSnap.val();
                     const lastMsgs = Object.values(chatSnap.val() || {}).map(m => `${m.sender}: ${m.text}`);
+                    let movieLine;
+                    if (!msg.movieContext) {
+                        movieLine = "Not watching any specific movie";
+                    } else {
+                        const { title, year, minutes } = msg.movieContext;
+                        if (minutes > 0) {
+                            movieLine = `Watching Movie: ${title || "Unknown"} (${year || "Unknown"}), at ${minutes} minutes`;
+                        } else {
+                            movieLine = `Selected Movie: ${title || "Unknown"} (${year || "Unknown"})`;
+                        }
+                    }
 
                     // Second call with context
                     const r2 = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -1468,8 +1479,9 @@ try {
                                 { role: "system", content: `You are Binger, a concise movie expert bot in the room with human users. 
                                         Context:
                                         - Users: ${userNames.join(", ")} (${userNames.length} total)
-                                        - Active binging session: ${inSession}
+                                        - Users currently watching together: ${inSession}
                                         - Recent chat: ${lastMsgs.join(" | ")}
+                                        - ${movieLine}
                                         Always reply in 2-3 short sentences, as if you're in the room with them.` },
                                 { role: "user", content: msg.prompt }
                             ],
