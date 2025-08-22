@@ -451,6 +451,65 @@ function activateChatbox(roomId) {
     });
   });
 
+  // Helper to scrape movie/series info
+  function scrapeMovieContext() {
+    const url = location.href;
+    if (
+      !url.includes("/watch/") &&
+      !url.includes("/movie/") &&
+      !url.includes("/tv/")
+    ) {
+      return null;
+    }
+
+    // Default values
+    let title = "Unknown";
+    let year = "Unknown";
+    let minutes = 0;
+
+    if (url.includes("/watch/")) {
+      // On /watch/ 
+      const subtitleElem = document.querySelector("h2[class^='subtitle']");
+      if (subtitleElem) {
+        const rawText = subtitleElem.childNodes[0]?.textContent?.trim() || "";
+        title = rawText.replace(/["]/g, "").trim();
+
+        const yearElem = subtitleElem.querySelector("a[href*='/year/']");
+        if (yearElem) {
+          year = yearElem.textContent.trim();
+        }
+      }
+
+      // Minutes
+      const video = document.querySelector("video");
+      if (video) {
+        minutes = Math.floor(video.currentTime / 60);
+      }
+    } else if (url.includes("/movie/") || url.includes("/tv/")) {
+      // On /movie/ or /tv/ 
+      const titleElem = document.querySelector("h1[class^='title']");
+      if (titleElem) {
+        title = titleElem.textContent.trim();
+      }
+
+      const subtitleElem = document.querySelector("h2[class^='subtitle']");
+      if (subtitleElem) {
+        const yearElem = subtitleElem.querySelector("a[href*='/year/']");
+        if (yearElem) {
+          year = yearElem.textContent.trim();
+        }
+      }
+    }
+
+    // Fallback - if title is still unknown, try whichever h1/h2 exists
+    if (title === "Unknown") {
+      const fallback = document.querySelector("h1, h2");
+      if (fallback) title = fallback.textContent.trim();
+    }
+
+    return { title, year, minutes };
+  }
+
   sendBtn.addEventListener("click", () => {
     const messageText = chatInput.value.trim();
     if (!messageText) return;
@@ -458,9 +517,10 @@ function activateChatbox(roomId) {
     // Intercept @binger queries
     if (messageText.startsWith("@binger")) {
       const question = messageText.replace("@binger", "").trim();
+      const movieContext = scrapeMovieContext();
 
       // Fire-and-forget - Background will post the reply to Firebase
-      chrome.runtime.sendMessage({ command: "botQuery", prompt: question }, () => {
+      chrome.runtime.sendMessage({ command: "botQuery", prompt: question, movieContext }, () => {
         // No-op
       });
     }
