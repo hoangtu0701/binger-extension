@@ -1399,45 +1399,67 @@ try {
                 return;
             }
 
-            let roomId;
-            await new Promise((resolve) => {
-                chrome.storage.local.get("bingerCurrentRoomId", ({ bingerCurrentRoomId }) => {
-                    roomId = bingerCurrentRoomId;
-                    if (roomId) {
-                        setTimeout(() => {
-                            firebase.database().ref(`rooms/${roomId}/typing/${BOT_UID}`).set(true);
-                        }, 150);
-                    }
-                    resolve();
-                });
-            });
+            // Resolve current roomId once (survives page reloads)
+            let roomId = await new Promise((resolve) => {chrome.storage.local.get("bingerCurrentRoomId", ({ bingerCurrentRoomId }) => resolve(bingerCurrentRoomId));});
+            if (!roomId) {
+                try { sendResponse({ error: "no-room" }); } catch {}
+                return true;
+            }
 
+            // Show "Binger Bot is typing"
             try {
-            const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${key}`,
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    model: "openai/gpt-4o-mini",
-                    max_tokens: 50,
-                    messages: [
-                        { role: "system", content: "You are Binger, a concise movie expert bot. Always reply in 1-2 short sentences." },
-                        { role: "user", content: msg.prompt },
-                    ],
-                }),
-            });
+                await new Promise(r => setTimeout(r, 150));
+                await firebase.database().ref(`rooms/${roomId}/typing/${BOT_UID}`).set(true);
+            } catch (e) {
+                console.warn("[Binger] typing set failed:", e);
+            }
 
-            const data = await r.json();
-            const answer = data.choices?.[0]?.message?.content || "(no reply)";
-            sendResponse({ reply: answer });
+            // Prompt the LLM model
+            try {
+                const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${key}`,
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        model: "openai/gpt-4o-mini",
+                        max_tokens: 50,
+                        messages: [
+                            { role: "system", content: "You are Binger, a concise movie expert bot. Always reply in 1-2 short sentences." },
+                            { role: "user", content: msg.prompt },
+                        ],
+                    }),
+                });
+
+                const data = await r.json();
+                const answer = (data?.choices?.[0]?.message?.content || "(no reply)").trim();
+
+                // Persist the reply to chat (DB-first; UI will render from subscribeToMessages)
+                await firebase.database().ref(`rooms/${roomId}/messages`).push({
+                    sender: "Binger Bot",
+                    type: "bot",
+                    text: answer,
+                    timestamp: Date.now()
+                });
+
+                // Best-effort response (tab may be gone due to reload)
+                try { sendResponse({ ok: true }); } catch {}
             } catch (err) {
                 console.error("[Binger] botQuery error:", err);
-                sendResponse({ error: err.message });
+                try { sendResponse({ error: String(err?.message || err) }); } catch {}
             } finally {
-                if (roomId) {
-                    firebase.database().ref(`rooms/${roomId}/typing/${BOT_UID}`).remove();
+                // Always clear typing
+                try {
+                    // roomId may have changed - re-read just in case
+                    roomId = await new Promise((resolve) => {
+                        chrome.storage.local.get("bingerCurrentRoomId", ({ bingerCurrentRoomId }) => resolve(bingerCurrentRoomId));
+                    });
+                    if (roomId) {
+                        await firebase.database().ref(`rooms/${roomId}/typing/${BOT_UID}`).remove();
+                    }
+                } catch (e) {
+                    console.warn("[Binger] typing remove failed:", e);
                 }
             }
         });
