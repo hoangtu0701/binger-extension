@@ -1470,7 +1470,6 @@ try {
                                         - Users: ${userNames.join(", ")} (${userNames.length} total)
                                         - Active binging session: ${inSession}
                                         - Recent chat: ${lastMsgs.join(" | ")}
-                                        - The current question is being asked by: ${msg.username}
                                         Always reply in 2-3 short sentences, as if you're in the room with them.` },
                                 { role: "user", content: msg.prompt }
                             ],
