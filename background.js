@@ -1746,7 +1746,7 @@ try {
                             console.log(`[Binger] Best match: chunk ${bestIdx} → ${bestChunk.start}s-${bestChunk.end}s (score=${bestScore.toFixed(3)})`);
 
                             try {
-                            const target = Math.max(0, Math.floor(bestChunk.start + (bestChunk.end - bestChunk.start) / 2));
+                            const target = Math.max(0, Math.floor(bestChunk.start + (bestChunk.end - bestChunk.start) / 4));
 
                             if (inSession) {
                                 // Session case --> Let sessionMode sync both users
