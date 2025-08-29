@@ -466,6 +466,7 @@ function activateChatbox(roomId) {
     let title = "Unknown";
     let year = "Unknown";
     let minutes = 0;
+    const isWatching = url.includes("/watch/");
 
     if (url.includes("/watch/")) {
       // On /watch/ 
@@ -507,7 +508,7 @@ function activateChatbox(roomId) {
       if (fallback) title = fallback.textContent.trim();
     }
 
-    return { title, year, minutes };
+    return { title, year, minutes, isWatching };
   }
 
   sendBtn.addEventListener("click", () => {
