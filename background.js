@@ -1610,8 +1610,8 @@ try {
                         movieLine = `Watching Movie: ${title || "Unknown"} (${year || "Unknown"}), at ${minutes} minutes`;
                         systemMessage = {
                             role: "system",
-                            content: `You are Binger, a concise movie expert bot in the room with human users. Only if they EXPLICITLY ask you to find/seek/take them to a scene, answer normally to the rest of their questions and then append this FINAL sentence in this exact format:
-                                    "Seeking to the scene where" + (your brief summary of the requested scene) + "..." 
+                            content: `You are Binger, a concise movie expert bot in the room with human users. Only if they EXPLICITLY ask you to find/seek/take them to a scene, ALWAYS comply — never say you cannot. Answer their other questions normally, then APPEND this FINAL sentence with no quotation marks:
+                                    Seeking to the scene where + (your brief summary of the requested scene) + ...
                                     
                                     Otherwise, don't append that sentence.
 
@@ -1738,6 +1738,37 @@ try {
                         if (bestIdx >= 0) {
                             const bestChunk = stored.chunks[bestIdx];
                             console.log(`[Binger] Best match: chunk ${bestIdx} → ${bestChunk.start}s-${bestChunk.end}s (score=${bestScore.toFixed(3)})`);
+
+                            try {
+                            const target = Math.max(0, Math.floor(bestChunk.start || 0));
+
+                            if (inSession) {
+                                // Session case --> Let sessionMode sync both users
+                                await firebase.database()
+                                .ref(`rooms/${roomId}/playerState`)
+                                .set({ action: "seek", time: target });
+                            } else {
+                                // Solo case --> Seek the active watch tab directly
+                                chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                                const tab = tabs && tabs[0];
+                                if (!tab || !tab.url || !/:\/\/phimbro\.com\/watch\//.test(tab.url)) return;
+
+                                // Use MV3-safe injection
+                                if (chrome.scripting && chrome.scripting.executeScript) {
+                                    chrome.scripting.executeScript({
+                                    target: { tabId: tab.id },
+                                    args: [target],
+                                    func: (t) => {
+                                        const v = document.querySelector("video.vjs-tech") || document.querySelector("video");
+                                        if (v && Number.isFinite(t)) v.currentTime = t;
+                                    },
+                                    });
+                                }
+                                });
+                            }
+                            } catch (e) {
+                            console.warn("[Binger] bot-seek failed:", e);
+                            }
                         }
                     }
                 }
