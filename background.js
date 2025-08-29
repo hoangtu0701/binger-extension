@@ -16,6 +16,14 @@ try {
     console.error("[Binger] importScripts failed:", e);
   }
 
+  // Load ZIP library for subtitle conversion
+  try {
+    self.importScripts("libs/jszip.min.js");
+    console.log("[Binger] JSZip loaded");
+  } catch (e) {
+    console.error("[Binger] Failed to load JSZip:", e);
+  }
+
   // Firebase config
   const firebaseConfig = {
     apiKey: "AIzaSyCOBk1uGy_Mb29zeww7KlwaTcvvfKrzKoo",
@@ -55,6 +63,73 @@ try {
       console.warn(`[Binger] Could not load key: ${name}`, err);
       return null;
     }
+  }
+
+  // Utitlity to fetch subtitles from SubDL
+  async function fetchSubsInternal(rawName) {
+    const key = await loadKey("subdl");
+    if (!key) return [];
+
+    let filmName = (rawName || "").replace(/[:]/g, "").replace(/\(.*?\)/g, "").trim();
+    if (!filmName) return [];
+
+    const query = new URLSearchParams({
+        api_key: key,
+        film_name: filmName,
+        type: "movie",
+        languages: "EN"
+    }).toString();
+
+    const res = await fetch(`https://api.subdl.com/api/v1/subtitles?${query}`);
+    const data = await res.json();
+    const first = data?.subtitles?.[0];
+    if (!first) return [];
+
+    const zipRes = await fetch(`https://dl.subdl.com${first.url}`);
+    const zipBuffer = await zipRes.arrayBuffer();
+    const zip = await JSZip.loadAsync(zipBuffer);
+
+    let srtPromise = null;
+    zip.forEach((path, file) => {
+        if (!srtPromise && path.toLowerCase().endsWith(".srt")) {
+        srtPromise = file.async("string");
+        }
+    });
+    if (!srtPromise) return [];
+
+    const srt = await srtPromise;
+
+    // Parse .srt text into embedding-ready objects
+    const entries = [];
+    const blocks = srt.split(/\r?\n\r?\n/);
+
+    for (const block of blocks) {
+        const lines = block.split(/\r?\n/).filter(Boolean);
+        if (lines.length >= 2) {
+        const match = lines[1].match(
+            /(\d{2}):(\d{2}):(\d{2}),(\d{3})\s+-->\s+(\d{2}):(\d{2}):(\d{2}),(\d{3})/
+        );
+        if (!match) continue;
+
+        const start =
+            parseInt(match[1]) * 3600 +
+            parseInt(match[2]) * 60 +
+            parseInt(match[3]) +
+            parseInt(match[4]) / 1000;
+        const end =
+            parseInt(match[5]) * 3600 +
+            parseInt(match[6]) * 60 +
+            parseInt(match[7]) +
+            parseInt(match[8]) / 1000;
+
+        const text = lines.slice(2).join(" ");
+        if (text.trim()) {
+            entries.push({ start, end, text });
+        }
+        }
+    }
+
+    return entries; 
   }
   
   function monitorPhimbroTabsContinuously() {
