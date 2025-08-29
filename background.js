@@ -131,6 +131,93 @@ try {
 
     return entries; 
   }
+
+  // Build and store embeddings for a movie
+  async function buildMovieEmbeddings(movieTitle) {
+    const entries = await fetchSubsInternal(movieTitle);
+    if (!entries.length) throw new Error("No subtitles found for " + movieTitle);
+
+    // Group into ~30-second chunks
+    const chunks = [];
+    let buffer = [];
+    let chunkStart = entries[0].start;
+
+    for (const entry of entries) {
+        buffer.push(entry.text);
+        const chunkEnd = entry.end;
+
+        if (chunkEnd - chunkStart >= 30) {
+            chunks.push({ start: chunkStart, end: chunkEnd, text: buffer.join(" ") });
+            buffer = [];
+            chunkStart = entry.start;
+        }
+    }
+    // Flush any leftover
+    if (buffer.length) {
+        const lastEnd = entries[entries.length - 1].end;
+        chunks.push({ start: chunkStart, end: lastEnd, text: buffer.join(" ") });
+    }
+
+    console.log(`[Binger] Chunked ${entries.length} subtitle entries into ${chunks.length} chunks`);
+
+    // Embed all chunks
+    const embedKey = await loadKey("openai");
+    if (!embedKey) throw new Error("Missing openai.key");
+
+    const resp = await fetch("https://api.openai.com/v1/embeddings", {
+        method: "POST",
+        headers: {
+            "Authorization": `Bearer ${embedKey}`,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            model: "text-embedding-3-small",
+            input: chunks.map(c => c.text)
+        })
+    });
+
+    const data = await resp.json();
+    const vectors = data?.data?.map(d => d.embedding);
+    if (!vectors || vectors.length !== chunks.length) {
+        throw new Error("Mismatch between chunks and embeddings");
+    }
+
+    // Store only one movie at a time (overwrite old)
+    const storagePayload = {
+        movieId: movieTitle,
+        chunks: chunks.map((c, i) => ({
+            start: c.start,
+            end: c.end,
+            vector: vectors[i]
+        }))
+    };
+
+    chrome.storage.local.set({ currentMovieEmbedding: storagePayload }, () => {
+        console.log(`[Binger] Stored embeddings for "${movieTitle}" with ${storagePayload.chunks.length} chunks`);
+    });
+
+    return storagePayload;
+  }
+
+  // Retrieve current embeddings if they exist
+  async function getStoredMovieEmbeddings() {
+    return new Promise(resolve => {
+        chrome.storage.local.get("currentMovieEmbedding", (res) => {
+            resolve(res.currentMovieEmbedding || null);
+        });
+    });
+  }
+
+  // Compare the scene vector against movie's vectors to find best match
+  function cosineSimilarity(vecA, vecB) {
+    let dot = 0, normA = 0, normB = 0;
+    for (let i = 0; i < vecA.length; i++) {
+        dot += vecA[i] * vecB[i];
+        normA += vecA[i] * vecA[i];
+        normB += vecB[i] * vecB[i];
+    }
+    return dot / (Math.sqrt(normA) * Math.sqrt(normB));
+  }
   
   function monitorPhimbroTabsContinuously() {
     chrome.tabs.query({ url: "*://phimbro.com/*" }, async (tabs) => {
@@ -1577,6 +1664,83 @@ try {
                     text: answer,
                     timestamp: Date.now()
                 });
+
+                // Clear typing immediately before scene detection
+                try {
+                    await firebase.database().ref(`rooms/${roomId}/typing/${BOT_UID}`).remove();
+                } catch (e) {
+                    console.warn("[Binger] typing remove failed (pre-detector):", e);
+                }
+
+                // Inline detector for seeking scenes
+                const cleaned = answer.trim();
+                const match = cleaned.match(/Seeking to the scene where\s+(.+?)\.\.\.\s*$/i);
+                if (match) {
+                    const sceneDesc = match[1].trim();
+                    console.log(`[Binger] Scene detected: ${sceneDesc}`);
+
+                    let vector = null;  // scene embedding
+                    let stored = null;  // movie embedding cache
+
+                    // Embed this scene description
+                    try {
+                        const embedKey = await loadKey("openai");
+                        if (embedKey) {
+                            const resp = await fetch("https://api.openai.com/v1/embeddings", {
+                                method: "POST",
+                                headers: {
+                                    "Authorization": `Bearer ${embedKey}`,
+                                    "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify({
+                                    model: "text-embedding-3-small", 
+                                    input: sceneDesc
+                                })
+                            });
+
+                            const data = await resp.json();
+                            vector = data?.data?.[0]?.embedding;
+
+                            if (vector) {
+                                console.log("[Binger] Got embedding:", vector.slice(0, 5), "...");
+                            }
+                        }
+                    } catch (e) {
+                        console.error("[Binger] Failed to embed sceneDesc:", e);
+                    }
+
+                    // Embed this movie - check storage first, else build fresh
+                    try {
+                        stored = await getStoredMovieEmbeddings();
+                        if (!stored || stored.movieId !== msg.movieContext.title) {
+                            console.log(`[Binger] No cache found (or different movie). Building fresh embeddings for: ${msg.movieContext.title}`);
+                            stored = await buildMovieEmbeddings(msg.movieContext.title);
+                        } else {
+                            console.log(`[Binger] Using cached embeddings for: ${stored.movieId}`);
+                        }
+                    } catch (e) {
+                        console.error("[Binger] Failed to get/build movie embeddings:", e);
+                    }
+
+                    // Compare vectors and find best match
+                    if (vector && stored && stored.chunks?.length) {
+                        let bestIdx = -1;
+                        let bestScore = -Infinity;
+
+                        stored.chunks.forEach((chunk, idx) => {
+                            const score = cosineSimilarity(vector, chunk.vector);
+                            if (score > bestScore) {
+                                bestScore = score;
+                                bestIdx = idx;
+                            }
+                        });
+
+                        if (bestIdx >= 0) {
+                            const bestChunk = stored.chunks[bestIdx];
+                            console.log(`[Binger] Best match: chunk ${bestIdx} → ${bestChunk.start}s–${bestChunk.end}s (score=${bestScore.toFixed(3)})`);
+                        }
+                    }
+                }
 
                 // Best-effort response (tab may be gone due to reload)
                 try { sendResponse({ ok: true }); } catch {}
