@@ -1506,12 +1506,48 @@ try {
                 let movieLine;
                 if (!msg.movieContext) {
                     movieLine = "Not watching any specific movie";
+                    systemMessage = {
+                        role: "system",
+                        content: `You are Binger, a concise movie expert bot in the room with human users. If they ask to find/seek/take them to a scene, say they need to start a movie first.
+
+                                Context:
+                                - Users: ${userNames.join(", ")} (${userNames.length} total)
+                                - Users currently watching together: ${inSession}
+                                - Recent chat: ${lastMsgs.join(" | ")}
+                                - ${movieLine}
+                                Always reply in 2-3 short sentences, as if you're in the room with them.`
+                    };
                 } else {
-                    const { title, year, minutes } = msg.movieContext;
-                    if (minutes > 0) {
+                    const { title, year, minutes, isWatching } = msg.movieContext;
+                    if (isWatching) {
                         movieLine = `Watching Movie: ${title || "Unknown"} (${year || "Unknown"}), at ${minutes} minutes`;
+                        systemMessage = {
+                            role: "system",
+                            content: `You are Binger, a concise movie expert bot in the room with human users. Only if they EXPLICITLY ask you to find/seek/take them to a scene, answer normally to the rest of their questions and then append this FINAL sentence in this exact format:
+                                    "Seeking to the scene where" + (your brief summary of the requested scene) + "..." 
+                                    
+                                    Otherwise, don't append that sentence.
+
+                                    Context:
+                                    - Users: ${userNames.join(", ")} (${userNames.length} total)
+                                    - Users currently watching together: ${inSession}
+                                    - Recent chat: ${lastMsgs.join(" | ")}
+                                    - ${movieLine}
+                                    Always reply in 2-3 short sentences, as if you're in the room with them.`
+                        };
                     } else {
                         movieLine = `Selected Movie: ${title || "Unknown"} (${year || "Unknown"})`;
+                        systemMessage = {
+                            role: "system",
+                            content: `You are Binger, a concise movie expert bot in the room with human users. If they ask to find/seek/take them to a scene, say they need to start a movie first.
+
+                                    Context:
+                                    - Users: ${userNames.join(", ")} (${userNames.length} total)
+                                    - Users currently watching together: ${inSession}
+                                    - Recent chat: ${lastMsgs.join(" | ")}
+                                    - ${movieLine}
+                                    Always reply in 2-3 short sentences, as if you're in the room with them.`
+                        };
                     }
                 }
 
@@ -1523,15 +1559,9 @@ try {
                     },
                     body: JSON.stringify({
                         model: "openai/gpt-4o-mini",
-                        max_tokens: 60,
+                        max_tokens: 100,
                         messages: [
-                            { role: "system", content: `You are Binger, a concise movie expert bot in the room with human users. 
-                                    Context:
-                                    - Users: ${userNames.join(", ")} (${userNames.length} total)
-                                    - Users currently watching together: ${inSession}
-                                    - Recent chat: ${lastMsgs.join(" | ")}
-                                    - ${movieLine}
-                                    Always reply in 2-3 short sentences, as if you're in the room with them.` },
+                            systemMessage,
                             { role: "user", content: msg.prompt }
                         ],
                     }),
