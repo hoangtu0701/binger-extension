@@ -1737,7 +1737,7 @@ try {
 
                         if (bestIdx >= 0) {
                             const bestChunk = stored.chunks[bestIdx];
-                            console.log(`[Binger] Best match: chunk ${bestIdx} → ${bestChunk.start}s–${bestChunk.end}s (score=${bestScore.toFixed(3)})`);
+                            console.log(`[Binger] Best match: chunk ${bestIdx} → ${bestChunk.start}s-${bestChunk.end}s (score=${bestScore.toFixed(3)})`);
                         }
                     }
                 }
