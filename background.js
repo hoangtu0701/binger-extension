@@ -51,6 +51,9 @@ try {
   const resetIframeListeners = {}; 
   const soundboardListeners = {}; 
 
+  // In-memory cache for latest movie embeddings
+  let currentMovieEmbeddingCache = null;
+
 
 
   // Utility to load API keys 
@@ -137,7 +140,7 @@ try {
     const entries = await fetchSubsInternal(movieTitle);
     if (!entries.length) throw new Error("No subtitles found for " + movieTitle);
 
-    // Group into ~30-second chunks
+    // Group into ~10-second chunks
     const chunks = [];
     let buffer = [];
     let chunkStart = entries[0].start;
@@ -182,8 +185,8 @@ try {
         throw new Error("Mismatch between chunks and embeddings");
     }
 
-    // Store only one movie at a time (overwrite old)
-    const storagePayload = {
+    // Build payload
+    const payload = {
         movieId: movieTitle,
         chunks: chunks.map((c, i) => ({
             start: c.start,
@@ -192,20 +195,16 @@ try {
         }))
     };
 
-    chrome.storage.local.set({ currentMovieEmbedding: storagePayload }, () => {
-        console.log(`[Binger] Stored embeddings for "${movieTitle}" with ${storagePayload.chunks.length} chunks`);
-    });
+    // Save only in memory
+    currentMovieEmbeddingCache = payload;
+    console.log(`[Binger] Cached embeddings in memory for "${movieTitle}" with ${payload.chunks.length} chunks`);
 
-    return storagePayload;
+    return payload;
   }
 
   // Retrieve current embeddings if they exist
   async function getStoredMovieEmbeddings() {
-    return new Promise(resolve => {
-        chrome.storage.local.get("currentMovieEmbedding", (res) => {
-            resolve(res.currentMovieEmbedding || null);
-        });
-    });
+    return currentMovieEmbeddingCache || null;
   }
 
   // Compare the scene vector against movie's vectors to find best match
