@@ -146,7 +146,7 @@ try {
         buffer.push(entry.text);
         const chunkEnd = entry.end;
 
-        if (chunkEnd - chunkStart >= 30) {
+        if (chunkEnd - chunkStart >= 10) {
             chunks.push({ start: chunkStart, end: chunkEnd, text: buffer.join(" ") });
             buffer = [];
             chunkStart = entry.start;
@@ -171,7 +171,7 @@ try {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            model: "text-embedding-3-small",
+            model: "text-embedding-3-large",
             input: chunks.map(c => c.text)
         })
     });
@@ -1610,16 +1610,23 @@ try {
                         movieLine = `Watching Movie: ${title || "Unknown"} (${year || "Unknown"}), at ${minutes} minutes`;
                         systemMessage = {
                             role: "system",
-                            content: `You are Binger, a concise movie expert bot in the room with human users. Only if they EXPLICITLY ask you to find/seek/take them to a scene, ALWAYS comply — never say you cannot. Answer their other questions normally, then APPEND this FINAL sentence with no quotation marks:
-                                    Seeking to the scene where + (your brief summary of the requested scene) + ...
-                                    
-                                    Otherwise, don't append that sentence.
+                            content: `You are Binger, a concise movie expert bot in the room with human users. 
+
+                                    Rules:
+                                    - If the user EXPLICITLY asks to find/seek/take them to a scene, ALWAYS comply — never say you cannot.
+                                    - In that case, try to identify the exact scene being referenced using real knowledge of the movie. 
+                                    - Be as specific as realistically possible (key lines of dialogue, character actions, or events), but avoid inventing details you are not sure about. 
+                                    - If the request is vague, paraphrase their description clearly instead of making things up. 
+                                    - Append this FINAL sentence with no quotation marks:
+                                        Seeking to the scene where + (most accurate description of the requested scene you can identify or paraphrase) + ...
+                                    - For all other user questions, answer normally and DO NOT add the seeking sentence.
 
                                     Context:
                                     - Users: ${userNames.join(", ")} (${userNames.length} total)
                                     - Users currently watching together: ${inSession}
                                     - Recent chat: ${lastMsgs.join(" | ")}
                                     - ${movieLine}
+                                    
                                     Always reply in 2-3 short sentences, as if you're in the room with them.`
                         };
                     } else {
@@ -1693,7 +1700,7 @@ try {
                                     "Content-Type": "application/json"
                                 },
                                 body: JSON.stringify({
-                                    model: "text-embedding-3-small", 
+                                    model: "text-embedding-3-large", 
                                     input: sceneDesc
                                 })
                             });
@@ -1740,7 +1747,7 @@ try {
                             console.log(`[Binger] Best match: chunk ${bestIdx} → ${bestChunk.start}s-${bestChunk.end}s (score=${bestScore.toFixed(3)})`);
 
                             try {
-                            const target = Math.max(0, Math.floor(bestChunk.start || 0));
+                            const target = Math.max(0, Math.floor(bestChunk.start + (bestChunk.end - bestChunk.start) / 2));
 
                             if (inSession) {
                                 // Session case --> Let sessionMode sync both users
