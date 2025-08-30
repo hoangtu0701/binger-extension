@@ -1719,8 +1719,8 @@ try {
                                                 Seeking to the scene where + (best description/paraphrase) + ...
                                                 • Example: Seeking to the scene where Batman fights off the Joker in the alley...
                                             - Format B (timing implied by the user):
-                                                Seeking to the scene where + (best description/paraphrase) + (numerator/denominator of the movie) + ...
-                                                • Convert timing element into a simplified fraction of the movie (denominator can be from 2 to 20, adjust as needed).
+                                                Seeking to the scene where + (best description/paraphrase) + (numerator/20 of the movie) + ...
+                                                • Convert user's timing element into a fraction of the movie where denominator **MUST** be 20.
                                                 • Example: Seeking to the scene where Batman fights off the Joker in the alley (19/20 of the movie)...
                                     - For all other user questions (not explicit scene requests), answer normally but in 1-2 very short sentences.
                                     - **NEVER exceed 70 tokens total.**
@@ -1869,15 +1869,15 @@ try {
                             const fraction = numerator / denominator;
 
                             // Calculate window in terms of fraction of movie
-                            const lowerFrac = Math.max(0, fraction - 1/8);
-                            const upperFrac = Math.min(1, fraction + 1/8);
+                            const lowerFrac = Math.max(0, fraction - 1/10);
+                            const upperFrac = Math.min(1, fraction + 1/10);
 
                             const startIdx = Math.floor(lowerFrac * totalChunks);
                             const endIdx = Math.min(totalChunks, Math.ceil(upperFrac * totalChunks));
 
                             searchChunks = stored.chunks.slice(startIdx, endIdx);
 
-                            console.log(`[Binger] Fraction bias: ${numerator}/${denominator} → searching chunks ${startIdx} to ${endIdx} (±1/8 window)`);
+                            console.log(`[Binger] Fraction bias: ${numerator}/${denominator} → searching chunks ${startIdx} to ${endIdx}`);
                         }
 
                         searchChunks.forEach((chunk, localIdx) => {
