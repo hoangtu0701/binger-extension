@@ -155,7 +155,7 @@ try {
     const entries = await fetchSubsInternal(movieTitle);
     if (!entries.length) throw new Error("No subtitles found for " + movieTitle);
 
-    // Group into ~30-second chunks
+    // Group into ~60-second chunks
     const chunks = [];
     let buffer = [];
     let chunkStart = entries[0].start;
@@ -164,7 +164,7 @@ try {
         buffer.push(entry.text);
         const chunkEnd = entry.end;
 
-        if (chunkEnd - chunkStart >= 30) {
+        if (chunkEnd - chunkStart >= 60) {
             chunks.push({ start: chunkStart, end: chunkEnd, text: buffer.join(" ") });
             buffer = [];
             chunkStart = entry.start;
