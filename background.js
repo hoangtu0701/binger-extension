@@ -1451,7 +1451,7 @@ try {
             const users = snap.val() || {};
             const typingUsers = typingUids.map((uid) => ({
                 uid,
-                username: uid === "BINGER_BOT"
+                username: (uid === "BINGER_BOT" || uid === "BINGER_BOT_SEEK")
                 ? "Binger Bot"
                 : (users[uid]?.email?.split("@")[0] || "unknown")
             }));
@@ -1553,6 +1553,8 @@ try {
     // Handle bot queries
     if (msg.command === "botQuery") {
         const BOT_UID = "BINGER_BOT";
+        const BOT_SEEK_UID = "BINGER_BOT_SEEK";
+
         loadKey("openrouter").then(async (key) => {
             if (!key) {
                 console.warn("[Binger] No OpenRouter key found — replying with fallback.");
@@ -1682,6 +1684,15 @@ try {
                 const cleaned = answer.trim();
                 const match = cleaned.match(/Seeking to the scene where\s+(.+?)\.\.\.\s*$/i);
                 if (match) {
+
+                    // Show "Binger Bot is seeking"
+                    try {
+                        await new Promise(r => setTimeout(r, 150));
+                        await firebase.database().ref(`rooms/${roomId}/typing/${BOT_SEEK_UID}`).set(true);
+                    } catch (e) {
+                        console.warn("[Binger] seeking set failed:", e);
+                    }
+
                     const sceneDesc = match[1].trim();
                     console.log(`[Binger] Scene detected: ${sceneDesc}`);
 
@@ -1785,7 +1796,7 @@ try {
                 console.error("[Binger] botQuery error:", err);
                 try { sendResponse({ error: String(err?.message || err) }); } catch {}
             } finally {
-                // Always clear typing
+                // Always clear all bot statuses
                 try {
                     // roomId may have changed - re-read just in case
                     roomId = await new Promise((resolve) => {
@@ -1793,9 +1804,10 @@ try {
                     });
                     if (roomId) {
                         await firebase.database().ref(`rooms/${roomId}/typing/${BOT_UID}`).remove();
+                        await firebase.database().ref(`rooms/${roomId}/typing/${BOT_SEEK_UID}`).remove();
                     }
                 } catch (e) {
-                    console.warn("[Binger] typing remove failed:", e);
+                    console.warn("[Binger] typing & seeking remove failed:", e);
                 }
             }
         });

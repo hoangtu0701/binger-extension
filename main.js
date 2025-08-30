@@ -1145,7 +1145,24 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         const bubble = document.createElement("div");
         bubble.className = "bingerTypingBubble";
         bubble.id = `typing-${uid}`;
-        bubble.textContent = `${username} is typing...`;
+
+        if (uid === "BINGER_BOT_SEEK") {
+          const variants = [
+            `${username} is seeking...`,
+            `${username} is moving to the scene...`,
+            `${username} is finding the moment...`,
+            `${username} is scrubbing the timeline...`,
+            `${username} is skipping the boring parts...`,
+            `${username} is teleporting to the scene...`,
+            `${username} is spinning the film wheel...`,
+            `${username} is loading up the drama...`,
+            `${username} is shuffling scenes like a DJ...`
+          ];
+          const randomMsg = variants[Math.floor(Math.random() * variants.length)];
+          bubble.textContent = randomMsg;
+        } else {
+          bubble.textContent = `${username} is typing...`;
+        }
 
         if (document.getElementById("bingerOverlay")?.classList.contains("in-session")) {
           bubble.classList.add("session-mode");
