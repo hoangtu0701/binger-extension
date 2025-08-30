@@ -178,6 +178,85 @@ try {
 
     console.log(`[Binger] Chunked ${entries.length} subtitle entries into ${chunks.length} chunks`);
 
+    // Rephrase all chunks concurrently
+    const openrouterKey = await loadKey("openrouter");
+    if (openrouterKey) {
+        console.log(`[Binger] Rewriting ${chunks.length} chunks...`);
+
+        // Log examples before rewrite
+        console.log("[Binger] Sample before rewrite (with timestamps):");
+        chunks.slice(0, 5).forEach((c, i) => {
+            console.log(
+                `  [${i}] start=${c.start}, end=${c.end}\n       ${c.text}`
+            );
+        });
+
+        const requests = chunks.map((chunk, idx) => {
+            const messages = [
+                {
+                    role: "system",
+                    content: `You rewrite subtitles into concise descriptive movie summaries.
+                        Rules:
+                        - Merge all lines into 1-2 sentences.
+                        - Keep character names if present.
+                        - Keep actions, sounds, stage directions.
+                        - Capture tone/emotion (shouting, laughing).
+                        - Mention props/locations if clear.
+                        - Do NOT invent new details.
+                        - Max 20 words.
+                        - Return ONLY the rewritten text, no quotes or extra commentary.`
+                },
+                {
+                    role: "user",
+                    content: `Rewrite this subtitle chunk:\n\n${chunk.text}`
+                }
+            ];
+
+            return fetch("https://openrouter.ai/api/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${openrouterKey}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    model: "openai/gpt-4o-mini",
+                    temperature: 0.2,
+                    max_tokens: 50,
+                    messages
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                const content = data?.choices?.[0]?.message?.content?.trim();
+                return content || chunk.text;
+            })
+            .catch(err => {
+                console.error(`[Binger] GPT rewrite failed for chunk ${idx}`, err);
+                return chunk.text;
+            });
+        });
+
+        const rewrites = await Promise.allSettled(requests);
+
+        rewrites.forEach((res, i) => {
+            if (res.status === "fulfilled") {
+                chunks[i].text = res.value;
+            }
+        });
+
+        // Log examples after rewrite
+        console.log("[Binger] Sample after rewrite:");
+        chunks.slice(0, 5).forEach((c, i) => {
+            console.log(
+                `  [${i}] start=${c.start}, end=${c.end}\n       ${c.text}`
+            );
+        });
+
+        console.log("[Binger] Finished GPT rewrites.");
+    } else {
+        console.warn("[Binger] No OpenRouter key — using raw subtitles.");
+    }
+
     // Embed all chunks
     const embedKey = await loadKey("openai");
     if (!embedKey) throw new Error("Missing openai.key");
@@ -1643,7 +1722,8 @@ try {
                                                 Seeking to the scene where + (best description/paraphrase) + (numerator/denominator of the movie) + ...
                                                 • Convert timing element into a simplified fraction of the movie (denominator can be from 2 to 20, adjust as needed).
                                                 • Example: Seeking to the scene where Batman fights off the Joker in the alley (19/20 of the movie)...
-                                    - For all other user questions (not explicit scene requests), answer normally and DO NOT add the seeking sentence.
+                                    - For all other user questions (not explicit scene requests), answer normally but in 1-2 very short sentences.
+                                    - **NEVER exceed 70 tokens total.**
 
                                     Context:
                                     - Users: ${userNames.join(", ")} (${userNames.length} total)
@@ -1651,7 +1731,7 @@ try {
                                     - Recent chat: ${lastMsgs.join(" | ")}
                                     - ${movieLine}
                                     
-                                    Always reply in 2-3 short sentences total (MUST NOT exceed 80 tokens), as if you're in the room with them.`
+                                    Always reply as if you're in the room with them.`
                         };
                     } else {
                         movieLine = `Selected Movie: ${title || "Unknown"} (${year || "Unknown"})`;
