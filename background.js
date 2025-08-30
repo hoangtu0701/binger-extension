@@ -85,10 +85,25 @@ try {
 
     const res = await fetch(`https://api.subdl.com/api/v1/subtitles?${query}`);
     const data = await res.json();
-    const first = data?.subtitles?.[0];
-    if (!first) return [];
+    
+    let chosen = null;
+    if (data?.subtitles?.length) {
+        // Prefer BluRay if available
+        chosen = data.subtitles.find(s =>
+            s.release_name && s.release_name.toLowerCase().includes("bluray")
+        );
 
-    const zipRes = await fetch(`https://dl.subdl.com${first.url}`);
+        // Fallback - just take the first one
+        if (!chosen) {
+            chosen = data.subtitles[0];
+        }
+    }
+
+    if (!chosen) return [];
+
+    console.log("[Binger] Using subtitle release:", chosen.release_name);
+
+    const zipRes = await fetch(`https://dl.subdl.com${chosen.url}`);
     const zipBuffer = await zipRes.arrayBuffer();
     const zip = await JSZip.loadAsync(zipBuffer);
 
