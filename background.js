@@ -1618,7 +1618,7 @@ try {
                                 - Users currently watching together: ${inSession}
                                 - Recent chat: ${lastMsgs.join(" | ")}
                                 - ${movieLine}
-                                Always reply in 2-3 short sentences, as if you're in the room with them.`
+                                Always reply in 2-3 short sentences (MUST NOT exceed 80 tokens), as if you're in the room with them.`
                     };
                 } else {
                     const { title, year, minutes, isWatching } = msg.movieContext;
@@ -1651,7 +1651,7 @@ try {
                                     - Recent chat: ${lastMsgs.join(" | ")}
                                     - ${movieLine}
                                     
-                                    Always reply in 2-3 short sentences, as if you're in the room with them.`
+                                    Always reply in 2-3 short sentences total (MUST NOT exceed 80 tokens), as if you're in the room with them.`
                         };
                     } else {
                         movieLine = `Selected Movie: ${title || "Unknown"} (${year || "Unknown"})`;
@@ -1664,7 +1664,7 @@ try {
                                     - Users currently watching together: ${inSession}
                                     - Recent chat: ${lastMsgs.join(" | ")}
                                     - ${movieLine}
-                                    Always reply in 2-3 short sentences, as if you're in the room with them.`
+                                    Always reply in 2-3 short sentences (MUST NOT exceed 80 tokens), as if you're in the room with them.`
                         };
                     }
                 }
@@ -1677,7 +1677,7 @@ try {
                     },
                     body: JSON.stringify({
                         model: "openai/gpt-4o-mini",
-                        max_tokens: 100,
+                        max_tokens: 80,
                         messages: [
                             systemMessage,
                             { role: "user", content: msg.prompt }
