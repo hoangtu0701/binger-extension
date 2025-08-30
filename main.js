@@ -1156,7 +1156,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
             `${username} is teleporting to the scene...`,
             `${username} is spinning the film wheel...`,
             `${username} is loading up the drama...`,
-            `${username} is shuffling scenes like a DJ...`
+            `${username} is shuffling scenes...`
           ];
           const randomMsg = variants[Math.floor(Math.random() * variants.length)];
           bubble.textContent = randomMsg;
