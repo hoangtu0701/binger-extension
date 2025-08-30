@@ -1616,18 +1616,18 @@ try {
                                     Rules:
                                     - If the user EXPLICITLY asks to find/seek/take them to a scene, you MUST comply — never say you cannot.
                                     - In that case:
-                                    • Identify the exact scene being referenced using real knowledge of the movie whenever possible.
-                                    • Be as specific as realistically possible (add details you know, mention key dialogue, character actions, or events), but never invent details you are unsure about.
-                                    • Pay attention to timing elements ONLY if provided (e.g., "last scene", "halfway", "about three-quarters", "final act", etc.).
-                                    • If the request is vague, paraphrase their description clearly instead of fabricating.
-                                    • ALWAYS end your reply with one FINAL sentence (no quotation marks):
-                                        - Format A (no timing implied):
-                                            Seeking to the scene where + (best description/paraphrase) + ...
-                                            • Example: Seeking to the scene where Batman fights off the Joker in the alley...
-                                        - Format B (timing implied by the user):
-                                            Seeking to the scene where + (best description/paraphrase) + (numerator/denominator of the movie) + ...
-                                            • Convert timing element into a simplified fraction of the movie (denominator between 2 and 20, adjust as needed).
-                                            • Example: Seeking to the scene where Batman fights off the Joker in the alley (19/20 of the movie)...
+                                        • Identify the exact scene being referenced using real knowledge of the movie whenever possible.
+                                        • Be as specific as realistically possible (add details you know, mention key dialogue, character actions, or events), but never invent details you are unsure about.
+                                        • Pay attention to timing elements ONLY if provided (e.g., "last scene", "halfway", "about three-quarters", "final act", etc.).
+                                        • If the request is vague, paraphrase their description clearly instead of fabricating.
+                                        • ALWAYS end your reply with one FINAL sentence (no quotation marks):
+                                            - Format A (no timing implied):
+                                                Seeking to the scene where + (best description/paraphrase) + ...
+                                                • Example: Seeking to the scene where Batman fights off the Joker in the alley...
+                                            - Format B (timing implied by the user):
+                                                Seeking to the scene where + (best description/paraphrase) + (numerator/denominator of the movie) + ...
+                                                • Convert timing element into a simplified fraction of the movie (denominator can be from 2 to 20, adjust as needed).
+                                                • Example: Seeking to the scene where Batman fights off the Joker in the alley (19/20 of the movie)...
                                     - For all other user questions (not explicit scene requests), answer normally and DO NOT add the seeking sentence.
 
                                     Context:
@@ -1702,12 +1702,27 @@ try {
                     }
 
                     const sceneDesc = match[1].trim();
-                    console.log(`[Binger] Scene detected: ${sceneDesc}`);
+                    console.log(`[Binger] Scene detected (initial description): ${sceneDesc}`);
+
+                    let cleanDesc = sceneDesc;
+                    let numerator = null;
+                    let denominator = null;
+                    const fractionMatch = sceneDesc.match(/\((\d+)\/(\d+)\s+of the movie\)$/i);
+                    if (fractionMatch) {
+                        numerator = parseInt(fractionMatch[1], 10);
+                        denominator = parseInt(fractionMatch[2], 10);
+                        cleanDesc = sceneDesc.replace(/\s*\(\d+\/\d+\s+of the movie\)$/, "").trim();
+                        console.log("Scene description:", cleanDesc);
+                        console.log("Fraction:", numerator, "/", denominator);
+                    } else {
+                        console.log("Scene description:", cleanDesc);
+                        console.log("No fraction provided.");
+                    }
 
                     let vector = null;  // scene embedding
                     let stored = null;  // movie embedding cache
 
-                    // Embed this scene description
+                    // Embed this scene's cleaned description
                     try {
                         const embedKey = await loadKey("openai");
                         if (embedKey) {
@@ -1719,7 +1734,7 @@ try {
                                 },
                                 body: JSON.stringify({
                                     model: "text-embedding-3-large", 
-                                    input: sceneDesc
+                                    input: cleanDesc
                                 })
                             });
 
@@ -1731,7 +1746,7 @@ try {
                             }
                         }
                     } catch (e) {
-                        console.error("[Binger] Failed to embed sceneDesc:", e);
+                        console.error("[Binger] Failed to embed cleanDesc:", e);
                     }
 
                     // Embed this movie - check storage first, else build fresh
@@ -1747,12 +1762,35 @@ try {
                         console.error("[Binger] Failed to get/build movie embeddings:", e);
                     }
 
-                    // Compare vectors and find best match
+                    // Compare vectors and find best match (account for timing restriction when available)
                     if (vector && stored && stored.chunks?.length) {
                         let bestIdx = -1;
                         let bestScore = -Infinity;
 
-                        stored.chunks.forEach((chunk, idx) => {
+                        const totalChunks = stored.chunks.length;
+                        let searchChunks = stored.chunks; // default - all chunks
+
+                        if (numerator && denominator) {
+                            const fraction = numerator / denominator;
+
+                            // Calculate window in terms of fraction of movie
+                            const lowerFrac = Math.max(0, fraction - 1/8);
+                            const upperFrac = Math.min(1, fraction + 1/8);
+
+                            const startIdx = Math.floor(lowerFrac * totalChunks);
+                            const endIdx = Math.min(totalChunks, Math.ceil(upperFrac * totalChunks));
+
+                            searchChunks = stored.chunks.slice(startIdx, endIdx);
+
+                            console.log(`[Binger] Fraction bias: ${numerator}/${denominator} → searching chunks ${startIdx} to ${endIdx} (±1/8 window)`);
+                        }
+
+                        searchChunks.forEach((chunk, localIdx) => {
+                            // Map back to global index if using a slice
+                            const idx = numerator && denominator
+                            ? (stored.chunks.indexOf(chunk))
+                            : localIdx;
+
                             const score = cosineSimilarity(vector, chunk.vector);
                             if (score > bestScore) {
                                 bestScore = score;
