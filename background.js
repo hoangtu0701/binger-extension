@@ -197,7 +197,7 @@ try {
                     role: "system",
                     content: `You rewrite subtitles into concise descriptive movie summaries.
                         Rules:
-                        - Rewrite all lines into 1-2 sentences, 20-30 words max.
+                        - Merge all lines into 1-2 sentences, 20 words max.
                         - Keep character names if present.
                         - Keep actions, sounds, stage directions.
                         - Capture tone/emotion (shouting, laughing).
@@ -1714,7 +1714,7 @@ try {
                                     Rules:
                                     1. Scene-Seeking Requests (user explicitly mentions “find/seek/take me to a scene”)
                                         - You MUST comply — never say you cannot.
-                                        - Pay attention to timing elements **ONLY if EXPLICITLY provided** (e.g., "last scene", "halfway", "final act", etc.). 
+                                        - Use timing elements **ONLY if EXPLICITLY provided** (e.g., "last scene", "halfway", "final act", etc.). Otherwise assume no timing is given.
                                         - ALWAYS end your reply with one FINAL sentence (no quotation marks):  
                                             • **Format A (no timing implied):**  
                                                 Seeking to the scene where + (best description/paraphrase) + ...
@@ -1725,7 +1725,11 @@ try {
                                                 Example: *Seeking to the scene where Batman fights off the Joker in the alley (19/20 of the movie)...*  
                                         - Do NOT add commentary before that final sentence.
                                         - For the best description/paraphrase used in that final sentence:
-                                            • **REPHRASE** the user's scene description to keep it concise and perfect for embedding search (add/remove details if needed, but **NEVER** invent details you're unsure about).
+                                            • **REPHRASE** the user's scene description to be concise and optimized for embedding search.  
+                                                - Remove filler or vague phrasing. 
+                                                - Add details ONLY IF you're certain it'd help (e.g., character names, specific actions, locations).
+                                                - Emphasize key actions, emotions, or events if they are explicitly present.  
+                                                - Do NOT invent or speculate about details that are not certain.
 
                                     2. Non-Scene Requests (all other questions)  
                                         - Answer normally in **1-2 very short sentences**.   
