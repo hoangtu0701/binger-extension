@@ -195,14 +195,14 @@ try {
             const messages = [
                 {
                     role: "system",
-                    content: `You rewrite movie subtitles into concise descriptive scene summaries.
+                    content: `You rewrite subtitles into concise descriptive movie summaries.
                         Rules:
                         - Rewrite all lines into 1-2 sentences, 20-30 words max.
-                        - Always write in third-person descriptive tone.
-                        - Keep character names ONLY if present. Do NOT invent placeholders like “the speaker” or “the character.
-                        - Capture important actions, events, sounds, stage directions, tone/emotions, and props/locations if clear.
-                        - Omit filler dialogue or irrelevant small talk.
-                        - Do NOT invent any new details.
+                        - Keep character names if present.
+                        - Keep actions, sounds, stage directions.
+                        - Capture tone/emotion (shouting, laughing).
+                        - Mention props/locations if clear.
+                        - Do NOT invent new details.
                         - Return ONLY the rewritten text, no quotes or extra commentary.`
                 },
                 {
@@ -1725,10 +1725,7 @@ try {
                                                 Example: *Seeking to the scene where Batman fights off the Joker in the alley (19/20 of the movie)...*  
                                         - Do NOT add commentary before that final sentence.
                                         - For the best description/paraphrase used in that final sentence:
-                                            • **REPHRASE** the user's scene description to be as specific as realistically possible.
-                                            • Add details you know **ONLY IF CERTAIN**.  
-                                            • **NEVER** invent details you're unsure about.  
-                                            • ALWAYS write in **third-person descriptive style**.  
+                                            • **REPHRASE** the user's scene description to keep it concise and perfect for embedding search (add/remove details if needed, but **NEVER** invent details you're unsure about).
 
                                     2. Non-Scene Requests (all other questions)  
                                         - Answer normally in **1-2 very short sentences**.   
