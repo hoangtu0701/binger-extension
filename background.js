@@ -1725,9 +1725,10 @@ try {
                                                 Example: *Seeking to the scene where Batman fights off the Joker in the alley (19/20 of the movie)...*  
                                         - Do NOT add commentary before that final sentence.
                                         - For the best description/paraphrase used in that final sentence:
+                                            • Identify the exact scene being referenced using real knowledge of the movie whenever possible.
                                             • **REPHRASE** the user's scene description to be concise and optimized for embedding search.  
                                                 - Remove filler or vague phrasing. 
-                                                - Add details ONLY IF you're certain it'd help (e.g., character names, specific actions, locations).
+                                                - Add details ONLY IF you're certain it'd help (e.g., character names, specific actions, locations, sound, tone).
                                                 - Emphasize key actions, emotions, or events if they are explicitly present.  
                                                 - Do NOT invent or speculate about details that are not certain.
 
