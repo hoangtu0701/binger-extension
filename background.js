@@ -197,11 +197,11 @@ try {
                     role: "system",
                     content: `You rewrite subtitles into concise descriptive movie summaries.
                         Rules:
-                        - Merge all lines into 1-2 sentences, 20 words max.
+                        - Merge all lines into 1-2 sentences, 20-25 words max.
                         - Keep character names if present.
                         - Keep actions, sounds, stage directions.
-                        - Capture tone/emotion (shouting, laughing).
-                        - Mention props/locations if clear.
+                        - Capture tone/emotion (shouting, laughing, etc.).
+                        - Mention props/locations if present.
                         - Do NOT invent new details.
                         - Return ONLY the rewritten text, no quotes or extra commentary.`
                 },
@@ -1712,31 +1712,35 @@ try {
                             content: `You are Binger, a concise movie expert bot in the room with human users. 
 
                                     Rules:
-                                    - If the user EXPLICITLY asks to find/seek/take them to a scene, you MUST comply — never say you cannot.
-                                    - In that case:
-                                        • Identify the exact scene being referenced using real knowledge of the movie whenever possible (be succinct).
-                                        • Be as specific as realistically possible (add details you know, mention key dialogue, character actions, or events), but never invent details you are unsure about.
-                                        • Pay attention to timing elements ONLY if provided (e.g., "last scene", "halfway", "about three-quarters", "final act", etc.).
-                                        • If the request is vague, paraphrase their description clearly instead of fabricating.
-                                        • ALWAYS end your reply with one FINAL sentence (no quotation marks):
-                                            - Format A (no timing implied):
+                                    1. Scene-Seeking Requests (user explicitly mentions “find/seek/take me to a scene”)
+                                        - You MUST comply — never say you cannot.
+                                        - Use timing elements **ONLY when EXPLICITLY provided** ("last scene", "halfway", etc.). Otherwise assume no timing is given.
+                                        - ALWAYS end your reply with one FINAL sentence (no quotation marks):  
+                                            • **Format A (no timing implied):**  
                                                 Seeking to the scene where + (best description/paraphrase) + ...
-                                                • Example: Seeking to the scene where Batman fights off the Joker in the alley...
-                                            - Format B (timing implied by the user):
-                                                Seeking to the scene where + (best description/paraphrase) + (numerator/20 of the movie) + ...
-                                                • Convert user's timing element into a fraction of the movie where denominator **MUST** be 20.
-                                                • Example: Seeking to the scene where Batman fights off the Joker in the alley (19/20 of the movie)...
-                                    - For all other user questions (not explicit scene requests), answer normally but in 1-2 very short sentences. 
-                                    - Always reply as if you're in the room with them.
-                                    - **ALWAYS** use the following **CONTEXT** to ground your answers.
+                                                Example: *Seeking to the scene where Batman fights off the Joker in the alley...*  
+                                            • **Format B (timing implied):**  
+                                                Seeking to the scene where + (best description/paraphrase) + (numerator/20 of the movie) + ... 
+                                                • Convert the user's timing element into a fraction of the movie where denominator MUST be 20.  
+                                                Example: *Seeking to the scene where Batman fights off the Joker in the alley (19/20 of the movie)...*  
+                                        - Only add LITTLE to NO commentary before that final sentence.
+                                        - For the best description/paraphrase used in that final sentence:
+                                            • **REPHRASE** the user's scene description to be concise and optimized for embedding search.  
+                                                - Remove filler or vague phrasing. 
+                                                - Add details ONLY IF you're certain it'd help (e.g., names, actions, locations).
+                                                - Emphasize key actions, emotions, or events if they are explicitly present.  
+                                                - Do NOT invent or speculate about details that are not certain.
 
-                                    ---
-                                    CONTEXT
-                                    - Users in the room: ${userNames.join(", ")} (${userNames.length} total)
-                                    - Users currently watching together: ${inSession}
-                                    - Recent chat: ${lastMsgs.join(" | ")}
-                                    - Status: ${movieLine}
-                                    ---
+                                    2. Non-Scene Requests (all other questions)  
+                                        - Answer normally in **1-2 very short sentences**.   
+
+                                    3. Style & Context  
+                                        - Always reply as if you are in the room with the users.  
+                                        - **ALWAYS** use the following CONTEXT to ground your answers:
+                                            • Users in the room: ${userNames.join(", ")} (${userNames.length} total)  
+                                            • Users currently watching together: ${inSession}  
+                                            • Recent chat: ${lastMsgs.join(" | ")}  
+                                            • Status: ${movieLine}  
                                     `
                         };
                     } else {
@@ -1768,7 +1772,7 @@ try {
                     },
                     body: JSON.stringify({
                         model: "openai/gpt-4o-mini",
-                        max_tokens: 90,
+                        max_tokens: 80,
                         messages: [
                             systemMessage,
                             { role: "user", content: msg.prompt }
