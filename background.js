@@ -1700,7 +1700,7 @@ try {
                                 ---
 
                                 Rules:
-                                - Always reply in 2-3 short sentences as if you're in the room with them. 
+                                - Always reply in 2-3 short sentences as if you're in the room with them. Be friendly and engaging.
                                 - If user asks to find/seek/take them to a scene, say they need to start a movie first. `
                     };
                 } else {
@@ -1723,7 +1723,7 @@ try {
                                                 Seeking to the scene where + (best description/paraphrase) + (numerator/20 of the movie) + ... 
                                                 • Convert the user's timing element into a fraction of the movie where denominator MUST be 20.  
                                                 Example: *Seeking to the scene where Batman fights off the Joker in the alley (19/20 of the movie)...*  
-                                        - Only add LITTLE to NO commentary before that final sentence.
+                                        - Optionally add a bit of commentary before that final sentence for engagement, but keep it short.
                                         - For the best description/paraphrase used in that final sentence:
                                             • **REPHRASE** the user's scene description to be concise and optimized for embedding search.  
                                                 - Remove filler or vague phrasing. 
@@ -1735,7 +1735,7 @@ try {
                                         - Answer normally in **1-2 very short sentences**.   
 
                                     3. Style & Context  
-                                        - Always reply as if you are in the room with the users.  
+                                        - Always reply as if you are in the room with the users. Be friendly and engaging.
                                         - **ALWAYS** use the following CONTEXT to ground your answers:
                                             • Users in the room: ${userNames.join(", ")} (${userNames.length} total)  
                                             • Users currently watching together: ${inSession}  
@@ -1758,7 +1758,7 @@ try {
                                     ---
 
                                     Rules:
-                                    - Always reply in 2-3 short sentences as if you're in the room with them. 
+                                    - Always reply in 2-3 short sentences as if you're in the room with them. Be friendly and engaging.
                                     - If user asks to find/seek/take them to a scene, say they need to start a movie first. `
                         };
                     }
