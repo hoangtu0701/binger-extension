@@ -1690,14 +1690,19 @@ try {
                     movieLine = "Not watching any specific movie";
                     systemMessage = {
                         role: "system",
-                        content: `You are Binger, a concise movie expert bot in the room with human users. If they ask to find/seek/take them to a scene, say they need to start a movie first.
+                        content: `You are Binger, a concise movie expert bot in the room with human users. You always use the following CONTEXT to ground your answers.
 
-                                Context:
+                                ---
+                                CONTEXT
                                 - Users: ${userNames.join(", ")} (${userNames.length} total)
                                 - Users currently watching together: ${inSession}
                                 - Recent chat: ${lastMsgs.join(" | ")}
                                 - ${movieLine}
-                                Always reply in 2-3 short sentences (MUST NOT exceed 80 tokens), as if you're in the room with them.`
+                                ---
+
+                                Rules:
+                                - Always reply in 2-3 short sentences (MUST NOT exceed 80 tokens), as if you're in the room with them. 
+                                - If user asks to find/seek/take them to a scene, say they need to start a movie first. `
                     };
                 } else {
                     const { title, year, minutes, isWatching } = msg.movieContext;
@@ -1722,29 +1727,36 @@ try {
                                                 Seeking to the scene where + (best description/paraphrase) + (numerator/20 of the movie) + ...
                                                 • Convert user's timing element into a fraction of the movie where denominator **MUST** be 20.
                                                 • Example: Seeking to the scene where Batman fights off the Joker in the alley (19/20 of the movie)...
-                                    - For all other user questions (not explicit scene requests), answer normally but in 1-2 very short sentences.
-                                    - **NEVER exceed 70 tokens total.**
+                                    - For all other user questions (not explicit scene requests), answer normally but in 1-2 very short sentences. **NEVER exceed 70 tokens total.**
+                                    - Always reply as if you're in the room with them.
+                                    - **ALWAYS use the following CONTEXT to ground your answers.**
 
-                                    Context:
+                                    ---
+                                    CONTEXT
                                     - Users: ${userNames.join(", ")} (${userNames.length} total)
                                     - Users currently watching together: ${inSession}
                                     - Recent chat: ${lastMsgs.join(" | ")}
                                     - ${movieLine}
-                                    
-                                    Always reply as if you're in the room with them.`
+                                    ---
+                                    `
                         };
                     } else {
                         movieLine = `Selected Movie: ${title || "Unknown"} (${year || "Unknown"})`;
                         systemMessage = {
                             role: "system",
-                            content: `You are Binger, a concise movie expert bot in the room with human users. If they ask to find/seek/take them to a scene, say they need to start a movie first.
+                            content: `You are Binger, a concise movie expert bot in the room with human users. You always use the following CONTEXT to ground your answers.
 
-                                    Context:
+                                    ---
+                                    CONTEXT
                                     - Users: ${userNames.join(", ")} (${userNames.length} total)
                                     - Users currently watching together: ${inSession}
                                     - Recent chat: ${lastMsgs.join(" | ")}
                                     - ${movieLine}
-                                    Always reply in 2-3 short sentences (MUST NOT exceed 80 tokens), as if you're in the room with them.`
+                                    ---
+
+                                    Rules:
+                                    - Always reply in 2-3 short sentences (MUST NOT exceed 80 tokens), as if you're in the room with them. 
+                                    - If user asks to find/seek/take them to a scene, say they need to start a movie first. `
                         };
                     }
                 }
