@@ -1693,7 +1693,7 @@ try {
 
                                 ---
                                 CONTEXT
-                                - Users in the room: ${userNames.join(", ")} (${userNames.length} total)
+                                - Users currently in the room: ${userNames.join(", ")} (${userNames.length} total)
                                 - Users currently watching together: ${inSession}
                                 - Recent chat: ${lastMsgs.join(" | ")}
                                 - Status: ${movieLine}
@@ -1737,7 +1737,7 @@ try {
                                     3. Style & Context  
                                         - Always reply as if you are in the room with the users. Be friendly and engaging.
                                         - **ALWAYS** use the following CONTEXT to ground your answers:
-                                            • Users in the room: ${userNames.join(", ")} (${userNames.length} total)  
+                                            • Users currently in the room: ${userNames.join(", ")} (${userNames.length} total)  
                                             • Users currently watching together: ${inSession}  
                                             • Recent chat: ${lastMsgs.join(" | ")}  
                                             • Status: ${movieLine}  
@@ -1751,7 +1751,7 @@ try {
 
                                     ---
                                     CONTEXT
-                                    - Users in the room: ${userNames.join(", ")} (${userNames.length} total)
+                                    - Users currently in the room: ${userNames.join(", ")} (${userNames.length} total)
                                     - Users currently watching together: ${inSession}
                                     - Recent chat: ${lastMsgs.join(" | ")}
                                     - Status: ${movieLine}
