@@ -1879,73 +1879,84 @@ try {
 
                     // Compare vectors and find best match (account for timing restriction when available)
                     if (vector && stored && stored.chunks?.length) {
-                        let bestIdx = -1;
-                        let bestScore = -Infinity;
-
                         const totalChunks = stored.chunks.length;
-                        let searchChunks = stored.chunks; // default - all chunks
+                        let searchChunks = stored.chunks; 
+                        let baseOffset = 0;              
 
                         if (numerator && denominator) {
                             const fraction = numerator / denominator;
 
                             // Calculate window in terms of fraction of movie
-                            const lowerFrac = Math.max(0, fraction - 1/10);
-                            const upperFrac = Math.min(1, fraction + 1/10);
+                            const lowerFrac = Math.max(0, fraction - 1 / 10);
+                            const upperFrac = Math.min(1, fraction + 1 / 10);
 
                             const startIdx = Math.floor(lowerFrac * totalChunks);
                             const endIdx = Math.min(totalChunks, Math.ceil(upperFrac * totalChunks));
 
                             searchChunks = stored.chunks.slice(startIdx, endIdx);
+                            baseOffset = startIdx; 
 
                             console.log(`[Binger] Fraction bias: ${numerator}/${denominator} → searching chunks ${startIdx} to ${endIdx}`);
                         }
 
-                        searchChunks.forEach((chunk, localIdx) => {
-                            // Map back to global index if using a slice
-                            const idx = numerator && denominator
-                            ? (stored.chunks.indexOf(chunk))
-                            : localIdx;
+                        if (!searchChunks.length) {
+                            console.log("[Binger] No chunks in search window — skipping seek");
+                            return;
+                        }
 
+                        // Score all candidates, then apply adjacency-weighted targeting
+                        const scored = [];
+                        searchChunks.forEach((chunk, localIdx) => {
+                            const idx = baseOffset + localIdx; 
                             const score = cosineSimilarity(vector, chunk.vector);
-                            if (score > bestScore) {
-                                bestScore = score;
-                                bestIdx = idx;
-                            }
+                            scored.push({ idx, score });
                         });
 
-                        if (bestIdx >= 0) {
-                            const bestChunk = stored.chunks[bestIdx];
-                            console.log(`[Binger] Best match: chunk ${bestIdx} → ${bestChunk.start}s-${bestChunk.end}s (score=${bestScore.toFixed(3)})`);
+                        // Sort by similarity, desc, and pick top 3
+                        scored.sort((a, b) => b.score - a.score);
+                        const top1 = scored[0];
+                        const top2 = scored[1];
+                        const top3 = scored[2];
+
+                        if (top1 && Number.isFinite(top1.idx)) {
+                            // Build inclusion set with adjacency rule
+                            const isAdj = (a, b) => Math.abs(a - b) === 1;
+                            const included = [top1];
+                            if (top2 && isAdj(top2.idx, top1.idx)) included.push(top2);
+                            if (top3 && (isAdj(top3.idx, top1.idx) || (top2 && isAdj(top3.idx, top2.idx)))) included.push(top3);
+
+                            // Weighted average of START times using similarity scores as weights
+                            const wSum = included.reduce((s, r) => s + Math.max(0, r.score), 0) || 1;
+                            const weightedStart = included.reduce((s, r) => s + Math.max(0, r.score) * stored.chunks[r.idx].start, 0) / wSum;
+
+                            // Context lead-in
+                            const CONTEXT_SEC = 7;
+                            const target = Math.max(0, Math.floor(weightedStart - CONTEXT_SEC));
+
+                            console.log(`[Binger] Picks (idx:score): ${included.map((r) => `${r.idx}:${r.score.toFixed(3)}`).join(", ")} → weighted start ${weightedStart.toFixed(2)}s → target ${target}s`);
 
                             try {
-                            const target = Math.max(0, Math.floor(bestChunk.start));
+                                if (inSession) {
+                                    await firebase.database().ref(`rooms/${roomId}/playerState`).set({ action: "seek", time: target });
+                                } else {
+                                    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                                        const tab = tabs && tabs[0];
+                                        if (!tab || !tab.url || !/:\/\/phimbro\.com\/watch\//.test(tab.url)) return;
 
-                            if (inSession) {
-                                // Session case --> Let sessionMode sync both users
-                                await firebase.database()
-                                .ref(`rooms/${roomId}/playerState`)
-                                .set({ action: "seek", time: target });
-                            } else {
-                                // Solo case --> Seek the active watch tab directly
-                                chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-                                const tab = tabs && tabs[0];
-                                if (!tab || !tab.url || !/:\/\/phimbro\.com\/watch\//.test(tab.url)) return;
-
-                                // Use MV3-safe injection
-                                if (chrome.scripting && chrome.scripting.executeScript) {
-                                    chrome.scripting.executeScript({
-                                    target: { tabId: tab.id },
-                                    args: [target],
-                                    func: (t) => {
-                                        const v = document.querySelector("video.vjs-tech") || document.querySelector("video");
-                                        if (v && Number.isFinite(t)) v.currentTime = t;
-                                    },
+                                        if (chrome.scripting && chrome.scripting.executeScript) {
+                                            chrome.scripting.executeScript({
+                                                target: { tabId: tab.id },
+                                                args: [target],
+                                                func: (t) => {
+                                                    const v = document.querySelector("video.vjs-tech") || document.querySelector("video");
+                                                    if (v && Number.isFinite(t)) v.currentTime = t;
+                                                },
+                                            });
+                                        }
                                     });
                                 }
-                                });
-                            }
                             } catch (e) {
-                            console.warn("[Binger] bot-seek failed:", e);
+                                console.warn("[Binger] bot-seek failed:", e);
                             }
                         }
                     }
