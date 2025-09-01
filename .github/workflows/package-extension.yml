@@ -50,9 +50,8 @@ jobs:
         run: |
           mkdir -p docs
           zip -r "docs/Binger v$VERSION.zip" . \
-            -x ".git/*" "docs/*" ".github/*" ".github/workflows/*" \
-            "privacy-policy.md" "index.html" ".gitignore" "README.md" ".version" \
-            "api/**"
+            -x ".git/*" "docs/*" "api/*" ".github/*" ".github/workflows/*" \
+            "privacy-policy.md" "index.html" ".gitignore" "README.md" ".version"
           
       - name: Update index.html with version and download link
         run: |
