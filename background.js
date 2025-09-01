@@ -1668,7 +1668,7 @@ try {
                     const { title, year, minutes, isWatching } = msg.movieContext;
                     if (isWatching) {
                         movieLine = `Watching Movie: ${title || "Unknown"} (${year || "Unknown"}), at ${minutes} minutes`;
-                        temp = 0.7;
+                        temp = 0.5;
                         systemMessage = {
                             role: "system",
                             content: `You are Binger, a concise movie expert bot in the room with human users. 
