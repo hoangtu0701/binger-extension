@@ -1,2 +1,5 @@
 # Ignore API keys and usage docs
 API Keys & Usage/
+functions/
+firebase.json
+.firebaserc
