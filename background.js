@@ -1863,7 +1863,7 @@ try {
                             scored.push({ idx, score });
                         });
 
-                        // Sort by similarity, desc, and pick top 3
+                        // Sort by similarity, desc, and pick the top 3
                         scored.sort((a, b) => b.score - a.score);
                         const top1 = scored[0];
                         const top2 = scored[1];
