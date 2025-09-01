@@ -1685,8 +1685,10 @@ try {
                 const lastMsgs = Object.values(chatSnap.val() || {}).map(m => `${m.sender}: ${m.text}`);
 
                 let movieLine;
+                let temp;
                 if (!msg.movieContext) {
                     movieLine = "Not watching any specific movie";
+                    temp = 1.5;
                     systemMessage = {
                         role: "system",
                         content: `You are Binger, a concise movie expert bot in the room with human users. You **ALWAYS** use the following **CONTEXT** to ground your answers.
@@ -1707,6 +1709,7 @@ try {
                     const { title, year, minutes, isWatching } = msg.movieContext;
                     if (isWatching) {
                         movieLine = `Watching Movie: ${title || "Unknown"} (${year || "Unknown"}), at ${minutes} minutes`;
+                        temp = 0.2;
                         systemMessage = {
                             role: "system",
                             content: `You are Binger, a concise movie expert bot in the room with human users. 
@@ -1745,6 +1748,7 @@ try {
                         };
                     } else {
                         movieLine = `Selected Movie: ${title || "Unknown"} (${year || "Unknown"})`;
+                        temp = 1.5;
                         systemMessage = {
                             role: "system",
                             content: `You are Binger, a concise movie expert bot in the room with human users. You **ALWAYS** use the following **CONTEXT** to ground your answers.
@@ -1772,6 +1776,7 @@ try {
                     },
                     body: JSON.stringify({
                         model: "openai/gpt-4o-mini",
+                        temperature: temp,
                         max_tokens: 80,
                         messages: [
                             systemMessage,
