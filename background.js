@@ -59,7 +59,7 @@ try {
   // Utility to load API keys 
   async function loadKey(name) {
     try {
-      const path = `API Keys & Usage/${name}.key`;
+      const path = `API Keys/${name}.key`;
       const response = await fetch(chrome.runtime.getURL(path));
       return (await response.text()).trim();
     } catch (err) {
