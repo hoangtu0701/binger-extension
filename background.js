@@ -55,7 +55,6 @@ try {
   let currentMovieEmbeddingCache = null;
 
 
-
   // Utility to load API keys 
   async function loadKey(name) {
     try {
@@ -70,20 +69,10 @@ try {
 
   // Utitlity to fetch subtitles from SubDL
   async function fetchSubsInternal(rawName) {
-    const key = await loadKey("subdl");
-    if (!key) return [];
-
     let filmName = (rawName || "").replace(/[:]/g, "").replace(/\(.*?\)/g, "").trim();
     if (!filmName) return [];
 
-    const query = new URLSearchParams({
-        api_key: key,
-        film_name: filmName,
-        type: "movie",
-        languages: "EN"
-    }).toString();
-
-    const res = await fetch(`https://api.subdl.com/api/v1/subtitles?${query}`);
+    const res = await fetch(`https://binger-extension.vercel.app/api/subdl?film_name=${encodeURIComponent(filmName)}`);
     const data = await res.json();
     
     let chosen = null;
