@@ -1933,7 +1933,7 @@ try {
                     console.warn("[Binger] typing & seeking remove failed:", e);
                 }
             }
-        });
+        })();
 
         return true;
     }
