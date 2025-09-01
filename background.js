@@ -1688,7 +1688,7 @@ try {
                 let temp;
                 if (!msg.movieContext) {
                     movieLine = "Not watching any specific movie";
-                    temp = 1.5;
+                    temp = 1.2;
                     systemMessage = {
                         role: "system",
                         content: `You are Binger, a concise movie expert bot in the room with human users. You **ALWAYS** use the following **CONTEXT** to ground your answers.
@@ -1748,7 +1748,7 @@ try {
                         };
                     } else {
                         movieLine = `Selected Movie: ${title || "Unknown"} (${year || "Unknown"})`;
-                        temp = 1.5;
+                        temp = 1.2;
                         systemMessage = {
                             role: "system",
                             content: `You are Binger, a concise movie expert bot in the room with human users. You **ALWAYS** use the following **CONTEXT** to ground your answers.
