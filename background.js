@@ -1881,7 +1881,7 @@ try {
                             const weightedStart = included.reduce((s, r) => s + Math.max(0, r.score) * stored.chunks[r.idx].start, 0) / wSum;
 
                             // Context lead-in
-                            const CONTEXT_SEC = 10;
+                            const CONTEXT_SEC = 8;
                             const target = Math.max(0, Math.floor(weightedStart - CONTEXT_SEC));
 
                             console.log(`[Binger] Picks (idx:score): ${included.map((r) => `${r.idx}:${r.score.toFixed(3)}`).join(", ")} → weighted start ${weightedStart.toFixed(2)}s → target ${target}s`);
