@@ -1709,7 +1709,7 @@ try {
                     const { title, year, minutes, isWatching } = msg.movieContext;
                     if (isWatching) {
                         movieLine = `Watching Movie: ${title || "Unknown"} (${year || "Unknown"}), at ${minutes} minutes`;
-                        temp = 0.2;
+                        temp = 0.7;
                         systemMessage = {
                             role: "system",
                             content: `You are Binger, a concise movie expert bot in the room with human users. 
@@ -1930,7 +1930,7 @@ try {
                             const weightedStart = included.reduce((s, r) => s + Math.max(0, r.score) * stored.chunks[r.idx].start, 0) / wSum;
 
                             // Context lead-in
-                            const CONTEXT_SEC = 7;
+                            const CONTEXT_SEC = 10;
                             const target = Math.max(0, Math.floor(weightedStart - CONTEXT_SEC));
 
                             console.log(`[Binger] Picks (idx:score): ${included.map((r) => `${r.idx}:${r.score.toFixed(3)}`).join(", ")} → weighted start ${weightedStart.toFixed(2)}s → target ${target}s`);
