@@ -55,17 +55,6 @@ try {
   let currentMovieEmbeddingCache = null;
 
 
-  // Utility to load API keys 
-  async function loadKey(name) {
-    try {
-      const path = `API Keys/${name}.key`;
-      const response = await fetch(chrome.runtime.getURL(path));
-      return (await response.text()).trim();
-    } catch (err) {
-      console.warn(`[Binger] Could not load key: ${name}`, err);
-      return null;
-    }
-  }
 
   // Utitlity to fetch subtitles from SubDL
   async function fetchSubsInternal(rawName) {
@@ -168,94 +157,81 @@ try {
     console.log(`[Binger] Chunked ${entries.length} subtitle entries into ${chunks.length} chunks`);
 
     // Rephrase all chunks concurrently
-    const openrouterKey = await loadKey("openrouter");
-    if (openrouterKey) {
-        console.log(`[Binger] Rewriting ${chunks.length} chunks...`);
+    console.log(`[Binger] Rewriting ${chunks.length} chunks...`);
 
-        // Log examples before rewrite
-        console.log("[Binger] Sample before rewrite (with timestamps):");
-        chunks.slice(0, 5).forEach((c, i) => {
-            console.log(
-                `  [${i}] start=${c.start}, end=${c.end}\n       ${c.text}`
-            );
-        });
+    // Log examples before rewrite
+    console.log("[Binger] Sample before rewrite (with timestamps):");
+    chunks.slice(0, 5).forEach((c, i) => {
+        console.log(
+            `  [${i}] start=${c.start}, end=${c.end}\n       ${c.text}`
+        );
+    });
 
-        const requests = chunks.map((chunk, idx) => {
-            const messages = [
-                {
-                    role: "system",
-                    content: `You rewrite subtitles into concise descriptive movie summaries.
-                        Rules:
-                        - Merge all lines into 1-2 sentences, 20-25 words max.
-                        - Keep character names if present.
-                        - Keep actions, sounds, stage directions.
-                        - Capture tone/emotion (shouting, laughing, etc.).
-                        - Mention props/locations if present.
-                        - Do NOT invent new details.
-                        - Return ONLY the rewritten text, no quotes or extra commentary.`
-                },
-                {
-                    role: "user",
-                    content: `Rewrite this subtitle chunk:\n\n${chunk.text}`
-                }
-            ];
-
-            return fetch("https://openrouter.ai/api/v1/chat/completions", {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${openrouterKey}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    model: "openai/gpt-4o-mini",
-                    temperature: 0.2,
-                    max_tokens: 50,
-                    messages
-                })
-            })
-            .then(r => r.json())
-            .then(data => {
-                const content = data?.choices?.[0]?.message?.content?.trim();
-                return content || chunk.text;
-            })
-            .catch(err => {
-                console.error(`[Binger] GPT rewrite failed for chunk ${idx}`, err);
-                return chunk.text;
-            });
-        });
-
-        const rewrites = await Promise.allSettled(requests);
-
-        rewrites.forEach((res, i) => {
-            if (res.status === "fulfilled") {
-                chunks[i].text = res.value;
+    const requests = chunks.map((chunk, idx) => {
+        const messages = [
+            {
+                role: "system",
+                content: `You rewrite subtitles into concise descriptive movie summaries.
+                    Rules:
+                    - Merge all lines into 1-2 sentences, 20-25 words max.
+                    - Keep character names if present.
+                    - Keep actions, sounds, stage directions.
+                    - Capture tone/emotion (shouting, laughing, etc.).
+                    - Mention props/locations if present.
+                    - Do NOT invent new details.
+                    - Return ONLY the rewritten text, no quotes or extra commentary.`
+            },
+            {
+                role: "user",
+                content: `Rewrite this subtitle chunk:\n\n${chunk.text}`
             }
-        });
+        ];
 
-        // Log examples after rewrite
-        console.log("[Binger] Sample after rewrite:");
-        chunks.slice(0, 5).forEach((c, i) => {
-            console.log(
-                `  [${i}] start=${c.start}, end=${c.end}\n       ${c.text}`
-            );
+        return fetch("https://binger-extension.vercel.app/api/openrouter", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                model: "openai/gpt-4o-mini",
+                temperature: 0.2,
+                max_tokens: 50,
+                messages
+            })
+        })
+        .then(r => r.json())
+        .then(data => {
+            const content = data?.choices?.[0]?.message?.content?.trim();
+            return content || chunk.text;
+        })
+        .catch(err => {
+            console.error(`[Binger] GPT rewrite failed for chunk ${idx}`, err);
+            return chunk.text;
         });
+    });
 
-        console.log("[Binger] Finished GPT rewrites.");
-    } else {
-        console.warn("[Binger] No OpenRouter key — using raw subtitles.");
-    }
+    const rewrites = await Promise.allSettled(requests);
+
+    rewrites.forEach((res, i) => {
+        if (res.status === "fulfilled") {
+            chunks[i].text = res.value;
+        }
+    });
+
+    // Log examples after rewrite
+    console.log("[Binger] Sample after rewrite:");
+    chunks.slice(0, 5).forEach((c, i) => {
+        console.log(
+            `  [${i}] start=${c.start}, end=${c.end}\n       ${c.text}`
+        );
+    });
+
+    console.log("[Binger] Finished GPT rewrites.");
 
     // Embed all chunks
-    const embedKey = await loadKey("openai");
-    if (!embedKey) throw new Error("Missing openai.key");
-
-    const resp = await fetch("https://api.openai.com/v1/embeddings", {
+    const resp = await fetch("https://binger-extension.vercel.app/api/openai", {
         method: "POST",
-        headers: {
-            "Authorization": `Bearer ${embedKey}`,
-            "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+            mode: "embed",
             model: "text-embedding-3-large",
             input: chunks.map(c => c.text)
         })
@@ -1637,13 +1613,7 @@ try {
         const BOT_UID = "BINGER_BOT";
         const BOT_SEEK_UID = "BINGER_BOT_SEEK";
 
-        loadKey("openrouter").then(async (key) => {
-            if (!key) {
-                console.warn("[Binger] No OpenRouter key found — replying with fallback.");
-                sendResponse({ reply: "Sorry, this feature isn't enabled on your version." });
-                return;
-            }
-
+        (async () => {
             // Resolve current roomId once (survives page reloads)
             let roomId = await new Promise((resolve) => {chrome.storage.local.get("bingerCurrentRoomId", ({ bingerCurrentRoomId }) => resolve(bingerCurrentRoomId));});
             if (!roomId) {
@@ -1757,12 +1727,9 @@ try {
                     }
                 }
 
-                const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                const r = await fetch("https://binger-extension.vercel.app/api/openrouter", {
                     method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${key}`,
-                        "Content-Type": "application/json",
-                    },
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         model: "openai/gpt-4o-mini",
                         temperature: temp,
@@ -1828,26 +1795,21 @@ try {
 
                     // Embed this scene's cleaned description
                     try {
-                        const embedKey = await loadKey("openai");
-                        if (embedKey) {
-                            const resp = await fetch("https://api.openai.com/v1/embeddings", {
-                                method: "POST",
-                                headers: {
-                                    "Authorization": `Bearer ${embedKey}`,
-                                    "Content-Type": "application/json"
-                                },
-                                body: JSON.stringify({
-                                    model: "text-embedding-3-large", 
-                                    input: cleanDesc
-                                })
-                            });
+                        const resp = await fetch("https://binger-extension.vercel.app/api/openai", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                mode: "embed",
+                                model: "text-embedding-3-large",
+                                input: cleanDesc
+                            })
+                        });
 
-                            const data = await resp.json();
-                            vector = data?.data?.[0]?.embedding;
+                        const data = await resp.json();
+                        vector = data?.data?.[0]?.embedding;
 
-                            if (vector) {
-                                console.log("[Binger] Got embedding:", vector.slice(0, 5), "...");
-                            }
+                        if (vector) {
+                            console.log("[Binger] Got embedding:", vector.slice(0, 5), "...");
                         }
                     } catch (e) {
                         console.error("[Binger] Failed to embed cleanDesc:", e);
