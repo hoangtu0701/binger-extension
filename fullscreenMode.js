@@ -85,6 +85,7 @@
           justifyContent: "center",
           alignItems: "center",
           flexDirection: "column",
+          overflow: "hidden"
         });
 
         // Move all children into videoRegion
