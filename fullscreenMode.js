@@ -74,11 +74,11 @@
           width: "100%",
         });
 
-        // Create videoRegion (65%)
+        // Create videoRegion (70%)
         videoRegion = document.createElement("div");
         videoRegion.id = "binger-video-region";
         Object.assign(videoRegion.style, {
-          height: "65%",
+          height: "70%",
           width: "100%",
           display: "flex",
           position: "relative",
@@ -100,14 +100,14 @@
           objectFit: "contain",
         });
 
-        // Create Overlay & Call App wrapper (35%)
+        // Create Overlay & Call App & Soundboard wrapper (30%)
         const fsRow = document.createElement("div");
         fsRow.id = "binger-fullscreen-row";
         Object.assign(fsRow.style, {
           display: "flex",
           flexDirection: "row",
           width: "100%",
-          height: "35%",
+          height: "30%",
           justifyContent: "center",
           alignItems: "stretch",
           gap: "12px"
