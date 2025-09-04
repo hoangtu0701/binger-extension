@@ -497,7 +497,16 @@
     padding-bottom: 60px; /* gives space for bottom buttons */
     position: relative;
   }
-  
+
+  #bingerOverlay.fullscreen.in-session #bingerLeftPane {
+    width: 200px;
+  }
+
+  #bingerOverlay.fullscreen.in-session #bingerBottomButtons {
+    width: 200px;  
+    left: 3.5%;
+  }
+    
   /* Make bottom buttons stick near the bottom */
   #bingerOverlay.fullscreen #bingerBottomButtons {
     position: absolute;
