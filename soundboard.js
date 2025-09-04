@@ -38,29 +38,24 @@ for (const [id, path] of Object.entries(soundFiles)) {
 }
 
 const sounds = [
-    { id: "adlib", emoji: "🎤" },
     { id: "aergh", emoji: "😫" },
-    { id: "ah", emoji: "😮" },
-    { id: "corruption", emoji: "💸" },
-    { id: "fart", emoji: "💨" },
     { id: "flute", emoji: "🎶" },
     { id: "hmm", emoji: "🤔" },
-    { id: "hoop1", emoji: "🏀" },
-    { id: "hoop2", emoji: "⛹️" },
-    { id: "mysterious", emoji: "🕵️" },
     { id: "pipe", emoji: "🔩" },
-    { id: "re", emoji: "🫠" },
     { id: "rose", emoji: "🥀" },
-    { id: "silentH", emoji: "😶" },
-    { id: "slap", emoji: "🖐️" }
 ];
 
 const visuals = [
-    { id: "heart", emoji: "❤️" },
-    { id: "clap", emoji: "👏" },
-    { id: "fire", emoji: "🔥" },
-    { id: "sparkle", emoji: "✨" },
-    { id: "star", emoji: "⭐" }
+    { id: "rage", emoji: "🤬" },
+    { id: "poop", emoji: "💩" },
+    { id: "sadtears", emoji: "🥲" },
+    { id: "rofl", emoji: "🤣" },
+    { id: "laugh", emoji: "😂" },
+    { id: "hearts", emoji: "🥰" },
+    { id: "smile", emoji: "😀" },
+    { id: "disguise", emoji: "🥸" },
+    { id: "pleading", emoji: "🥺" },
+    { id: "shock", emoji: "🫨" }
 ];
 
 function createSoundboardUI() {
@@ -178,13 +173,24 @@ chrome.runtime.onMessage.addListener((msg) => {
 
 function triggerVisualEffect(effectId) {
 
-    if (!document.getElementById("bingerFloatUpKeyframes")) {
+    if (!document.getElementById("bingerFloatAnimations")) {
         const style = document.createElement("style");
-        style.id = "bingerFloatUpKeyframes";
+        style.id = "bingerFloatAnimations";
         style.textContent = `
-            @keyframes floatUp {
-                from { transform: translateY(0); opacity: 1; }
-                to   { transform: translateY(-150px); opacity: 0; }
+            @keyframes floatDrift {
+                0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+                50%  { transform: translate(var(--drift-x), -75px) scale(1.2); opacity: 0.8; }
+                100% { transform: translate(calc(var(--drift-x) * 2), -150px) scale(1); opacity: 0; }
+            }
+            @keyframes floatPop {
+                0%   { transform: translateY(0) scale(0.8); opacity: 0; }
+                20%  { transform: translateY(-30px) scale(1.3); opacity: 1; }
+                80%  { transform: translateY(-120px) scale(1); opacity: 0.8; }
+                100% { transform: translateY(-150px) scale(0.9); opacity: 0; }
+            }
+            @keyframes floatSpiral {
+                0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+                100% { transform: translateY(-180px) rotate(360deg); opacity: 0; }
             }
         `;
         document.head.appendChild(style);
@@ -194,10 +200,20 @@ function triggerVisualEffect(effectId) {
     el.className = "visual-effect binger-ephemeral";
     el.innerText = visuals.find((v) => v.id === effectId)?.emoji || "❓";
 
+    // Pick a random animation
+    const animations = ["floatDrift", "floatPop", "floatSpiral"];
+    const chosen = animations[Math.floor(Math.random() * animations.length)];
+
+    // For drift, assign a random horizontal direction
+    if (chosen === "floatDrift") {
+        const driftX = Math.random() > 0.5 ? "40px" : "-40px";
+        el.style.setProperty("--drift-x", driftX);
+    }
+
     Object.assign(el.style, {
         position: "absolute",
         fontSize: "48px",
-        animation: "floatUp 2s ease-out",
+        animation: `${chosen} 2s ease-out`,
         bottom: "20px",
         left: `${Math.random() * 80 + 10}%`,
         zIndex: 2147483647,
