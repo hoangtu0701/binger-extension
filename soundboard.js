@@ -100,11 +100,11 @@ function createSoundboardUI() {
         visualSection.appendChild(btn);
     }
 
-    soundboardEl.appendChild(soundSection);
+    soundboardEl.appendChild(visualSection);
     const divider = document.createElement("div");
     divider.className = "binger-divider";
     soundboardEl.appendChild(divider);
-    soundboardEl.appendChild(visualSection);
+    soundboardEl.appendChild(soundSection);
     document.body.appendChild(soundboardEl);
 
     // Start the listeners
