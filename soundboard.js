@@ -204,8 +204,9 @@ function triggerVisualEffect(effectId) {
         pointerEvents: "none",
     });
 
+    const videoRegion = document.getElementById("binger-video-region");
     const overlay = document.getElementById("bingerOverlay");
-    const container = overlay?.parentNode || document.body;
+    const container = videoRegion || overlay?.parentNode || document.body;
     container.appendChild(el);
 
     setTimeout(() => el.remove(), 2000);
