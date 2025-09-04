@@ -33,6 +33,10 @@
     let soundboardOriginalParent = null;
     let soundboardNextSibling = null;
 
+    function isEphemeral(node) {
+      return node?.classList?.contains("binger-ephemeral");
+    }
+
     document.addEventListener("fullscreenchange", () => {
       const isFS = !!document.fullscreenElement;
       const vjsContainer = document.querySelector(".video-js.vjs-fullscreen") || document.querySelector(".video-js");
@@ -44,12 +48,20 @@
       }
 
       if (isFS) {
+        document.querySelectorAll(".binger-ephemeral").forEach(el => el.remove());
+
         // Find call iframe
         iframe = document.querySelector("iframe.binger-call-iframe");
         if (iframe) {
           iframeOriginalParent = iframe.parentNode;
-          iframeNextSibling = iframe.nextSibling;
           iframeOriginalStyles = iframe.getAttribute("style");
+
+          // Skip ephemeral siblings
+          let sibling = iframe.nextSibling;
+          while (sibling && isEphemeral(sibling)) {
+            sibling = sibling.nextSibling;
+          }
+          iframeNextSibling = sibling;
         }
 
         console.log("[Binger] 🎥 Entered fullscreen");
@@ -90,7 +102,9 @@
 
         // Move all children into videoRegion
         [...vjsContainer.children].forEach((child) => {
-          if (child !== videoRegion) videoRegion.appendChild(child);
+          if (child !== videoRegion && !isEphemeral(child)) {
+            videoRegion.appendChild(child);
+          }
         });
         vjsContainer.appendChild(videoRegion);
 
@@ -175,7 +189,12 @@
         if (soundboard) {
           if (!soundboardOriginalParent) {
             soundboardOriginalParent = soundboard.parentNode;
-            soundboardNextSibling = soundboard.nextSibling;
+            // Skip ephemeral siblings
+            let sbSibling = soundboard.nextSibling;
+            while (sbSibling && isEphemeral(sbSibling)) {
+              sbSibling = sbSibling.nextSibling;
+            }
+            soundboardNextSibling = sbSibling;
           }
 
           soundboard.classList.add("fullscreen");
@@ -191,24 +210,34 @@
 
           // Move back overlay
           if (overlayOriginalParent) {                           
-            overlayOriginalParent.insertBefore(
-              overlay,
-              overlayNextSibling
-            );
+            let ovSibling = overlayNextSibling;
+            while (ovSibling && isEphemeral(ovSibling)) {
+              ovSibling = ovSibling.nextSibling;
+            }
+            overlayOriginalParent.insertBefore(overlay, ovSibling);
           } 
 
           // Move back soundboard
           const soundboard = document.getElementById("bingerSoundboard");
           if (soundboard && soundboardOriginalParent) {
             soundboard.classList.remove("fullscreen");
-            soundboardOriginalParent.insertBefore(soundboard, soundboardNextSibling);
+            let sbSiblingRestore = soundboardNextSibling;
+            while (sbSiblingRestore && isEphemeral(sbSiblingRestore)) {
+              sbSiblingRestore = sbSiblingRestore.nextSibling;
+            }
+            soundboardOriginalParent.insertBefore(soundboard, sbSiblingRestore);
           }
 
           // Move back video children
           const currentVideoRegion = document.getElementById("binger-video-region");
           if (currentVideoRegion) {
             while (currentVideoRegion.firstChild) {
-              vjsContainer.insertBefore(currentVideoRegion.firstChild, currentVideoRegion);
+              const child = currentVideoRegion.firstChild;
+              if (!isEphemeral(child)) {
+                vjsContainer.insertBefore(child, currentVideoRegion);
+              } else {
+                child.remove(); // kill floating emoji
+              }
             }
             currentVideoRegion.remove();
           }
@@ -281,7 +310,11 @@
                 );
               };
 
-              iframeOriginalParent.insertBefore(newIframe, iframeNextSibling);
+              let ifSiblingRestore = iframeNextSibling;
+              while (ifSiblingRestore && isEphemeral(ifSiblingRestore)) {
+                ifSiblingRestore = ifSiblingRestore.nextSibling;
+              }
+              iframeOriginalParent.insertBefore(newIframe, ifSiblingRestore);
               iframe = newIframe;
 
               // Broadcast to other user to sync
@@ -310,6 +343,8 @@
 
       // EXIT FULLSCREEN 
       else {
+        document.querySelectorAll(".binger-ephemeral").forEach(el => el.remove());
+        
         overlay.classList.remove("fullscreen");
         console.log("[Binger] Exited fullscreen");
 
@@ -320,14 +355,22 @@
           console.warn("[Binger] restoreFn missing — attempting manual cleanup");
 
           if (overlayOriginalParent) {
-            overlayOriginalParent.insertBefore(overlay, overlayNextSibling);
+            let ovSibling = overlayNextSibling;
+            while (ovSibling && isEphemeral(ovSibling)) {
+              ovSibling = ovSibling.nextSibling;
+            }
+            overlayOriginalParent.insertBefore(overlay, ovSibling);
           }
 
           // Move back soundboard
           const soundboard = document.getElementById("bingerSoundboard");
           if (soundboard && soundboardOriginalParent) {
             soundboard.classList.remove("fullscreen");
-            soundboardOriginalParent.insertBefore(soundboard, soundboardNextSibling);
+            let sbSiblingRestore = soundboardNextSibling;
+            while (sbSiblingRestore && isEphemeral(sbSiblingRestore)) {
+              sbSiblingRestore = sbSiblingRestore.nextSibling;
+            }
+            soundboardOriginalParent.insertBefore(soundboard, sbSiblingRestore);
           }
 
           const currentVideoRegion = document.getElementById("binger-video-region");
@@ -335,7 +378,12 @@
 
           if (currentVideoRegion) {
             while (currentVideoRegion.firstChild) {
-              vjsContainer.insertBefore(currentVideoRegion.firstChild, currentVideoRegion);
+              const child = currentVideoRegion.firstChild;
+              if (!isEphemeral(child)) {
+                vjsContainer.insertBefore(child, currentVideoRegion);
+              } else {
+                child.remove(); // kill floating emoji
+              }
             }
             currentVideoRegion.remove();
           }
@@ -394,7 +442,11 @@
                 );
               };
 
-              iframeOriginalParent.insertBefore(newIframe, iframeNextSibling);
+              let ifSiblingRestore = iframeNextSibling;
+              while (ifSiblingRestore && isEphemeral(ifSiblingRestore)) {
+                ifSiblingRestore = ifSiblingRestore.nextSibling;
+              }
+              iframeOriginalParent.insertBefore(newIframe, ifSiblingRestore);
               iframe = newIframe;
 
               // Broadcast to other user to sync

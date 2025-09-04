@@ -177,18 +177,36 @@ chrome.runtime.onMessage.addListener((msg) => {
 });
 
 function triggerVisualEffect(effectId) {
+
+    if (!document.getElementById("bingerFloatUpKeyframes")) {
+        const style = document.createElement("style");
+        style.id = "bingerFloatUpKeyframes";
+        style.textContent = `
+            @keyframes floatUp {
+                from { transform: translateY(0); opacity: 1; }
+                to   { transform: translateY(-150px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
     const el = document.createElement("div");
-    el.className = "visual-effect";
+    el.className = "visual-effect binger-ephemeral";
     el.innerText = visuals.find((v) => v.id === effectId)?.emoji || "❓";
+
     Object.assign(el.style, {
-        position: "fixed",
+        position: "absolute",
         fontSize: "48px",
         animation: "floatUp 2s ease-out",
         bottom: "20px",
         left: `${Math.random() * 80 + 10}%`,
-        zIndex: 999999,
+        zIndex: 2147483647,
         pointerEvents: "none",
     });
-    document.body.appendChild(el);
+
+    const overlay = document.getElementById("bingerOverlay");
+    const container = overlay?.parentNode || document.body;
+    container.appendChild(el);
+
     setTimeout(() => el.remove(), 2000);
 }
