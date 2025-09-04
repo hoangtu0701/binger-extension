@@ -600,43 +600,70 @@
 /* Soundboard */
 
 #bingerSoundboard.binger-soundboard {
-  display: grid;
-  grid-auto-rows: 1fr;
+  display: flex;          
   gap: 12px;
   padding: 10px;
-  overflow-y: auto;
 
   background: rgba(0, 0, 0, 0.75);
   border-radius: 20px;
   z-index: 9999;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  width: fit-content;
+  height: fit-content;
 }
 
 #bingerSoundboard.binger-soundboard:not(.fullscreen) {
   position: fixed;
   bottom: 20px;
   left: 20px;
-
-  grid-template-columns: repeat(5, 1fr);
-  height: calc(3 * 50px + 2 * 12px);
-  max-height: calc(3 * 50px + 2 * 12px);
-  width: fit-content;
 }
 
 #bingerSoundboard.binger-soundboard.fullscreen {
   position: static !important;
-  align-self: stretch; 
-  height: 100%;    
+  align-self: stretch;
+  height: 100%;
   flex-shrink: 0;
-  grid-template-columns: repeat(3, 1fr);                  
-  width: fit-content;
   gap: 6px;
 }
 
+.binger-sound-section {
+  display: grid;
+  grid-template-rows: repeat(5, 50px); 
+  grid-auto-flow: column;
+  grid-auto-columns: 50px;
+  gap: 12px;
+}
 
-.binger-sound-btn {
-  width: 100%;
+.binger-visual-section {
+  display: grid;
+  grid-template-rows: repeat(5, 50px);   
+  gap: 12px;
+}
+
+.binger-divider {
+  width: 2px;
+  background: rgba(255, 255, 255, 0.2);
+  margin: 0 8px;
+}
+
+#bingerSoundboard.fullscreen .binger-sound-section,
+#bingerSoundboard.fullscreen .binger-visual-section {
+  grid-template-rows: repeat(5, 1fr); 
   height: 100%;
+}
+
+#bingerSoundboard.fullscreen .binger-sound-btn,
+#bingerSoundboard.fullscreen .binger-visual-btn {
+  width: 100%;   
+  height: 100%;
+  font-size: 20px;
+  padding: 0;
+}
+
+.binger-sound-btn,
+.binger-visual-btn {
+  width: 50px;
+  height: 50px;
   font-size: 24px;
   padding: 4px;
   background: transparent;
@@ -648,11 +675,7 @@
   transition: transform 0.15s ease;
 }
 
-#bingerSoundboard.fullscreen .binger-sound-btn {
-  font-size: 20px; 
-  padding: 0;      
-}
-
-.binger-sound-btn:hover {
+.binger-sound-btn:hover,
+.binger-visual-btn:hover {
   transform: scale(1.15);
 }

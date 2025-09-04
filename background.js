@@ -50,6 +50,7 @@ try {
   const bufferListeners = {};
   const resetIframeListeners = {}; 
   const soundboardListeners = {}; 
+  const visualboardListeners = {};
 
   // In-memory cache for latest movie embeddings
   let currentMovieEmbeddingCache = null;
@@ -1562,6 +1563,16 @@ try {
         });
     }
 
+    // Tell the room to play visual effect
+    if (msg.command === "requestVisualEffect") {
+        chrome.storage.local.get("bingerCurrentRoomId", ({ bingerCurrentRoomId }) => {
+            if (!bingerCurrentRoomId) return;
+
+            firebase.database().ref(`rooms/${bingerCurrentRoomId}/visualboard/${msg.visualId}`)
+            .set(Date.now());
+        });
+    }
+
     // Attach the listener to sounds
     if (msg.command === "startSoundboardListener") {
         const { roomId } = msg;
@@ -1605,6 +1616,52 @@ try {
             soundboardListeners[roomId]();
             delete soundboardListeners[roomId];
             sendResponse({ status: "soundboard listener removed" });
+        }
+    }
+
+    // Attach the listener to visuals
+    if (msg.command === "startVisualboardListener") {
+        const { roomId } = msg;
+
+        // Remove old listener if it exists
+        if (visualboardListeners[roomId]) {
+            visualboardListeners[roomId]();
+            delete visualboardListeners[roomId];
+        }
+
+        const ref = firebase.database().ref(`rooms/${roomId}/visualboard`);
+
+        const onVisualChange = (snap) => {
+            const visualId = snap.key;
+            const timestamp = snap.val();
+
+            // Broadcast only this visual
+            chrome.tabs.query({ url: "*://phimbro.com/*" }, (tabs) => {
+            tabs.forEach((tab) => {
+                chrome.tabs.sendMessage(tab.id, {
+                command: "playVisualEffect",
+                visualId
+                });
+            });
+            });
+        };
+
+        ref.on("child_changed", onVisualChange);
+
+        // Store unsubscribe function
+        visualboardListeners[roomId] = () => ref.off("child_changed", onVisualChange);
+
+        sendResponse({ status: "visualboard listener attached" });
+        return true;
+    }
+
+    // Delete the listener to visuals
+    if (msg.command === "stopVisualboardListener") {
+        const { roomId } = msg;
+        if (visualboardListeners[roomId]) {
+            visualboardListeners[roomId]();
+            delete visualboardListeners[roomId];
+            sendResponse({ status: "visualboard listener removed" });
         }
     }
 
