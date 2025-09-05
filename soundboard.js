@@ -195,8 +195,6 @@ chrome.runtime.onMessage.addListener((msg) => {
             activePinTimer = null;
         }
 
-        if (!msg.pin) return;
-
         const video = document.querySelector("video");
         if (!video) return;
         const rect = video.getBoundingClientRect();
@@ -208,14 +206,19 @@ chrome.runtime.onMessage.addListener((msg) => {
         activePinEl.textContent = msg.pin.symbol;
         Object.assign(activePinEl.style, {
             position: "absolute",
-            left: `${absX}px`,
-            top: `${absY}px`,
+            left: `${absX - 24}px`,  
+            top: `${absY - 24}px`,  
             fontSize: "48px",
+            lineHeight: "48px",
             zIndex: 2147483647,
             pointerEvents: "none",
             transition: "opacity 0.5s ease"
         });
-        document.body.appendChild(activePinEl);
+        
+        const videoRegion = document.getElementById("binger-video-region");
+        const overlay = document.getElementById("bingerOverlay");
+        const container = videoRegion || overlay?.parentNode || document.body;
+        container.appendChild(activePinEl);
 
         activePinTimer = setTimeout(() => {
             if (activePinEl) {
@@ -309,18 +312,27 @@ function triggerVisualEffect(effectId) {
             const video = document.querySelector("video");
             if (video) {
                 const rect = video.getBoundingClientRect();
-                const relX = (ev.clientX - rect.left) / rect.width;
-                const relY = (ev.clientY - rect.top) / rect.height;
 
-                chrome.runtime.sendMessage({
-                    command: "requestPin",
-                    symbol: el.innerText,
-                    relX,
-                    relY
-                });
+                if (
+                    ev.clientX >= rect.left &&
+                    ev.clientX <= rect.right &&
+                    ev.clientY >= rect.top &&
+                    ev.clientY <= rect.bottom
+                ) {
+                    const relX = (ev.clientX - rect.left) / rect.width;
+                    const relY = (ev.clientY - rect.top) / rect.height;
+
+                    chrome.runtime.sendMessage({
+                        command: "requestPin",
+                        symbol: el.innerText,
+                        relX,
+                        relY,
+                        timestamp: Date.now()
+                    });
+                }
             }
 
-            el.remove();
+            el.remove(); 
         };
 
         window.addEventListener("mousemove", move);
