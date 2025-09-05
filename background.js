@@ -1579,12 +1579,12 @@ try {
         chrome.storage.local.get("bingerCurrentRoomId", ({ bingerCurrentRoomId }) => {
             if (!bingerCurrentRoomId) return;
 
-            firebase.database().ref(`rooms/${bingerCurrentRoomId}/activePin`)
+            const ts = Date.now();
+            firebase.database().ref(`rooms/${bingerCurrentRoomId}/activePins/${msg.visualId}`)
             .set({
-                symbol: msg.symbol,
+                timestamp: ts,
                 relX: msg.relX,
-                relY: msg.relY,
-                timestamp: Date.now()
+                relY: msg.relY
             });
         });
     }
@@ -1691,26 +1691,27 @@ try {
             delete pinListeners[roomId];
         }
 
-        const ref = firebase.database().ref(`rooms/${roomId}/activePin`);
+        const ref = firebase.database().ref(`rooms/${roomId}/activePins`);
 
         const onPinChange = (snap) => {
-            const pinData = snap.val();
+            const visualId = snap.key;
+            const data = snap.val();
+            if (!visualId || !data) return;
 
-            // Broadcast the pin data to all content scripts
             chrome.tabs.query({ url: "*://phimbro.com/*" }, (tabs) => {
                 tabs.forEach((tab) => {
                     chrome.tabs.sendMessage(tab.id, {
                         command: "updatePin",
-                        pin: pinData
+                        visualId,
+                        ...data 
                     });
                 });
             });
         };
 
-        ref.on("value", onPinChange);
+        ref.on("child_changed", onPinChange);
 
-        // Store unsubscribe function
-        pinListeners[roomId] = () => ref.off("value", onPinChange);
+        pinListeners[roomId] = () => ref.off("child_changed", onPinChange);
 
         sendResponse({ status: "pin listener attached" });
         return true;

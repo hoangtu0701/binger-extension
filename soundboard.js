@@ -5,9 +5,6 @@
 let soundboardEl = null;
 let currentRoomId = null;
 let listenerAttached = false;
-let activePinEl = null;
-let activePinTimer = null;
-let lastPinTimestamp = 0;
 
 // Preload audio immediately when file is loaded
 const audioMap = {};
@@ -185,49 +182,40 @@ chrome.runtime.onMessage.addListener((msg) => {
     }
 
     if (msg.command === "updatePin") {
-        if (!msg.pin || msg.pin.timestamp <= lastPinTimestamp) return;
-        lastPinTimestamp = msg.pin.timestamp;
+        const { visualId, timestamp, relX, relY } = msg;
+        if (!visualId || !timestamp) return;
 
-        if (activePinEl) {
-            activePinEl.remove();
-            activePinEl = null;
-            clearTimeout(activePinTimer);
-            activePinTimer = null;
-        }
+        const vis = visuals.find(v => v.id === visualId);
+        const symbol = vis ? vis.emoji : "❓";
 
         const video = document.querySelector("video");
         if (!video) return;
         const rect = video.getBoundingClientRect();
-        const absX = rect.left + msg.pin.relX * rect.width;
-        const absY = rect.top + msg.pin.relY * rect.height;
+        const absX = rect.left + relX * rect.width;
+        const absY = rect.top + relY * rect.height;
 
-        activePinEl = document.createElement("div");
-        activePinEl.className = "binger-pin-emoji";
-        activePinEl.textContent = msg.pin.symbol;
-        Object.assign(activePinEl.style, {
+        const pinEl = document.createElement("div");
+        pinEl.className = "binger-pin-emoji";
+        pinEl.textContent = symbol;
+        Object.assign(pinEl.style, {
             position: "absolute",
-            left: `${absX - 24}px`,  
-            top: `${absY - 24}px`,  
+            left: `${absX - 24}px`,
+            top: `${absY - 24}px`,
             fontSize: "48px",
             lineHeight: "48px",
             zIndex: 2147483647,
             pointerEvents: "none",
             transition: "opacity 0.5s ease"
         });
-        
+
         const videoRegion = document.getElementById("binger-video-region");
         const overlay = document.getElementById("bingerOverlay");
         const container = videoRegion || overlay?.parentNode || document.body;
-        container.appendChild(activePinEl);
+        container.appendChild(pinEl);
 
-        activePinTimer = setTimeout(() => {
-            if (activePinEl) {
-                activePinEl.style.opacity = "0";
-                setTimeout(() => {
-                    activePinEl?.remove();
-                    activePinEl = null;
-                }, 500);
-            }
+        setTimeout(() => {
+            pinEl.style.opacity = "0";
+            setTimeout(() => pinEl.remove(), 500);
         }, 5000);
     }
 });
@@ -300,6 +288,8 @@ function triggerVisualEffect(effectId) {
         const offsetX = e.clientX - rect.left;
         const offsetY = e.clientY - rect.top;
 
+        document.body.style.cursor = "crosshair";
+
         const move = (ev) => {
             el.style.left = `${ev.clientX - offsetX}px`;
             el.style.top  = `${ev.clientY - offsetY}px`;
@@ -308,6 +298,8 @@ function triggerVisualEffect(effectId) {
         const up = (ev) => {
             window.removeEventListener("mousemove", move);
             window.removeEventListener("mouseup", up);
+
+            document.body.style.cursor = "";
 
             const video = document.querySelector("video");
             if (video) {
@@ -324,10 +316,9 @@ function triggerVisualEffect(effectId) {
 
                     chrome.runtime.sendMessage({
                         command: "requestPin",
-                        symbol: el.innerText,
+                        visualId: visuals.find(v => v.emoji === el.innerText)?.id,
                         relX,
-                        relY,
-                        timestamp: Date.now()
+                        relY
                     });
                 }
             }
