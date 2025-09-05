@@ -6,6 +6,8 @@ let soundboardEl = null;
 let currentRoomId = null;
 let listenerAttached = false;
 let activePinEl = null;
+let activePinTimer = null;
+let lastPinTimestamp = 0;
 
 // Preload audio immediately when file is loaded
 const audioMap = {};
@@ -183,9 +185,14 @@ chrome.runtime.onMessage.addListener((msg) => {
     }
 
     if (msg.command === "updatePin") {
+        if (!msg.pin || msg.pin.timestamp <= lastPinTimestamp) return;
+        lastPinTimestamp = msg.pin.timestamp;
+
         if (activePinEl) {
             activePinEl.remove();
             activePinEl = null;
+            clearTimeout(activePinTimer);
+            activePinTimer = null;
         }
 
         if (!msg.pin) return;
@@ -210,7 +217,7 @@ chrome.runtime.onMessage.addListener((msg) => {
         });
         document.body.appendChild(activePinEl);
 
-        setTimeout(() => {
+        activePinTimer = setTimeout(() => {
             if (activePinEl) {
                 activePinEl.style.opacity = "0";
                 setTimeout(() => {
@@ -280,15 +287,19 @@ function triggerVisualEffect(effectId) {
     // Auto-remove if untouched
     const despawnTimer = setTimeout(() => el.remove(), 2000);
 
-    // === Grab logic ===
+    // Grab logic
     el.addEventListener("mousedown", (e) => {
         e.preventDefault();
-        clearTimeout(despawnTimer);   // stop auto-remove
-        el.style.animation = "none";  // cancel float
+        clearTimeout(despawnTimer); 
+        el.style.animation = "none"; 
+
+        const rect = el.getBoundingClientRect();
+        const offsetX = e.clientX - rect.left;
+        const offsetY = e.clientY - rect.top;
 
         const move = (ev) => {
-            el.style.left = `${ev.clientX - 24}px`;
-            el.style.top = `${ev.clientY - 24}px`;
+            el.style.left = `${ev.clientX - offsetX}px`;
+            el.style.top  = `${ev.clientY - offsetY}px`;
         };
 
         const up = (ev) => {
@@ -309,7 +320,7 @@ function triggerVisualEffect(effectId) {
                 });
             }
 
-            el.remove(); // remove local grabbed element
+            el.remove();
         };
 
         window.addEventListener("mousemove", move);
