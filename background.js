@@ -51,6 +51,7 @@ try {
   const resetIframeListeners = {}; 
   const soundboardListeners = {}; 
   const visualboardListeners = {};
+  const pinListeners = {};
 
   // In-memory cache for latest movie embeddings
   let currentMovieEmbeddingCache = null;
@@ -1573,6 +1574,21 @@ try {
         });
     }
 
+    // Tell the room to place a pin
+    if (msg.command === "requestPin") {
+        chrome.storage.local.get("bingerCurrentRoomId", ({ bingerCurrentRoomId }) => {
+            if (!bingerCurrentRoomId) return;
+
+            firebase.database().ref(`rooms/${bingerCurrentRoomId}/activePin`)
+            .set({
+                symbol: msg.symbol,
+                relX: msg.relX,
+                relY: msg.relY,
+                timestamp: Date.now()
+            });
+        });
+    }
+
     // Attach the listener to sounds
     if (msg.command === "startSoundboardListener") {
         const { roomId } = msg;
@@ -1662,6 +1678,51 @@ try {
             visualboardListeners[roomId]();
             delete visualboardListeners[roomId];
             sendResponse({ status: "visualboard listener removed" });
+        }
+    }
+
+    // Attach the listener to pins
+    if (msg.command === "startPinListener") {
+        const { roomId } = msg;
+
+        // Remove old listener if it exists
+        if (pinListeners[roomId]) {
+            pinListeners[roomId]();
+            delete pinListeners[roomId];
+        }
+
+        const ref = firebase.database().ref(`rooms/${roomId}/activePin`);
+
+        const onPinChange = (snap) => {
+            const pinData = snap.val();
+
+            // Broadcast the pin data to all content scripts
+            chrome.tabs.query({ url: "*://phimbro.com/*" }, (tabs) => {
+                tabs.forEach((tab) => {
+                    chrome.tabs.sendMessage(tab.id, {
+                        command: "updatePin",
+                        pin: pinData
+                    });
+                });
+            });
+        };
+
+        ref.on("value", onPinChange);
+
+        // Store unsubscribe function
+        pinListeners[roomId] = () => ref.off("value", onPinChange);
+
+        sendResponse({ status: "pin listener attached" });
+        return true;
+    }
+
+    // Delete the listener to pins
+    if (msg.command === "stopPinListener") {
+        const { roomId } = msg;
+        if (pinListeners[roomId]) {
+            pinListeners[roomId]();
+            delete pinListeners[roomId];
+            sendResponse({ status: "pin listener removed" });
         }
     }
 

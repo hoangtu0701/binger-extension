@@ -34,7 +34,10 @@
     let soundboardNextSibling = null;
 
     function isEphemeral(node) {
-      return node?.classList?.contains("binger-ephemeral");
+      return (
+        node?.classList?.contains("binger-ephemeral") ||
+        node?.classList?.contains("binger-pin-emoji")
+      );
     }
 
     document.addEventListener("fullscreenchange", () => {
@@ -48,7 +51,7 @@
       }
 
       if (isFS) {
-        document.querySelectorAll(".binger-ephemeral").forEach(el => el.remove());
+        document.querySelectorAll(".binger-ephemeral, .binger-pin-emoji").forEach(el => el.remove());
 
         // Find call iframe
         iframe = document.querySelector("iframe.binger-call-iframe");
@@ -343,7 +346,7 @@
 
       // EXIT FULLSCREEN 
       else {
-        document.querySelectorAll(".binger-ephemeral").forEach(el => el.remove());
+        document.querySelectorAll(".binger-ephemeral, .binger-pin-emoji").forEach(el => el.remove());
         
         overlay.classList.remove("fullscreen");
         console.log("[Binger] Exited fullscreen");

@@ -5,6 +5,7 @@
 let soundboardEl = null;
 let currentRoomId = null;
 let listenerAttached = false;
+let activePinEl = null;
 
 // Preload audio immediately when file is loaded
 const audioMap = {};
@@ -122,6 +123,11 @@ function createSoundboardUI() {
             roomId: bingerCurrentRoomId 
         });
 
+        chrome.runtime.sendMessage({ 
+            command: "startPinListener", 
+            roomId: bingerCurrentRoomId 
+        });
+
         listenerAttached = true;
         currentRoomId = bingerCurrentRoomId;
     });
@@ -143,6 +149,12 @@ function destroySoundboardUI() {
             command: "stopVisualboardListener", 
             roomId: currentRoomId 
         });
+
+        chrome.runtime.sendMessage({ 
+            command: "stopPinListener", 
+            roomId: currentRoomId 
+        });
+
         listenerAttached = false;
         currentRoomId = null;
     }
@@ -168,6 +180,45 @@ chrome.runtime.onMessage.addListener((msg) => {
 
     if (msg.command === "playVisualEffect") {
         triggerVisualEffect(msg.visualId);
+    }
+
+    if (msg.command === "updatePin") {
+        if (activePinEl) {
+            activePinEl.remove();
+            activePinEl = null;
+        }
+
+        if (!msg.pin) return;
+
+        const video = document.querySelector("video");
+        if (!video) return;
+        const rect = video.getBoundingClientRect();
+        const absX = rect.left + msg.pin.relX * rect.width;
+        const absY = rect.top + msg.pin.relY * rect.height;
+
+        activePinEl = document.createElement("div");
+        activePinEl.className = "binger-pin-emoji";
+        activePinEl.textContent = msg.pin.symbol;
+        Object.assign(activePinEl.style, {
+            position: "absolute",
+            left: `${absX}px`,
+            top: `${absY}px`,
+            fontSize: "48px",
+            zIndex: 2147483647,
+            pointerEvents: "none",
+            transition: "opacity 0.5s ease"
+        });
+        document.body.appendChild(activePinEl);
+
+        setTimeout(() => {
+            if (activePinEl) {
+                activePinEl.style.opacity = "0";
+                setTimeout(() => {
+                    activePinEl?.remove();
+                    activePinEl = null;
+                }, 500);
+            }
+        }, 5000);
     }
 });
 
@@ -217,7 +268,8 @@ function triggerVisualEffect(effectId) {
         bottom: "20px",
         left: `${Math.random() * 80 + 10}%`,
         zIndex: 2147483647,
-        pointerEvents: "none",
+        pointerEvents: "auto", 
+        cursor: "grab"
     });
 
     const videoRegion = document.getElementById("binger-video-region");
@@ -225,5 +277,42 @@ function triggerVisualEffect(effectId) {
     const container = videoRegion || overlay?.parentNode || document.body;
     container.appendChild(el);
 
-    setTimeout(() => el.remove(), 2000);
+    // Auto-remove if untouched
+    const despawnTimer = setTimeout(() => el.remove(), 2000);
+
+    // === Grab logic ===
+    el.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+        clearTimeout(despawnTimer);   // stop auto-remove
+        el.style.animation = "none";  // cancel float
+
+        const move = (ev) => {
+            el.style.left = `${ev.clientX - 24}px`;
+            el.style.top = `${ev.clientY - 24}px`;
+        };
+
+        const up = (ev) => {
+            window.removeEventListener("mousemove", move);
+            window.removeEventListener("mouseup", up);
+
+            const video = document.querySelector("video");
+            if (video) {
+                const rect = video.getBoundingClientRect();
+                const relX = (ev.clientX - rect.left) / rect.width;
+                const relY = (ev.clientY - rect.top) / rect.height;
+
+                chrome.runtime.sendMessage({
+                    command: "requestPin",
+                    symbol: el.innerText,
+                    relX,
+                    relY
+                });
+            }
+
+            el.remove(); // remove local grabbed element
+        };
+
+        window.addEventListener("mousemove", move);
+        window.addEventListener("mouseup", up);
+    });
 }
