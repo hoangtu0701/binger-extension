@@ -6,6 +6,90 @@ let soundboardEl = null;
 let currentRoomId = null;
 let listenerAttached = false;
 
+// Pin animations
+const pinAnimations = `
+@keyframes madGlowShake {
+  0%, 100% { transform: translateX(0); filter: drop-shadow(0 0 0px red); }
+  25% { transform: translateX(-5px) rotate(-5deg); filter: drop-shadow(0 0 8px red); }
+  50% { transform: translateX(5px) rotate(5deg); filter: drop-shadow(0 0 12px orange); }
+  75% { transform: translateX(-3px) rotate(-3deg); filter: drop-shadow(0 0 8px red); }
+}
+
+@keyframes poopBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes sadTearsDrop {
+  0%   { transform: translateY(0); opacity: 1; }
+  50%  { transform: translateY(10px); opacity: 0.7; }
+  100% { transform: translateY(20px); opacity: 0; }
+}
+
+@keyframes laughShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px) rotate(-5deg); }
+  75% { transform: translateX(6px) rotate(5deg); }
+}
+
+@keyframes hammerSlam {
+  0%   { transform: rotate(0deg) translateY(0); }
+  25%  { transform: rotate(-90deg) translateY(-10px); }
+  50%  { transform: rotate(0deg) translateY(0); }
+  75%  { transform: rotate(-90deg) translateY(-10px); }
+  100% { transform: rotate(0deg) translateY(0); }
+}
+
+@keyframes heartPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+@keyframes smilePop {
+  0%   { transform: scale(0.8); opacity: 0.5; }
+  50%  { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes disguiseWiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(5deg); }
+  50% { transform: rotate(-5deg); }
+  75% { transform: rotate(5deg); }
+}
+
+@keyframes pleadingTilt {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(15deg); }
+}
+
+@keyframes shockTremble {
+  0%, 100% { transform: translateX(0) rotate(0); }
+  25% { transform: translateX(-3px) rotate(-2deg); }
+  75% { transform: translateX(3px) rotate(2deg); }
+}
+`;
+
+if (!document.getElementById("bingerPinAnimations")) {
+    const style = document.createElement("style");
+    style.id = "bingerPinAnimations";
+    style.textContent = pinAnimations;
+    document.head.appendChild(style);
+}
+
+const pinAnimationMap = {
+  mad: "madGlowShake 0.8s infinite",
+  poop: "poopBounce 1s infinite",
+  sadtears: "sadTearsDrop 1.2s infinite",
+  laugh: "laughShake 0.6s infinite",
+  hammer: "hammerSlam 0.8s ease-in-out infinite",
+  hearts: "heartPulse 1s ease-in-out infinite",   
+  smile: "smilePop 0.8s ease-in-out",
+  disguise: "disguiseWiggle 1s infinite",
+  pleading: "pleadingTilt 2s ease-in-out infinite",
+  shock: "shockTremble 0.6s infinite"
+};
+
 // Preload audio immediately when file is loaded
 const audioMap = {};
 const readyAudioSet = new Set();
@@ -46,11 +130,11 @@ const sounds = [
 ];
 
 const visuals = [
-    { id: "rage", emoji: "🤬" },
+    { id: "mad", emoji: "🤬" },
     { id: "poop", emoji: "💩" },
     { id: "sadtears", emoji: "🥲" },
-    { id: "rofl", emoji: "🤣" },
-    { id: "laugh", emoji: "😂" },
+    { id: "laugh", emoji: "🤣" },
+    { id: "hammer", emoji: "🔨" },
     { id: "hearts", emoji: "🥰" },
     { id: "smile", emoji: "😀" },
     { id: "disguise", emoji: "🥸" },
@@ -197,6 +281,9 @@ chrome.runtime.onMessage.addListener((msg) => {
         const pinEl = document.createElement("div");
         pinEl.className = "binger-pin-emoji";
         pinEl.textContent = symbol;
+
+        const animation = pinAnimationMap[visualId] || "";
+
         Object.assign(pinEl.style, {
             position: "absolute",
             left: `${absX - 24}px`,
@@ -205,7 +292,8 @@ chrome.runtime.onMessage.addListener((msg) => {
             lineHeight: "48px",
             zIndex: 2147483647,
             pointerEvents: "none",
-            transition: "opacity 0.5s ease"
+            transition: "opacity 0.5s ease",
+            animation: animation
         });
 
         const videoRegion = document.getElementById("binger-video-region");
