@@ -340,14 +340,14 @@ function handleDefaultBingeClick() {
         movieCode = parts[1].split(/[?#]/)[0];
       }
 
-      // Construct chat message with movie URL
-      const inviteMessage = {
-        sender,
-        timestamp: Date.now(),
-        text: `${sender} invited you to watch movie ${movieCode} together!`,
-        type: "invite",
-        movieUrl
-      };
+      // // Construct chat message with movie URL
+      // const inviteMessage = {
+      //   sender,
+      //   timestamp: Date.now(),
+      //   text: `${sender} invited you to watch movie ${movieCode} together!`,
+      //   type: "invite",
+      //   movieUrl
+      // };
 
       // Construct Firebase inviteData with movieUrl
       const inviteData = {
@@ -363,7 +363,7 @@ function handleDefaultBingeClick() {
         command: "sendInviteAndBroadcast",
         roomId,
         inviteData,
-        chatMessage: inviteMessage
+        // chatMessage: inviteMessage
       }, (res) => {
         if (res?.status === "success") {
           console.log("[Binger] Invite sent and stored");
@@ -808,32 +808,33 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
       // Check if this is an invite-type message
       if (type === "invite" && movieUrl) {
-        // Check if current user is the sender
-        chrome.runtime.sendMessage({ command: "checkAuth" }, (res) => {
-          const currentUid = res?.user?.uid;
+        return;
+        // // Check if current user is the sender
+        // chrome.runtime.sendMessage({ command: "checkAuth" }, (res) => {
+        //   const currentUid = res?.user?.uid;
 
-          if (!currentUid) return;
+        //   if (!currentUid) return;
 
-          const isSender = res.user.email.split("@")[0] === sender;
+        //   const isSender = res.user.email.split("@")[0] === sender;
 
-          if (isSender) {
-            // Render confirmation text for sender
-            messageEl.innerHTML = `<em>Your invite to watch movie <strong>${movieCode}</strong> was sent at ${time}.</em>`;
-            messageEl.classList.add("binger-chat-message", "invite-message");
-          } else {
-            // Render clickable link for others
-            messageEl.innerHTML = `
-              <strong>${sender}</strong> [${time}]: 
-              <a href="${movieUrl}" class="watch-invite-link" data-url="${movieUrl}" data-sender="${sender}" target="_self">
-                ${sender} invited you to watch movie <strong>${movieCode}</strong> together 🎬
-              </a>
-            `;
-            messageEl.classList.add("binger-chat-message", "invite-message");
-          }
+        //   if (isSender) {
+        //     // Render confirmation text for sender
+        //     messageEl.innerHTML = `<em>Your invite to watch movie <strong>${movieCode}</strong> was sent at ${time}.</em>`;
+        //     messageEl.classList.add("binger-chat-message", "invite-message");
+        //   } else {
+        //     // Render clickable link for others
+        //     messageEl.innerHTML = `
+        //       <strong>${sender}</strong> [${time}]: 
+        //       <a href="${movieUrl}" class="watch-invite-link" data-url="${movieUrl}" data-sender="${sender}" target="_self">
+        //         ${sender} invited you to watch movie <strong>${movieCode}</strong> together 🎬
+        //       </a>
+        //     `;
+        //     messageEl.classList.add("binger-chat-message", "invite-message");
+        //   }
 
-          chatLog.appendChild(messageEl);
-          chatLog.scrollTop = chatLog.scrollHeight;
-        });
+        //   chatLog.appendChild(messageEl);
+        //   chatLog.scrollTop = chatLog.scrollHeight;
+        // });
       }
 
 
@@ -892,9 +893,9 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
                   }
 
                   const msg = {
-                    sender,
+                    sender: "Binger Bot",
                     timestamp: Date.now(),
-                    text: `❌ ${sender} canceled the invite to watch movie ${movieCode}.`
+                    text: `${sender} cancelled the invite for movie ${movieCode}`
                   };
 
                   chrome.runtime.sendMessage({
@@ -973,7 +974,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
               handleDeclineInvite();
             } else {
               // Accept
-              watchTogetherBtn.innerText = "✅ Accepted";
+              watchTogetherBtn.innerText = "Accepted";
               watchTogetherBtn.disabled = true;
               watchTogetherBtn.style.backgroundColor = "gray";
 
@@ -994,9 +995,9 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
                   if (!bingerCurrentRoomId) return;
 
                   const msg = {
-                    sender,
+                    sender: "Binger Bot",
                     timestamp: Date.now(),
-                    text: `✅ ${sender} accepted the invite to watch movie ${movieCode}.`
+                    text: `${sender} accepted the invite for movie ${movieCode}`
                   };
 
                   // Chat message
@@ -1224,9 +1225,9 @@ function handleDeclineInvite() {
       if (!bingerCurrentRoomId) return;
 
       const msg = {
-        sender,
+        sender: "Binger Bot",
         timestamp: Date.now(),
-        text: `❌ ${sender} declined the invite to watch movie ${movieCode}.`
+        text: `${sender} declined the invite for movie ${movieCode}`
       };
 
       // Send chat message
