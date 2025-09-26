@@ -257,7 +257,7 @@ chrome.storage.sync.get("theme", ({ theme }) => {
   const currentTheme = theme || "burgundy";
 
   // Always clear theme classes first
-  document.body.classList.remove("theme-pink");
+  document.body.classList.remove("theme-pink", "theme-blackwhite");
 
   // Only add if not burgundy
   if (currentTheme !== "burgundy") {
@@ -271,7 +271,7 @@ chrome.storage.onChanged.addListener((changes, area) => {
     const newTheme = changes.theme.newValue;
 
     // Always clear theme classes first
-    document.body.classList.remove("theme-pink");
+    document.body.classList.remove("theme-pink", "theme-blackwhite");
 
     // Only add if not burgundy
     if (newTheme !== "burgundy") {

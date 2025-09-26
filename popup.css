@@ -269,3 +269,7 @@ button:hover {
 .theme-btn.pink {
   background-color: #f8c8dc; 
 }
+
+.theme-btn.blackwhite {
+  background-color: #181818;
+}

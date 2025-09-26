@@ -86,6 +86,11 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
+    document.getElementById("blackwhiteThemeBtn").addEventListener("click", () => {
+      chrome.storage.sync.set({ theme: "blackwhite" }, () => {
+        console.log("[Binger] Theme set to black & white");
+      });
+    });
 
 });
 
