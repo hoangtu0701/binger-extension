@@ -38,6 +38,11 @@
   color: #ffffff;
 }
 
+.theme-pink .bingerHeader {
+  background: rgba(219, 164, 164, 0.938);
+  color: #2a2a2a;
+}
+
 #bingerUsername {
   text-align: center;
   margin-top: 10px;  

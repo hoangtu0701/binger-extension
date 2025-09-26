@@ -252,6 +252,33 @@ overlay.style.display = "none";
 overlay.style.zIndex = '2147483647';
 document.body.appendChild(overlay);
 
+// Apply theme once when overlay loads
+chrome.storage.sync.get("theme", ({ theme }) => {
+  const currentTheme = theme || "burgundy";
+
+  // Always clear theme classes first
+  document.body.classList.remove("theme-pink");
+
+  // Only add if not burgundy
+  if (currentTheme !== "burgundy") {
+    document.body.classList.add(`theme-${currentTheme}`);
+  }
+});
+
+// Watch for theme changes while extension is running
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === "sync" && changes.theme?.newValue) {
+    const newTheme = changes.theme.newValue;
+
+    // Always clear theme classes first
+    document.body.classList.remove("theme-pink");
+
+    // Only add if not burgundy
+    if (newTheme !== "burgundy") {
+      document.body.classList.add(`theme-${newTheme}`);
+    }
+  }
+});
 
 
 // Save global references

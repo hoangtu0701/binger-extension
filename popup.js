@@ -64,6 +64,27 @@ document.addEventListener("DOMContentLoaded", () => {
       resetAuthForm();
     });
 
+    // Ensure a default theme exists
+    chrome.storage.sync.get("theme", (data) => {
+      if (!data.theme) {
+        chrome.storage.sync.set({ theme: "burgundy" }, () => {
+          console.log("[Binger] Default theme set to burgundy");
+        });
+      }
+    });
+
+    // Theme switching
+    document.getElementById("burgundyThemeBtn").addEventListener("click", () => {
+      chrome.storage.sync.set({ theme: "burgundy" }, () => {
+        console.log("[Binger] Theme set to burgundy");
+      });
+    });
+
+    document.getElementById("pinkThemeBtn").addEventListener("click", () => {
+      chrome.storage.sync.set({ theme: "pink" }, () => {
+        console.log("[Binger] Theme set to pink");
+      });
+    });
 
 
 });
