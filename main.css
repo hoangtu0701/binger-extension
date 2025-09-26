@@ -39,8 +39,8 @@
 }
 
 .theme-pink .bingerHeader {
-  background: rgba(219, 164, 164, 0.938);
-  color: #2a2a2a;
+  background: #E9839D;  
+  color: #F4F3F1;       
 }
 
 #bingerUsername {
@@ -100,6 +100,39 @@
   cursor: default !important;
 }
 
+.theme-pink #bingerCreateRoom,
+.theme-pink #bingerJoinRoom {
+  background-color: #6D9F71;
+  color: #ffffff;
+}
+
+.theme-pink #bingerCreateRoom:hover,
+.theme-pink #bingerJoinRoom:hover {
+  background-color: #337357;
+  color: #F4F3F1;
+}
+
+.theme-pink #bingerLeaveRoom {
+  background-color: #EA9AB2;
+  color: #ffffff;
+}
+
+.theme-pink #bingerLeaveRoom:hover {
+  background-color: #E27396;
+  color: #F4F3F1;
+}
+
+.theme-pink #bingerLeaveRoom:disabled {
+  background-color: #eee;
+  color: #aaa;
+  cursor: default;
+}
+
+.theme-pink #bingerLeaveRoom:disabled:hover {
+  background-color: #eee !important;
+  color: #aaa !important;
+  cursor: default !important;
+}
 
 
 
@@ -118,6 +151,11 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.theme-pink #bingerChatWrapper {
+  background-color: #FFDBE5;
+  color: #2d0033;
 }
 
 #bingerChatWrapper.disabled {
@@ -144,6 +182,11 @@
   font-family: monospace;
 }
 
+.theme-pink #bingerChatLog {
+  background-color: #FFDBE5;
+  color: #434D20;
+}
+
 /* Chat bubble base style */
 .bingerChatMsg {
   background: #ffffff;
@@ -159,6 +202,16 @@
   animation: fadeInUp 0.25s ease forwards;
 }
 
+.theme-pink .bingerChatMsg {
+  background: #EA9AB2;
+  color: #F4F3F1;
+}
+
+.theme-pink .bingerChatMsg:nth-child(even) {
+  background: #6D9F71;
+  color: #ffffff;
+}
+
 .invite-message {
   margin-bottom: 8px;
 }
@@ -166,6 +219,14 @@
 /* Sender name highlight */
 .bingerChatMsg strong {
   color: #800020;
+}
+
+.theme-pink .bingerChatMsg:nth-child(even) strong {
+  color: #ffdee7;
+}
+
+.theme-pink .bingerChatMsg:nth-child(odd) strong {
+  color: #b62b4e;
 }
 
 @keyframes fadeInUp {
@@ -185,6 +246,10 @@
   border: 1px solid #ccc;
 }
 
+.theme-pink #bingerChatInput {
+  background-color: #ffeef3;
+}
+
 #bingerSendBtn {
   padding: 6px 10px;
   background-color: #800020;
@@ -199,6 +264,20 @@
   cursor: default;
 }
 
+.theme-pink #bingerSendBtn {
+  background-color: #6D9F71;
+  color: #ffffff;
+}
+
+.theme-pink #bingerSendBtn:hover {
+  background-color: #337357;
+  color: #F4F3F1;
+}
+
+.theme-pink #bingerSendBtn:disabled {
+  background-color: #ccc;
+  cursor: default;
+}
 
 
 
@@ -257,6 +336,19 @@
   cursor: default;
 }
 
+.theme-pink #watchTogetherBtn:enabled {
+  background: linear-gradient(135deg, #EA9AB2, #E27396);
+  transition: all 0.1s ease-in-out;
+}
+
+.theme-pink #watchTogetherBtn:enabled:hover {
+  background: linear-gradient(135deg, #E27396, #EA9AB2);
+  box-shadow: 0 6px 18px rgba(226, 115, 150, 0.65);
+}
+
+.theme-pink #watchTogetherBtn:disabled {
+  cursor: default;
+}
 
 .bottom-icon {
   width: 32px;
@@ -313,6 +405,44 @@
   pointer-events: none !important;
 }
 
+.theme-pink #watchTogetherBtn.binge-inviter-active {
+  background: linear-gradient(135deg, #EA9AB2, #E27396) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 4px 12px rgba(234, 154, 178, 0.45) !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.theme-pink #watchTogetherBtn.binge-inviter-active:hover {
+  background: linear-gradient(135deg, #E27396, #EA9AB2) !important;
+  color: #F4F3F1 !important;
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 18px rgba(226, 115, 150, 0.65) !important;
+}
+
+.theme-pink #watchTogetherBtn.binge-invitee-active {
+  background: linear-gradient(135deg, #6D9F71, #337357) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 4px 12px rgba(51, 115, 87, 0.45) !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.theme-pink #watchTogetherBtn.binge-invitee-active:hover {
+  background: linear-gradient(135deg, #337357, #6D9F71) !important;
+  color: #F4F3F1 !important;
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 18px rgba(51, 115, 87, 0.65) !important;
+}
+
+.theme-pink #watchTogetherBtn.binge-invitee-accepted {
+  background-color: gray !important;
+  color: white !important;
+  border: none !important;
+  box-shadow: none !important;
+  cursor: default !important;
+  pointer-events: none !important;
+}
 
 
 
@@ -342,6 +472,21 @@
   scrollbar-width: thin;
 }
 
+.theme-pink #bingerChatLog::-webkit-scrollbar-track {
+  background: #FFDBE5;
+}
+
+.theme-pink #bingerChatLog::-webkit-scrollbar-thumb {
+  background-color: #6D9F71;
+}
+
+.theme-pink #bingerChatLog::-webkit-scrollbar-thumb:hover {
+  background-color: #337357;
+}
+
+.theme-pink #bingerChatLog {
+  scrollbar-color: #6D9F71 #FFDBE5;
+}
 
 
 
@@ -372,10 +517,6 @@
   color: white;
 }
 
-#bingerOverlay.in-session .bingerChatMsg strong {
-  color: #ffe27a;
-}
-
 #bingerOverlay.in-session #bingerChatInput {
   background-color: #0f2e4a !important;
   color: white !important;
@@ -387,6 +528,34 @@
   color: white !important;
 }
 
+.theme-pink #bingerOverlay.in-session #bingerChatWrapper {
+  background-color: rgba(95, 139, 96, 0.9) !important;
+}
+
+.theme-pink #bingerOverlay.in-session #bingerChatLog {
+  background-color: rgba(95, 139, 96, 0.9) !important;
+  scrollbar-color: #EA9AB2 rgba(95, 139, 96, 0.9);
+}
+
+.theme-pink #bingerOverlay.in-session .bingerChatMsg {
+  background: #ad667d;
+  color: #F4F3F1;
+}
+
+.theme-pink #bingerOverlay.in-session #bingerChatInput {
+  background-color: #FFDBE5 !important;
+  border-color: #E27396 !important;
+  color: black !important;
+}
+
+.theme-pink #bingerOverlay.in-session #bingerSendBtn {
+  background-color: #337357 !important;
+  color: #F4F3F1 !important;
+}
+
+.theme-pink #bingerOverlay.in-session #bingerSendBtn:hover {
+  background-color: #1b4e38 !important;
+}
 
 
 /* Styling for scrollbar */
@@ -450,6 +619,11 @@
   height: 580px;
 }
 
+.theme-pink #bingerOverlay {
+  background: rgba(233, 131, 157, 0.1);
+  border: 1px solid rgba(233, 131, 157, 0.4);
+  box-shadow: 0 8px 24px rgba(233, 131, 157, 0.25);
+}
 
 #bingerLayoutContainer {
   color: white;
@@ -598,6 +772,10 @@
   opacity: 1;
 }
 
+.theme-pink .bingerTypingBubble {
+  color: #2c492e;
+}
+
 .bingerTypingBubble.fade-out {
   opacity: 0 !important;
 }
@@ -624,6 +802,11 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
   width: fit-content;
   height: fit-content;
+}
+
+.theme-pink #bingerSoundboard.binger-soundboard {
+  background: rgba(95, 139, 96, 0.9);
+  box-shadow: 0 4px 12px rgba(109, 159, 113, 0.45);
 }
 
 #bingerSoundboard.binger-soundboard:not(.fullscreen) {
@@ -660,6 +843,10 @@
   width: 2px;
   background: rgba(255, 255, 255, 0.575);
   margin: 25px 8px;
+}
+
+.theme-pink .binger-divider {
+  background: #e4a6b9;
 }
 
 #bingerSoundboard.fullscreen .binger-sound-section,
