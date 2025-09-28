@@ -270,13 +270,28 @@ chrome.storage.onChanged.addListener((changes, area) => {
   if (area === "sync" && changes.theme?.newValue) {
     const newTheme = changes.theme.newValue;
 
-    // Always clear theme classes first
+    // Apply locally
     document.body.classList.remove("theme-pink", "theme-blackwhite");
-
-    // Only add if not burgundy
     if (newTheme !== "burgundy") {
       document.body.classList.add(`theme-${newTheme}`);
     }
+
+    // Also update the room’s theme if currently in a room
+    chrome.storage.local.get("bingerCurrentRoomId", ({ bingerCurrentRoomId }) => {
+      if (bingerCurrentRoomId) {
+        chrome.runtime.sendMessage({
+          command: "post",
+          path: `rooms/${bingerCurrentRoomId}/theme`,
+          data: newTheme
+        }, (res) => {
+          if (res?.status === "success") {
+            console.log("[Binger] Room theme updated to", newTheme);
+          } else {
+            console.error("[Binger] Failed to update room theme:", res?.error);
+          }
+        });
+      }
+    });
   }
 });
 
@@ -284,6 +299,23 @@ chrome.storage.onChanged.addListener((changes, area) => {
 // Save global references
 let currentUser = null;
 let currentUsersInRoom = [];
+let isThemeSubscribed = false;
+
+function activateThemeListener(roomId) {
+  if (!isThemeSubscribed) {
+    chrome.runtime.sendMessage({ command: "subscribeToTheme", roomId });
+    isThemeSubscribed = true;
+  }
+}
+
+function deactivateThemeListener() {
+  chrome.storage.local.get("bingerCurrentRoomId", ({ bingerCurrentRoomId: roomId }) => {
+    if (roomId) {
+      chrome.runtime.sendMessage({ command: "unsubscribeFromTheme", roomId });
+    }
+  });
+  isThemeSubscribed = false;
+}
 
 
 
@@ -597,6 +629,9 @@ function activateChatbox(roomId) {
     isChatSubscribed = true;
   }
 
+  // Subscribe to room theme
+  activateThemeListener(roomId);
+
   // Subscribe to users typing
   chrome.runtime.sendMessage({ command: "subscribeToTyping", roomId });
 
@@ -626,6 +661,8 @@ function deactivateChatbox() {
       chrome.runtime.sendMessage({ command: "unsubscribeFromUsers", roomId });
       chrome.runtime.sendMessage({ command: "unsubscribeFromMessages", roomId });
       chrome.runtime.sendMessage({ command: "unsubscribeFromTyping", roomId });
+      chrome.runtime.sendMessage({ command: "unsubscribeFromTheme", roomId });
+      deactivateThemeListener();
     }
   });
 
@@ -658,6 +695,8 @@ function leaveRoomAndCleanup(callback = () => {}) {
       chrome.runtime.sendMessage({ command: "unsubscribeFromUsers", roomId }, () => {
         chrome.runtime.sendMessage({ command: "unsubscribeFromMessages", roomId }, () => {
           chrome.runtime.sendMessage({ command: "unsubscribeFromTyping", roomId });
+          chrome.runtime.sendMessage({ command: "unsubscribeFromTheme", roomId });
+          deactivateThemeListener();
           chrome.storage.local.remove("bingerCurrentRoomId", () => {
             console.log("[Binger] Cleaned up room on exit.");
             callback();
@@ -702,6 +741,10 @@ chrome.runtime.sendMessage({ command: "checkAuth" }, (response) => {
           if (res?.status === "rejoined") {
             console.log("[Binger] Rejoined room successfully after reload");
             activateChatbox(roomId);
+
+            // Subscribe to room theme
+            activateThemeListener(roomId);
+
             checkWatchTogetherEligibility(); 
             // Start active invite listener for this room
             chrome.runtime.sendMessage({
@@ -763,6 +806,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
         leaveRoomAndCleanup(() => {
             deactivateChatbox();
+            deactivateThemeListener();
             sendResponse();
         });
         return true;
@@ -1202,6 +1246,15 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     });
   }
 
+  if (msg.command === "themeUpdated") {
+    const { theme, roomId } = msg;
+    if (!theme) return;
+
+    console.log("[Binger] Theme updated from room:", theme);
+
+    // Force local storage to match the room theme
+    chrome.storage.sync.set({ theme });
+  }
 });
 
 
@@ -1372,10 +1425,12 @@ leaveRoomBtn.addEventListener("click", () => {
         chrome.runtime.sendMessage({ command: "unsubscribeFromUsers", roomId });
         chrome.runtime.sendMessage({ command: "unsubscribeFromMessages", roomId });
         chrome.runtime.sendMessage({ command: "unsubscribeFromTyping", roomId });
+        chrome.runtime.sendMessage({ command: "unsubscribeFromTheme", roomId });
+        deactivateThemeListener();
         chrome.storage.local.remove("bingerCurrentRoomId", () => {
             console.log(`[Binger] Left room: ${roomId}`);
             deactivateChatbox();
-
+            deactivateThemeListener();
         });
         chrome.storage.local.set({ bingerIsReloading: true }, () => {
           location.reload();

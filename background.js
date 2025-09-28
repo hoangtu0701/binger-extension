@@ -52,6 +52,7 @@ try {
   const soundboardListeners = {}; 
   const visualboardListeners = {};
   const pinListeners = {};
+  const themeListeners = {};
 
   // In-memory cache for latest movie embeddings
   let currentMovieEmbeddingCache = null;
@@ -604,7 +605,8 @@ try {
         // Use `.set()` when posting to an exact user-level field (like acceptedInvitees/UID)
         const shouldUseSet =
             refPath.includes("/acceptedInvitees/") ||
-            refPath.includes("/inSession");
+            refPath.includes("/inSession")  ||
+            refPath.includes("/theme");
 
         // Execute the appropriate Firebase write
         const write = shouldUseSet ? ref.set(data) : ref.push(data);
@@ -703,44 +705,48 @@ try {
 
         function tryCreateRoom(attempts = 0) {
             if (attempts > 5) {
-            sendResponse({ status: "error", error: "Failed to generate unique room ID" });
-            return;
+                sendResponse({ status: "error", error: "Failed to generate unique room ID" });
+                return;
             }
 
             const roomId = generateRoomId();
             const roomRef = firebase.database().ref(`rooms/${roomId}`);
 
             roomRef.once("value").then((snapshot) => {
-            if (snapshot.exists()) {
-                // Room ID already taken, try again
-                tryCreateRoom(attempts + 1);
-            } else {
-                // Safe to create
-                const roomData = {
-                host: user.uid,
-                createdAt: firebase.database.ServerValue.TIMESTAMP,
-                inSession: false,
-                users: {
-                    [user.uid]: {
-                    email: user.email,
-                    joinedAt: firebase.database.ServerValue.TIMESTAMP
-                    }
-                }
-                };
+                if (snapshot.exists()) {
+                    tryCreateRoom(attempts + 1);
+                } else {
+                    // Fetch host’s local theme and save with room
+                    chrome.storage.sync.get("theme", ({ theme }) => {
+                        const hostTheme = theme || "burgundy";
 
-                roomRef.set(roomData)
-                .then(() => {
-                    console.log(`[Binger] Room ${roomId} created by ${user.email}`);
-                    sendResponse({ status: "success", roomId });
-                })
-                .catch((err) => {
-                    console.error("[Binger] Error creating room:", err);
-                    sendResponse({ status: "error", error: err.message });
-                });
-            }
+                        const roomData = {
+                            host: user.uid,
+                            theme: hostTheme, 
+                            createdAt: firebase.database.ServerValue.TIMESTAMP,
+                            inSession: false,
+                            users: {
+                                [user.uid]: {
+                                    email: user.email,
+                                    joinedAt: firebase.database.ServerValue.TIMESTAMP
+                                }
+                            }
+                        };
+
+                        roomRef.set(roomData)
+                            .then(() => {
+                                console.log(`[Binger] Room ${roomId} created by ${user.email} with theme ${hostTheme}`);
+                                sendResponse({ status: "success", roomId });
+                            })
+                            .catch((err) => {
+                                console.error("[Binger] Error creating room:", err);
+                                sendResponse({ status: "error", error: err.message });
+                            });
+                    });
+                }
             }).catch((err) => {
-            console.error("[Binger] Error checking room existence:", err);
-            sendResponse({ status: "error", error: err.message });
+                console.error("[Binger] Error checking room existence:", err);
+                sendResponse({ status: "error", error: err.message });
             });
         }
 
@@ -2054,6 +2060,53 @@ try {
             }
         })();
 
+        return true;
+    }
+
+    // Subscribe to theme updates
+    if (msg.command === "subscribeToTheme") {
+        const { roomId } = msg;
+        const ref = firebase.database().ref(`rooms/${roomId}/theme`);
+
+        // If already have a listener, detach it first
+        if (themeListeners[roomId]) {
+            ref.off("value", themeListeners[roomId]);
+            delete themeListeners[roomId];
+            console.log(`[Binger] Removed old theme listener for ${roomId}`);
+        }
+
+        const cb = (snapshot) => {
+            const theme = snapshot.val();
+
+            chrome.tabs.query({ url: "*://phimbro.com/*" }, (tabs) => {
+                tabs.forEach((tab) => {
+                    chrome.tabs.sendMessage(tab.id, {
+                        command: "themeUpdated",
+                        theme,
+                        roomId
+                    });
+                });
+            });
+        };
+
+        ref.on("value", cb);
+        themeListeners[roomId] = cb;
+
+        console.log(`[Binger] Subscribed to theme in room ${roomId}`);
+        sendResponse({ status: "subscribed" });
+        return true;
+    }
+
+    // Unsubscribe from theme
+    if (msg.command === "unsubscribeFromTheme") {
+        const { roomId } = msg;
+        const ref = firebase.database().ref(`rooms/${roomId}/theme`);
+        if (themeListeners[roomId]) {
+            ref.off("value", themeListeners[roomId]);
+            delete themeListeners[roomId];
+            console.log(`[Binger] Unsubscribed from theme in room ${roomId}`);
+        }
+        sendResponse({ status: "unsubscribed" });
         return true;
     }
 
