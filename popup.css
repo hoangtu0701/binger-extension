@@ -273,3 +273,9 @@ button:hover {
 .theme-btn.blackwhite {
   background-color: #181818;
 }
+
+.theme-btn.ocean {
+  background: linear-gradient(135deg, #0077b6, #00b4d8, #90e0ef); 
+}
+
+/* ---------------------------------------------------------------------------------------------------------------------- Add new theme here */

@@ -92,6 +92,14 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
+    document.getElementById("oceanThemeBtn").addEventListener("click", () => {
+      chrome.storage.sync.set({ theme: "ocean" }, () => {
+        console.log("[Binger] Theme set to ocean aqua");
+      });
+    });
+
+    // ----------------------------------------------------------------------------------------------------- Add new theme here
+
 });
 
 
