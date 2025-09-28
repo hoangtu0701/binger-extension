@@ -689,6 +689,10 @@
   scrollbar-color: #EA9AB2 rgba(95, 139, 96, 0.9);
 }
 
+.theme-pink #bingerOverlay.in-session .bingerChatMsg:nth-child(even) {
+  background: rgba(66, 102, 66, 0.9);
+}
+
 .theme-pink #bingerOverlay.in-session .bingerChatMsg {
   background: #ad667d;
   color: #F4F3F1;
