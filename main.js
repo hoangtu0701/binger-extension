@@ -257,7 +257,7 @@ chrome.storage.sync.get("theme", ({ theme }) => {
   const currentTheme = theme || "burgundy";
 
   // Always clear theme classes first
-  document.body.classList.remove("theme-pink", "theme-blackwhite", "theme-ocean", "theme-volcano"); // --------------------------------------------------------------- Add new theme here
+  document.body.classList.remove("theme-pink", "theme-blackwhite", "theme-ocean", "theme-volcano", "theme-forest"); // --------------------------------------------------------------- Add new theme here
 
   // Only add if not burgundy
   if (currentTheme !== "burgundy") {
@@ -271,7 +271,7 @@ chrome.storage.onChanged.addListener((changes, area) => {
     const newTheme = changes.theme.newValue;
 
     // Apply locally
-    document.body.classList.remove("theme-pink", "theme-blackwhite", "theme-ocean", "theme-volcano"); // ------------------------------------------------------------- Add new theme here
+    document.body.classList.remove("theme-pink", "theme-blackwhite", "theme-ocean", "theme-volcano", "theme-forest"); // ------------------------------------------------------------- Add new theme here
     if (newTheme !== "burgundy") {
       document.body.classList.add(`theme-${newTheme}`);
     }
@@ -315,6 +315,39 @@ function deactivateThemeListener() {
     }
   });
   isThemeSubscribed = false;
+}
+
+function spawnLeaves(msgEl) {
+  chrome.storage.sync.get("theme", ({ theme }) => {
+    if (theme !== "forest") return; 
+
+    const total = 4 + Math.floor(Math.random() * 5);
+
+    for (let i = 0; i < total; i++) {
+      const leaf = document.createElement("span");
+      leaf.className = "leaf";
+
+      const r = Math.random();
+      if (r < 0.7) leaf.textContent = "🍃";
+      else if (r < 0.9) leaf.textContent = "🍂";
+      else leaf.textContent = "🍁";
+
+      leaf.style.left = Math.random() * 80 + 10 + "%";
+      leaf.style.bottom = "-20px";
+      leaf.style.fontSize = (14 + Math.random() * 10) + "px";
+
+      const x = (Math.random() - 0.5) * 300;  
+      const y = -80 - Math.random() * 200;    
+      leaf.style.setProperty("--tx", x + "px");
+      leaf.style.setProperty("--ty", y + "px");
+
+      leaf.style.setProperty("--dur", (4 + Math.random() * 4) + "s");
+      leaf.style.setProperty("--delay", (Math.random() * 0.5) + "s");
+
+      msgEl.appendChild(leaf);
+      setTimeout(() => leaf.remove(), 10000);
+    }
+  });
 }
 
 
@@ -890,6 +923,9 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         messageEl.innerHTML = `<strong>${sender}</strong> [${time}]: ${text}`;
         chatLog.appendChild(messageEl);
         chatLog.scrollTop = chatLog.scrollHeight;
+
+        // Spawn 🍃 if forest theme
+        spawnLeaves(messageEl, 7);
       }
     }
   }

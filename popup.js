@@ -104,6 +104,12 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
     
+    document.getElementById("forestThemeBtn").addEventListener("click", () => {
+      chrome.storage.sync.set({ theme: "forest" }, () => {
+        console.log("[Binger] Theme set to forest green");
+      });
+    });
+
     // ----------------------------------------------------------------------------------------------------- Add new theme here
 
 });

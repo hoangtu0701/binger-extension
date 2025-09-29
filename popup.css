@@ -286,7 +286,7 @@ button:hover {
   );
   transform: translateY(100%);
   opacity: 0;
-  transition: transform 0.5s ease, opacity 0.5s ease;
+  transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
 .theme-btn.pink:hover::before {
@@ -313,7 +313,7 @@ button:hover {
     radial-gradient(1px 1px at 50% 50%, white, transparent);
   opacity: 0;
   transform: translateY(-40%);
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .theme-btn.blackwhite:hover::before {
@@ -355,7 +355,7 @@ button:hover {
   );
   transform: translateY(-100%);
   opacity: 0;
-  transition: transform 0.7s ease, opacity 0.7s ease;
+  transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
 .theme-btn.ocean:hover::before {
@@ -398,7 +398,7 @@ button:hover {
   );
   transform: translateY(-100%);
   opacity: 0;
-  transition: transform 0.5s ease, opacity 0.5s ease;
+  transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
 .theme-btn.volcano:hover::before {
@@ -411,6 +411,59 @@ button:hover {
   0% { box-shadow: 0 0 6px rgba(255, 69, 0, 0.8), 0 0 12px rgba(255, 140, 0, 0.6); }
   50% { box-shadow: 0 0 14px rgba(255, 200, 0, 1), 0 0 28px rgba(255, 69, 0, 0.8); }
   100% { box-shadow: 0 0 6px rgba(255, 69, 0, 0.8), 0 0 12px rgba(255, 140, 0, 0.6); }
+}
+
+.theme-btn.forest {
+  background-color: #30510b;
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-btn.forest::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: linear-gradient(
+    to bottom,
+    rgb(163, 228, 122) 0%,
+    rgb(88, 165, 70) 40%,
+    rgba(40, 100, 15, 0.9) 75%,
+    transparent 100%
+  );
+  clip-path: polygon(
+    0% 60%,
+    5% 55%,
+    10% 65%,
+    15% 50%,
+    20% 62%,
+    25% 48%,
+    30% 60%,
+    35% 52%,
+    40% 63%,
+    45% 50%,
+    50% 64%,
+    55% 52%,
+    60% 66%,
+    65% 50%,
+    70% 62%,
+    75% 48%,
+    80% 60%,
+    85% 55%,
+    90% 65%,
+    95% 53%,
+    100% 60%,
+    100% 100%,
+    0% 100%
+  );
+  transform: translateY(100%);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.theme-btn.forest:hover::before {
+  transform: translateY(0);
+  opacity: 1;
 }
 
 /* ---------------------------------------------------------------------------------------------------------------------- Add new theme here */
