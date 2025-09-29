@@ -98,6 +98,12 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
+    document.getElementById("volcanoThemeBtn").addEventListener("click", () => {
+      chrome.storage.sync.set({ theme: "volcano" }, () => {
+        console.log("[Binger] Theme set to volcano eruption");
+      });
+    });
+    
     // ----------------------------------------------------------------------------------------------------- Add new theme here
 
 });
