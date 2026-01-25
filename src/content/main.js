@@ -230,12 +230,12 @@ rightPane.appendChild(chatWrapper);
 const watchTogetherBtn = document.createElement("button");
 watchTogetherBtn.id = "watchTogetherBtn";
 watchTogetherBtn.disabled = true;
-watchTogetherBtn.innerHTML = `<img src="${chrome.runtime.getURL("binge.png")}" alt="Watch Together" class="bottom-icon" />`;
+watchTogetherBtn.innerHTML = `<img src="${chrome.runtime.getURL("assets/binge.png")}" alt="Watch Together" class="bottom-icon" />`;
 
 const cameraToggleBtn = document.createElement("button");
 cameraToggleBtn.id = "cameraToggleBtn";
 cameraToggleBtn.disabled = true;
-cameraToggleBtn.innerHTML = `<img src="${chrome.runtime.getURL("cam.png")}" alt="Camera Toggle" class="bottom-icon" />`;
+cameraToggleBtn.innerHTML = `<img src="${chrome.runtime.getURL("assets/cam.png")}" alt="Camera Toggle" class="bottom-icon" />`;
 
 const bottomBtnBar = document.createElement("div");
 bottomBtnBar.id = "bingerBottomButtons";
@@ -1119,7 +1119,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           watchTogetherBtn.onmouseleave = null;
 
           // Reset to original Binge button state
-          watchTogetherBtn.innerHTML = `<img src="${chrome.runtime.getURL("binge.png")}" alt="Watch Together" class="bottom-icon" />`;
+          watchTogetherBtn.innerHTML = `<img src="${chrome.runtime.getURL("assets/binge.png")}" alt="Watch Together" class="bottom-icon" />`;
           watchTogetherBtn.disabled = true; // will be re-enabled by eligibility check
           watchTogetherBtn.style.backgroundColor = "";
           watchTogetherBtn.style.color = "";
