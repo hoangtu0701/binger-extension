@@ -116,7 +116,7 @@ window.inSessionMode = function (context) {
         callIframe.style.left = `${leftPos}px`;
 
         // Always join the call for the whole session
-        callIframe.src = chrome.runtime.getURL(`call.html?roomId=${bingerCurrentRoomId}`);
+        callIframe.src = chrome.runtime.getURL(`call_app/call.html?roomId=${bingerCurrentRoomId}`);
 
         // Load current cam and mic states onto the iframe
         callIframe.onload = () => {
@@ -424,7 +424,7 @@ function startPlayerSync(roomId, userId){
 
           // Build fresh iframe
           const fresh = document.createElement("iframe");
-          fresh.src       = chrome.runtime.getURL(`call.html?roomId=${roomId}`);
+          fresh.src       = chrome.runtime.getURL(`call_app/call.html?roomId=${roomId}`);
           fresh.className = "binger-call-iframe";
           if (wasHidden)  fresh.classList.add("binger-call-hidden");
           if (wasFS)      fresh.classList.add("fullscreen");

@@ -7,9 +7,9 @@ try {
   // Load Firebase SDKs from local files (CSP-safe)
   try {
     self.importScripts(
-      'firebase/firebase-app.js',
-      'firebase/firebase-auth.js',
-      'firebase/firebase-database.js'
+        '../../firebase/firebase-app.js',
+        '../../firebase/firebase-auth.js',
+        '../../firebase/firebase-database.js'
     );
     console.log("[Binger] Firebase SDKs loaded");
   } catch (e) {
@@ -18,7 +18,7 @@ try {
 
   // Load ZIP library for subtitle conversion
   try {
-    self.importScripts("libs/jszip.min.js");
+    self.importScripts("../../libs/jszip.min.js");
     console.log("[Binger] JSZip loaded");
   } catch (e) {
     console.error("[Binger] Failed to load JSZip:", e);

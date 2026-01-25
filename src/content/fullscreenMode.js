@@ -161,7 +161,7 @@
             iframe.remove();
 
             const newIframe = document.createElement("iframe");
-            newIframe.src = chrome.runtime.getURL(`call.html?roomId=${roomId}`);
+            newIframe.src = chrome.runtime.getURL(`call_app/call.html?roomId=${roomId}`);
             newIframe.className = "binger-call-iframe fullscreen";
             // Preserve hidden state if any
             if (wasHidden) newIframe.classList.add("binger-call-hidden");
@@ -299,7 +299,7 @@
 
               if (roomId) {
                 const newIframe = document.createElement("iframe");
-                newIframe.src = chrome.runtime.getURL(`call.html?roomId=${roomId}`);
+                newIframe.src = chrome.runtime.getURL(`call_app/call.html?roomId=${roomId}`);
                 newIframe.className = "binger-call-iframe";
                 if (wasHidden) newIframe.classList.add("binger-call-hidden");
                 newIframe.allow = "camera; microphone; autoplay; fullscreen";
@@ -431,7 +431,7 @@
 
               if (roomId) {
                 const newIframe = document.createElement("iframe");
-                newIframe.src = chrome.runtime.getURL(`call.html?roomId=${roomId}`);
+                newIframe.src = chrome.runtime.getURL(`call_app/call.html?roomId=${roomId}`);
                 newIframe.className = "binger-call-iframe";
                 if (wasHidden) newIframe.classList.add("binger-call-hidden");
                 newIframe.allow = "camera; microphone; autoplay; fullscreen";
