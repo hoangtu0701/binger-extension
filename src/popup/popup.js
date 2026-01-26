@@ -1,17 +1,22 @@
+// ============================================================================
+// BINGER POPUP
+// Entry point for the extension popup
+// ============================================================================
+
 import { 
     getActiveTab, 
     isOnPhimbro, 
     getExtensionVersion,
     openTab 
-} from "./utils/chrome-helpers.js";
+} from "./utils/popup-helpers.js";
 import { 
     initNavigation, 
     showNotOnSite, 
     showMainUI, 
     showSignedInUI, 
     showAuthUI 
-} from "./modules/navigation.js";
-import { initTheme, setupThemeButtons } from "./modules/theme.js";
+} from "./modules/popup-navigation.js";
+import { initTheme, setupThemeButtons } from "./modules/popup-theme.js";
 import { 
     initAuth, 
     setAuthMode, 
@@ -20,9 +25,11 @@ import {
     handleAuthKeydown,
     handleSignOut,
     checkAuthStatus 
-} from "./modules/auth.js";
+} from "./modules/popup-auth.js";
 
+// ============================================================================
 // INITIALIZATION
+// ============================================================================
 
 /**
  * Set version text on all version elements
@@ -117,6 +124,8 @@ async function init() {
     await initializeView();
 }
 
+// ============================================================================
 // START
+// ============================================================================
 
 document.addEventListener("DOMContentLoaded", init);

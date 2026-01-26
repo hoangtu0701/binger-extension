@@ -3,7 +3,7 @@
 // Handles theme selection and persistence
 // ============================================================================
 
-import { setStorageSync, getStorageSync } from "../utils/chrome-helpers.js";
+import { setStorageSync, getStorageSync } from "../utils/popup-helpers.js";
 
 // All available themes
 const THEMES = ["burgundy", "pink", "blackwhite", "ocean", "volcano", "forest"];

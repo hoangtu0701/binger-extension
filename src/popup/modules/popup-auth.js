@@ -9,8 +9,8 @@ import {
     getActiveTab, 
     clearStorageLocal,
     isOnPhimbro 
-} from "../utils/chrome-helpers.js";
-import { showSignedInUI, showMainUI } from "./navigation.js";
+} from "../utils/popup-helpers.js";
+import { showSignedInUI, showMainUI } from "./popup-navigation.js";
 
 // Minimum password length requirement
 const MIN_PASSWORD_LENGTH = 6;

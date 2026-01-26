@@ -12,55 +12,55 @@ try {
     // ========================================================================
 
     // 1. Firebase initialization (loads SDKs, initializes app)
-    self.importScripts("./modules/firebase-init.js");
+    self.importScripts("./modules/bg-firebase-init.js");
 
     // 2. State management (listener maps, caches, port tracking)
-    self.importScripts("./modules/state.js");
+    self.importScripts("./modules/bg-state.js");
 
     // 3. Utilities (broadcast helpers, room ID generation, vector math)
-    self.importScripts("./modules/utils.js");
+    self.importScripts("./modules/bg-utils.js");
 
     // 4. Tab monitor (multi-tab overlay detection)
-    self.importScripts("./modules/tab-monitor.js");
+    self.importScripts("./modules/bg-tab-monitor.js");
 
     // 5. Connection handler (port management, keep-alive, cleanup)
-    self.importScripts("./modules/connection.js");
+    self.importScripts("./modules/bg-connection.js");
 
     // 6. Auth handlers
-    self.importScripts("./modules/auth.js");
+    self.importScripts("./modules/bg-auth.js");
 
     // 7. Room handlers
-    self.importScripts("./modules/rooms.js");
+    self.importScripts("./modules/bg-rooms.js");
 
     // 8. Chat handlers
-    self.importScripts("./modules/chat.js");
+    self.importScripts("./modules/bg-chat.js");
 
     // 9. User list handlers
-    self.importScripts("./modules/users.js");
+    self.importScripts("./modules/bg-users.js");
 
     // 10. Invite handlers
-    self.importScripts("./modules/invites.js");
+    self.importScripts("./modules/bg-invites.js");
 
     // 11. Session handlers (player sync, buffer, iframe reset)
-    self.importScripts("./modules/session.js");
+    self.importScripts("./modules/bg-session.js");
 
     // 12. Typing handlers
-    self.importScripts("./modules/typing.js");
+    self.importScripts("./modules/bg-typing.js");
 
     // 13. Soundboard handlers (sound, visual, pins)
-    self.importScripts("./modules/soundboard.js");
+    self.importScripts("./modules/bg-soundboard.js");
 
     // 14. Theme handlers
-    self.importScripts("./modules/theme.js");
+    self.importScripts("./modules/bg-theme.js");
 
     // 15. Subtitle handlers (embedding generation)
-    self.importScripts("./modules/subtitles.js");
+    self.importScripts("./modules/bg-subtitles.js");
 
     // 16. Bot handlers (LLM queries, scene seeking)
-    self.importScripts("./modules/bot.js");
+    self.importScripts("./modules/bg-bot.js");
 
     // 17. Message router (routes messages to handlers)
-    self.importScripts("./modules/message-router.js");
+    self.importScripts("./modules/bg-message-router.js");
 
     console.log("[Binger] All modules loaded");
 
