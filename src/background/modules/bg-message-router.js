@@ -7,6 +7,78 @@
     "use strict";
 
     // ========================================================================
+    // HELPER: SAFE SEND RESPONSE
+    // ========================================================================
+
+    /**
+     * Safely send response - tab may have closed
+     * @param {function} sendResponse - Response callback
+     * @param {object} data - Data to send
+     */
+    function safeSendResponse(sendResponse, data) {
+        try {
+            if (typeof sendResponse === "function") {
+                sendResponse(data);
+            }
+        } catch (err) {
+            // Tab closed before response - ignore
+        }
+    }
+
+    // ========================================================================
+    // HELPER: CHECK IF HANDLER EXISTS
+    // ========================================================================
+
+    /**
+     * Check if a handler module and method exist
+     * @param {string} moduleName - Name of the module (e.g., "BingerBGChat")
+     * @param {string} methodName - Name of the method (e.g., "handlePost")
+     * @returns {function|null} - The handler function or null
+     */
+    function getHandler(moduleName, methodName) {
+        const module = self[moduleName];
+        if (!module) {
+            console.error(`[Binger] Module not loaded: ${moduleName}`);
+            return null;
+        }
+        const handler = module[methodName];
+        if (typeof handler !== "function") {
+            console.error(`[Binger] Handler not found: ${moduleName}.${methodName}`);
+            return null;
+        }
+        return handler;
+    }
+
+    // ========================================================================
+    // HELPER: EXECUTE HANDLER SAFELY
+    // ========================================================================
+
+    /**
+     * Execute a handler with error handling
+     * @param {string} moduleName - Module name
+     * @param {string} methodName - Method name
+     * @param {array} args - Arguments to pass to handler
+     * @param {function} sendResponse - Response callback
+     * @returns {boolean} - True if handler was called (async), false otherwise
+     */
+    function executeHandler(moduleName, methodName, args, sendResponse) {
+        const handler = getHandler(moduleName, methodName);
+        if (!handler) {
+            safeSendResponse(sendResponse, { status: "error", error: `Handler unavailable: ${moduleName}.${methodName}` });
+            return false;
+        }
+
+        try {
+            handler.apply(null, args);
+            return true;
+        } catch (err) {
+            console.error(`[Binger] Handler error in ${moduleName}.${methodName}:`, err);
+            safeSendResponse(sendResponse, { status: "error", error: err.message || "Handler threw an exception" });
+            return false;
+        }
+    }
+
+    // ========================================================================
     // MESSAGE LISTENER
     // ========================================================================
 
@@ -15,7 +87,15 @@
      */
     function init() {
         chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-            console.log("[Binger] Message received:", msg);
+            // Validate msg exists
+            if (!msg || typeof msg !== "object") {
+                console.warn("[Binger] Invalid message received:", typeof msg);
+                safeSendResponse(sendResponse, { status: "error", error: "Invalid message format" });
+                return false;
+            }
+
+            // Log command name only (not full message - may contain sensitive data)
+            console.log("[Binger] Message received:", msg.command || "unknown");
 
             // Route message to appropriate handler
             const handled = routeMessage(msg, sender, sendResponse);
@@ -44,217 +124,179 @@
             // CHAT
             // ----------------------------------------------------------------
             case "post":
-                BingerBGChat.handlePost(msg, sendResponse);
-                return true;
+                return executeHandler("BingerBGChat", "handlePost", [msg, sendResponse], sendResponse);
 
             case "subscribeToMessages":
-                BingerBGChat.handleSubscribeToMessages(msg, sendResponse);
-                return true;
+                return executeHandler("BingerBGChat", "handleSubscribeToMessages", [msg, sendResponse], sendResponse);
 
             case "unsubscribeFromMessages":
-                BingerBGChat.handleUnsubscribeFromMessages(msg, sendResponse);
-                return true;
+                return executeHandler("BingerBGChat", "handleUnsubscribeFromMessages", [msg, sendResponse], sendResponse);
 
             // ----------------------------------------------------------------
             // AUTH
             // ----------------------------------------------------------------
             case "signup":
-                BingerBGAuth.handleSignup(msg, sendResponse);
-                return true;
+                return executeHandler("BingerBGAuth", "handleSignup", [msg, sendResponse], sendResponse);
 
             case "signin":
-                BingerBGAuth.handleSignin(msg, sendResponse);
-                return true;
+                return executeHandler("BingerBGAuth", "handleSignin", [msg, sendResponse], sendResponse);
 
             case "checkAuth":
-                BingerBGAuth.handleCheckAuth(sendResponse);
-                return true;
+                return executeHandler("BingerBGAuth", "handleCheckAuth", [sendResponse], sendResponse);
 
             case "signOut":
-                BingerBGAuth.handleSignOut(sendResponse);
-                return true;
+                return executeHandler("BingerBGAuth", "handleSignOut", [sendResponse], sendResponse);
 
             // ----------------------------------------------------------------
             // ROOMS
             // ----------------------------------------------------------------
             case "createRoom":
-                BingerBGRooms.handleCreateRoom(sendResponse);
-                return true;
+                return executeHandler("BingerBGRooms", "handleCreateRoom", [sendResponse], sendResponse);
 
             case "joinRoom":
-                BingerBGRooms.handleJoinRoom(msg, sendResponse);
-                return true;
+                return executeHandler("BingerBGRooms", "handleJoinRoom", [msg, sendResponse], sendResponse);
 
             case "leaveRoom":
-                BingerBGRooms.handleLeaveRoom(msg, sendResponse);
-                return true;
+                return executeHandler("BingerBGRooms", "handleLeaveRoom", [msg, sendResponse], sendResponse);
 
             case "rejoinIfRecentlyKicked":
-                BingerBGRooms.handleRejoinIfRecentlyKicked(msg, sendResponse);
-                return true;
+                return executeHandler("BingerBGRooms", "handleRejoinIfRecentlyKicked", [msg, sendResponse], sendResponse);
 
             case "refreshUserList":
-                BingerBGRooms.handleRefreshUserList(msg);
-                return false;
+                return executeHandler("BingerBGRooms", "handleRefreshUserList", [msg], sendResponse);
 
             // ----------------------------------------------------------------
             // USERS
             // ----------------------------------------------------------------
             case "subscribeToUsers":
-                BingerBGUsers.handleSubscribeToUsers(msg, sendResponse);
-                return true;
+                return executeHandler("BingerBGUsers", "handleSubscribeToUsers", [msg, sendResponse], sendResponse);
 
             case "unsubscribeFromUsers":
-                BingerBGUsers.handleUnsubscribeFromUsers(msg, sendResponse);
-                return true;
+                return executeHandler("BingerBGUsers", "handleUnsubscribeFromUsers", [msg, sendResponse], sendResponse);
 
             // ----------------------------------------------------------------
             // INVITES
             // ----------------------------------------------------------------
             case "sendInviteAndBroadcast":
-                BingerBGInvites.handleSendInviteAndBroadcast(msg, sendResponse);
-                return true;
+                return executeHandler("BingerBGInvites", "handleSendInviteAndBroadcast", [msg, sendResponse], sendResponse);
 
             case "subscribeToActiveInvite":
-                BingerBGInvites.handleSubscribeToActiveInvite(msg, sendResponse);
-                return true;
+                return executeHandler("BingerBGInvites", "handleSubscribeToActiveInvite", [msg, sendResponse], sendResponse);
+
+            case "unsubscribeFromActiveInvite":
+                return executeHandler("BingerBGInvites", "handleUnsubscribeFromActiveInvite", [msg, sendResponse], sendResponse);
 
             case "cancelActiveInvite":
-                BingerBGInvites.handleCancelActiveInvite(msg, sendResponse);
-                return true;
+                return executeHandler("BingerBGInvites", "handleCancelActiveInvite", [msg, sendResponse], sendResponse);
 
             // ----------------------------------------------------------------
             // SESSION
             // ----------------------------------------------------------------
             case "startInSessionListener":
-                BingerBGSession.handleStartInSessionListener(msg, sendResponse);
-                return true;
+                return executeHandler("BingerBGSession", "handleStartInSessionListener", [msg, sendResponse], sendResponse);
+
+            case "stopInSessionListener":
+                return executeHandler("BingerBGSession", "handleStopInSessionListener", [msg, sendResponse], sendResponse);
 
             case "userReady":
-                BingerBGSession.handleUserReady(msg, sendResponse);
-                return true;
+                return executeHandler("BingerBGSession", "handleUserReady", [msg, sendResponse], sendResponse);
 
             case "syncPlayerState":
-                BingerBGSession.handleSyncPlayerState(msg);
-                return false;
+                return executeHandler("BingerBGSession", "handleSyncPlayerState", [msg], sendResponse);
 
             case "startPlayerListener":
-                BingerBGSession.handleStartPlayerListener(msg, sendResponse);
-                return true;
+                return executeHandler("BingerBGSession", "handleStartPlayerListener", [msg, sendResponse], sendResponse);
 
             case "stopPlayerListener":
-                BingerBGSession.handleStopPlayerListener(msg, sendResponse);
-                return true;
+                return executeHandler("BingerBGSession", "handleStopPlayerListener", [msg, sendResponse], sendResponse);
 
             case "reportBufferStatus":
-                BingerBGSession.handleReportBufferStatus(msg);
-                return false;
+                return executeHandler("BingerBGSession", "handleReportBufferStatus", [msg], sendResponse);
 
             case "startBufferStatusListener":
-                BingerBGSession.handleStartBufferStatusListener(msg, sendResponse);
-                return true;
+                return executeHandler("BingerBGSession", "handleStartBufferStatusListener", [msg, sendResponse], sendResponse);
 
             case "stopBufferStatusListener":
-                BingerBGSession.handleStopBufferStatusListener(msg, sendResponse);
-                return true;
+                return executeHandler("BingerBGSession", "handleStopBufferStatusListener", [msg, sendResponse], sendResponse);
 
             case "broadcastCallReset":
-                BingerBGSession.handleBroadcastCallReset(msg);
-                return true;
+                return executeHandler("BingerBGSession", "handleBroadcastCallReset", [msg], sendResponse);
 
             case "startResetIframeListener":
-                BingerBGSession.handleStartResetIframeListener(msg, sendResponse);
-                return true;
+                return executeHandler("BingerBGSession", "handleStartResetIframeListener", [msg, sendResponse], sendResponse);
 
             case "stopResetIframeListener":
-                BingerBGSession.handleStopResetIframeListener(msg, sendResponse);
-                return true;
+                return executeHandler("BingerBGSession", "handleStopResetIframeListener", [msg, sendResponse], sendResponse);
 
             // ----------------------------------------------------------------
             // TYPING
             // ----------------------------------------------------------------
             case "iAmTyping":
-                BingerBGTyping.handleIAmTyping(msg);
-                return false;
+                return executeHandler("BingerBGTyping", "handleIAmTyping", [msg], sendResponse);
 
             case "iStoppedTyping":
-                BingerBGTyping.handleIStoppedTyping(msg);
-                return false;
+                return executeHandler("BingerBGTyping", "handleIStoppedTyping", [msg], sendResponse);
 
             case "subscribeToTyping":
-                BingerBGTyping.handleSubscribeToTyping(msg, sendResponse);
-                return true;
+                return executeHandler("BingerBGTyping", "handleSubscribeToTyping", [msg, sendResponse], sendResponse);
 
             case "unsubscribeFromTyping":
-                BingerBGTyping.handleUnsubscribeFromTyping(msg, sendResponse);
-                return true;
+                return executeHandler("BingerBGTyping", "handleUnsubscribeFromTyping", [msg, sendResponse], sendResponse);
 
             // ----------------------------------------------------------------
             // SOUNDBOARD
             // ----------------------------------------------------------------
             case "toggleSoundboard":
-                BingerBGSoundboard.handleToggleSoundboard(msg);
-                return false;
+                return executeHandler("BingerBGSoundboard", "handleToggleSoundboard", [msg], sendResponse);
 
             case "requestSoundEffect":
-                BingerBGSoundboard.handleRequestSoundEffect(msg);
-                return false;
+                return executeHandler("BingerBGSoundboard", "handleRequestSoundEffect", [msg], sendResponse);
 
             case "startSoundboardListener":
-                BingerBGSoundboard.handleStartSoundboardListener(msg, sendResponse);
-                return true;
+                return executeHandler("BingerBGSoundboard", "handleStartSoundboardListener", [msg, sendResponse], sendResponse);
 
             case "stopSoundboardListener":
-                BingerBGSoundboard.handleStopSoundboardListener(msg, sendResponse);
-                return true;
+                return executeHandler("BingerBGSoundboard", "handleStopSoundboardListener", [msg, sendResponse], sendResponse);
 
             case "requestVisualEffect":
-                BingerBGSoundboard.handleRequestVisualEffect(msg);
-                return false;
+                return executeHandler("BingerBGSoundboard", "handleRequestVisualEffect", [msg], sendResponse);
 
             case "startVisualboardListener":
-                BingerBGSoundboard.handleStartVisualboardListener(msg, sendResponse);
-                return true;
+                return executeHandler("BingerBGSoundboard", "handleStartVisualboardListener", [msg, sendResponse], sendResponse);
 
             case "stopVisualboardListener":
-                BingerBGSoundboard.handleStopVisualboardListener(msg, sendResponse);
-                return true;
+                return executeHandler("BingerBGSoundboard", "handleStopVisualboardListener", [msg, sendResponse], sendResponse);
 
             case "requestPin":
-                BingerBGSoundboard.handleRequestPin(msg);
-                return false;
+                return executeHandler("BingerBGSoundboard", "handleRequestPin", [msg], sendResponse);
 
             case "startPinListener":
-                BingerBGSoundboard.handleStartPinListener(msg, sendResponse);
-                return true;
+                return executeHandler("BingerBGSoundboard", "handleStartPinListener", [msg, sendResponse], sendResponse);
 
             case "stopPinListener":
-                BingerBGSoundboard.handleStopPinListener(msg, sendResponse);
-                return true;
+                return executeHandler("BingerBGSoundboard", "handleStopPinListener", [msg, sendResponse], sendResponse);
 
             // ----------------------------------------------------------------
             // THEME
             // ----------------------------------------------------------------
             case "subscribeToTheme":
-                BingerBGTheme.handleSubscribeToTheme(msg, sendResponse);
-                return true;
+                return executeHandler("BingerBGTheme", "handleSubscribeToTheme", [msg, sendResponse], sendResponse);
 
             case "unsubscribeFromTheme":
-                BingerBGTheme.handleUnsubscribeFromTheme(msg, sendResponse);
-                return true;
+                return executeHandler("BingerBGTheme", "handleUnsubscribeFromTheme", [msg, sendResponse], sendResponse);
 
             // ----------------------------------------------------------------
             // BOT
             // ----------------------------------------------------------------
             case "botQuery":
-                BingerBGBot.handleBotQuery(msg, sendResponse);
-                return true;
+                return executeHandler("BingerBGBot", "handleBotQuery", [msg, sendResponse], sendResponse);
 
             // ----------------------------------------------------------------
             // UNKNOWN
             // ----------------------------------------------------------------
             default:
-                console.log(`[Binger] Unknown command: ${msg.command}`);
+                console.warn(`[Binger] Unknown command: ${msg.command}`);
+                safeSendResponse(sendResponse, { status: "error", error: `Unknown command: ${msg.command}` });
                 return false;
         }
     }

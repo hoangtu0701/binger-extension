@@ -21,6 +21,7 @@
     const visualboardListeners = {};    // roomId -> unsubscribe fn (visual effects)
     const pinListeners = {};            // roomId -> unsubscribe fn (pinned visuals)
     const themeListeners = {};          // roomId -> callback (theme changes)
+    const typingListeners = {};         // roomId -> callback (typing status)
 
     // ========================================================================
     // CACHES
@@ -80,6 +81,10 @@
         return themeListeners;
     }
 
+    function getTypingListeners() {
+        return typingListeners;
+    }
+
     // ========================================================================
     // EMBEDDING CACHE
     // ========================================================================
@@ -89,7 +94,16 @@
     }
 
     function setMovieEmbeddingCache(payload) {
+        // Basic validation - should be object with movieId and chunks, or null
+        if (payload !== null && typeof payload !== "object") {
+            console.warn("[Binger] Invalid embedding cache payload - ignoring");
+            return;
+        }
         currentMovieEmbeddingCache = payload;
+    }
+
+    function clearMovieEmbeddingCache() {
+        currentMovieEmbeddingCache = null;
     }
 
     // ========================================================================
@@ -106,8 +120,67 @@
     }
 
     function decrementActivePorts() {
-        activePorts--;
+        // Guard against going negative
+        if (activePorts > 0) {
+            activePorts--;
+        } else {
+            console.warn("[Binger] Attempted to decrement activePorts below 0");
+        }
         return activePorts;
+    }
+
+    // ========================================================================
+    // RESET / CLEANUP
+    // ========================================================================
+
+    /**
+     * Clear all listeners from a specific map
+     * @param {object} listenerMap - The listener map to clear
+     * @param {string} mapName - Name for logging
+     */
+    function clearListenerMap(listenerMap, mapName) {
+        const keys = Object.keys(listenerMap);
+        keys.forEach((key) => {
+            const listener = listenerMap[key];
+            // If it's a function (unsubscribe fn), call it
+            if (typeof listener === "function") {
+                try {
+                    listener();
+                } catch (err) {
+                    console.warn(`[Binger] Error clearing ${mapName} listener for ${key}:`, err);
+                }
+            }
+            delete listenerMap[key];
+        });
+    }
+
+    /**
+     * Reset all state - clears all listeners and caches
+     * Use with caution - mainly for debugging or error recovery
+     */
+    function resetAllState() {
+        console.log("[Binger] Resetting all background state");
+
+        // Clear all listener maps
+        clearListenerMap(messageListeners, "message");
+        clearListenerMap(activeInviteListeners, "activeInvite");
+        clearListenerMap(inSessionListeners, "inSession");
+        clearListenerMap(playerListeners, "player");
+        clearListenerMap(bufferListeners, "buffer");
+        clearListenerMap(resetIframeListeners, "resetIframe");
+        clearListenerMap(soundboardListeners, "soundboard");
+        clearListenerMap(visualboardListeners, "visualboard");
+        clearListenerMap(pinListeners, "pin");
+        clearListenerMap(themeListeners, "theme");
+        clearListenerMap(typingListeners, "typing");
+
+        // Clear caches
+        currentMovieEmbeddingCache = null;
+
+        // Reset port count
+        activePorts = 0;
+
+        console.log("[Binger] Background state reset complete");
     }
 
     // ========================================================================
@@ -126,15 +199,20 @@
         getVisualboardListeners,
         getPinListeners,
         getThemeListeners,
+        getTypingListeners,
 
         // Embedding cache
         getMovieEmbeddingCache,
         setMovieEmbeddingCache,
+        clearMovieEmbeddingCache,
 
         // Port tracking
         getActivePorts,
         incrementActivePorts,
-        decrementActivePorts
+        decrementActivePorts,
+
+        // Reset
+        resetAllState
     };
 
 })();

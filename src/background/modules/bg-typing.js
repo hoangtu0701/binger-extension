@@ -7,6 +7,44 @@
     "use strict";
 
     // ========================================================================
+    // DEPENDENCY VALIDATION
+    // ========================================================================
+
+    /**
+     * Check that all required global dependencies exist
+     * @returns {boolean} - True if all dependencies are available
+     */
+    function validateDependencies() {
+        const required = ["BingerBGFirebase", "BingerBGState", "BingerBGUtils"];
+        const missing = required.filter(dep => typeof self[dep] === "undefined");
+
+        if (missing.length > 0) {
+            console.error("[Binger] bg-typing missing dependencies:", missing.join(", "));
+            return false;
+        }
+        return true;
+    }
+
+    // ========================================================================
+    // HELPER: SAFE SEND RESPONSE
+    // ========================================================================
+
+    /**
+     * Safely send response - tab may have closed
+     * @param {function} sendResponse - Response callback
+     * @param {object} data - Data to send
+     */
+    function safeSendResponse(sendResponse, data) {
+        try {
+            if (typeof sendResponse === "function") {
+                sendResponse(data);
+            }
+        } catch (err) {
+            // Tab closed before response - ignore
+        }
+    }
+
+    // ========================================================================
     // TYPING STATE UPDATES
     // ========================================================================
 
@@ -15,9 +53,35 @@
      * @param {object} msg - Message containing roomId and uid
      */
     function handleIAmTyping(msg) {
-        const ref = BingerBGFirebase.ref(`rooms/${msg.roomId}/typing/${msg.uid}`);
-        ref.set("")
-            .then(() => console.log(`[Binger] ${msg.uid} is typing (path added)`));
+        // Validate dependencies
+        if (!validateDependencies()) {
+            console.error("[Binger] Cannot set typing - missing dependencies");
+            return;
+        }
+
+        // Validate input
+        if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
+            console.error("[Binger] iAmTyping called with invalid roomId");
+            return;
+        }
+        if (!msg.uid || typeof msg.uid !== "string") {
+            console.error("[Binger] iAmTyping called with invalid uid");
+            return;
+        }
+
+        const roomId = msg.roomId.trim();
+        const uid = msg.uid;
+
+        const ref = BingerBGFirebase.ref(`rooms/${roomId}/typing/${uid}`);
+        if (!ref) {
+            console.error("[Binger] Failed to create typing ref");
+            return;
+        }
+
+        // Use true instead of empty string for clearer semantics
+        ref.set(true)
+            .then(() => console.log(`[Binger] ${uid} is typing`))
+            .catch((err) => console.error("[Binger] Failed to set typing status:", err));
     }
 
     /**
@@ -25,9 +89,34 @@
      * @param {object} msg - Message containing roomId and uid
      */
     function handleIStoppedTyping(msg) {
-        const ref = BingerBGFirebase.ref(`rooms/${msg.roomId}/typing/${msg.uid}`);
+        // Validate dependencies
+        if (!validateDependencies()) {
+            console.error("[Binger] Cannot clear typing - missing dependencies");
+            return;
+        }
+
+        // Validate input
+        if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
+            console.error("[Binger] iStoppedTyping called with invalid roomId");
+            return;
+        }
+        if (!msg.uid || typeof msg.uid !== "string") {
+            console.error("[Binger] iStoppedTyping called with invalid uid");
+            return;
+        }
+
+        const roomId = msg.roomId.trim();
+        const uid = msg.uid;
+
+        const ref = BingerBGFirebase.ref(`rooms/${roomId}/typing/${uid}`);
+        if (!ref) {
+            console.error("[Binger] Failed to create typing ref");
+            return;
+        }
+
         ref.remove()
-            .then(() => console.log(`[Binger] ${msg.uid} stopped typing (path removed)`));
+            .then(() => console.log(`[Binger] ${uid} stopped typing`))
+            .catch((err) => console.error("[Binger] Failed to remove typing status:", err));
     }
 
     // ========================================================================
@@ -40,36 +129,73 @@
      * @param {function} sendResponse - Response callback
      */
     function handleSubscribeToTyping(msg, sendResponse) {
-        const { roomId } = msg;
+        // Validate dependencies
+        if (!validateDependencies()) {
+            safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            return;
+        }
+
+        // Validate input
+        if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
+            safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            return;
+        }
+
+        const roomId = msg.roomId.trim();
         const typingRef = BingerBGFirebase.ref(`rooms/${roomId}/typing`);
 
-        // Remove old listeners
-        typingRef.off();
+        if (!typingRef) {
+            safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
+            return;
+        }
 
-        typingRef.on("value", (snapshot) => {
+        const listeners = BingerBGState.getTypingListeners();
+
+        // Remove existing listener if any (prevents stacking)
+        if (listeners[roomId]) {
+            typingRef.off("value", listeners[roomId]);
+            console.log(`[Binger] Removed duplicate typing listener for room ${roomId}`);
+        }
+
+        // Create listener callback
+        const callback = (snapshot) => {
             const typingData = snapshot.val() || {};
             const typingUids = Object.keys(typingData);
 
             // Fetch usernames
-            BingerBGFirebase.ref(`rooms/${roomId}/users`).once("value").then((snap) => {
-                const users = snap.val() || {};
-                const typingUsers = typingUids.map((uid) => ({
-                    uid,
-                    username: (uid === "BINGER_BOT" || uid === "BINGER_BOT_SEEK")
-                        ? "Binger Bot"
-                        : (users[uid]?.email?.split("@")[0] || "unknown")
-                }));
+            const usersRef = BingerBGFirebase.ref(`rooms/${roomId}/users`);
+            if (!usersRef) {
+                console.error("[Binger] Failed to create users ref for typing lookup");
+                return;
+            }
 
-                // Broadcast to all tabs
-                BingerBGUtils.broadcastToTabs({
-                    command: "typingStatusUpdated",
-                    users: typingUsers
+            usersRef.once("value")
+                .then((snap) => {
+                    const users = snap.val() || {};
+                    const typingUsers = typingUids.map((uid) => ({
+                        uid,
+                        username: (uid === "BINGER_BOT" || uid === "BINGER_BOT_SEEK")
+                            ? "Binger Bot"
+                            : (users[uid]?.email?.split("@")[0] || "unknown")
+                    }));
+
+                    // Broadcast to all tabs
+                    BingerBGUtils.broadcastToTabs({
+                        command: "typingStatusUpdated",
+                        users: typingUsers
+                    });
+                })
+                .catch((err) => {
+                    console.error("[Binger] Error fetching users for typing lookup:", err);
                 });
-            });
-        });
+        };
+
+        // Attach listener
+        typingRef.on("value", callback);
+        listeners[roomId] = callback;
 
         console.log(`[Binger] Subscribed to typing changes for room ${roomId}`);
-        sendResponse({ status: "typing listener attached" });
+        safeSendResponse(sendResponse, { status: "typing listener attached", roomId: roomId });
     }
 
     /**
@@ -78,13 +204,33 @@
      * @param {function} sendResponse - Response callback
      */
     function handleUnsubscribeFromTyping(msg, sendResponse) {
-        const { roomId } = msg;
-        const ref = BingerBGFirebase.ref(`rooms/${roomId}/typing`);
-        
-        // Unsub from all typing listeners
-        ref.off();
-        
-        sendResponse({ status: "unsubscribed from typing" });
+        // Validate dependencies
+        if (!validateDependencies()) {
+            safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            return;
+        }
+
+        // Validate input
+        if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
+            safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            return;
+        }
+
+        const roomId = msg.roomId.trim();
+        const listeners = BingerBGState.getTypingListeners();
+
+        if (listeners[roomId]) {
+            const ref = BingerBGFirebase.ref(`rooms/${roomId}/typing`);
+            if (ref) {
+                ref.off("value", listeners[roomId]);
+            }
+            delete listeners[roomId];
+            console.log(`[Binger] Unsubscribed from typing in room ${roomId}`);
+            safeSendResponse(sendResponse, { status: "unsubscribed from typing", roomId: roomId });
+        } else {
+            console.log(`[Binger] No active typing listener for room ${roomId}`);
+            safeSendResponse(sendResponse, { status: "no-listener", roomId: roomId });
+        }
     }
 
     // ========================================================================

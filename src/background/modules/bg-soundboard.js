@@ -7,6 +7,65 @@
     "use strict";
 
     // ========================================================================
+    // DEPENDENCY VALIDATION
+    // ========================================================================
+
+    /**
+     * Check that all required global dependencies exist
+     * @returns {boolean} - True if all dependencies are available
+     */
+    function validateDependencies() {
+        const required = ["BingerBGFirebase", "BingerBGState", "BingerBGUtils"];
+        const missing = required.filter(dep => typeof self[dep] === "undefined");
+
+        if (missing.length > 0) {
+            console.error("[Binger] bg-soundboard missing dependencies:", missing.join(", "));
+            return false;
+        }
+        return true;
+    }
+
+    // ========================================================================
+    // HELPER: SAFE SEND RESPONSE
+    // ========================================================================
+
+    /**
+     * Safely send response - tab may have closed
+     * @param {function} sendResponse - Response callback
+     * @param {object} data - Data to send
+     */
+    function safeSendResponse(sendResponse, data) {
+        try {
+            if (typeof sendResponse === "function") {
+                sendResponse(data);
+            }
+        } catch (err) {
+            // Tab closed before response - ignore
+        }
+    }
+
+    // ========================================================================
+    // HELPER: GET CURRENT ROOM ID
+    // ========================================================================
+
+    /**
+     * Get current room ID from storage with error handling
+     * @returns {Promise<string|null>}
+     */
+    function getCurrentRoomId() {
+        return new Promise((resolve) => {
+            chrome.storage.local.get("bingerCurrentRoomId", (result) => {
+                if (chrome.runtime.lastError) {
+                    console.warn("[Binger] Error getting current room:", chrome.runtime.lastError.message);
+                    resolve(null);
+                    return;
+                }
+                resolve(result?.bingerCurrentRoomId || null);
+            });
+        });
+    }
+
+    // ========================================================================
     // TOGGLE SOUNDBOARD
     // ========================================================================
 
@@ -15,9 +74,15 @@
      * @param {object} msg - Message containing inSession flag
      */
     function handleToggleSoundboard(msg) {
+        // Validate dependencies
+        if (!validateDependencies()) {
+            console.error("[Binger] Cannot toggle soundboard - missing dependencies");
+            return;
+        }
+
         BingerBGUtils.broadcastToTabs({
             command: "toggleSoundboard",
-            inSession: msg.inSession
+            inSession: msg?.inSession
         });
     }
 
@@ -29,13 +94,40 @@
      * Request a sound effect to be played in the room
      * @param {object} msg - Message containing soundId
      */
-    function handleRequestSoundEffect(msg) {
-        chrome.storage.local.get("bingerCurrentRoomId", ({ bingerCurrentRoomId }) => {
-            if (!bingerCurrentRoomId) return;
+    async function handleRequestSoundEffect(msg) {
+        // Validate dependencies
+        if (!validateDependencies()) {
+            console.error("[Binger] Cannot request sound effect - missing dependencies");
+            return;
+        }
 
-            BingerBGFirebase.ref(`rooms/${bingerCurrentRoomId}/soundboard/${msg.soundId}`)
-                .set(Date.now());
-        });
+        // Validate input
+        if (!msg || typeof msg.soundId !== "string" || msg.soundId.trim() === "") {
+            console.error("[Binger] requestSoundEffect called with invalid soundId");
+            return;
+        }
+
+        const soundId = msg.soundId.trim();
+        const roomId = await getCurrentRoomId();
+
+        if (!roomId) {
+            console.warn("[Binger] Cannot request sound effect - not in a room");
+            return;
+        }
+
+        const ref = BingerBGFirebase.ref(`rooms/${roomId}/soundboard/${soundId}`);
+        if (!ref) {
+            console.error("[Binger] Failed to create soundboard ref");
+            return;
+        }
+
+        ref.set(Date.now())
+            .then(() => {
+                console.log(`[Binger] Sound effect requested: ${soundId}`);
+            })
+            .catch((err) => {
+                console.error("[Binger] Failed to request sound effect:", err);
+            });
     }
 
     /**
@@ -44,7 +136,19 @@
      * @param {function} sendResponse - Response callback
      */
     function handleStartSoundboardListener(msg, sendResponse) {
-        const { roomId } = msg;
+        // Validate dependencies
+        if (!validateDependencies()) {
+            safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            return;
+        }
+
+        // Validate input
+        if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
+            safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            return;
+        }
+
+        const roomId = msg.roomId.trim();
         const listeners = BingerBGState.getSoundboardListeners();
 
         // Remove old listener if it exists
@@ -55,22 +159,35 @@
 
         const ref = BingerBGFirebase.ref(`rooms/${roomId}/soundboard`);
 
-        const onSoundChange = (snap) => {
-            const soundId = snap.key;
+        if (!ref) {
+            safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
+            return;
+        }
 
-            // Broadcast only this sound
+        const onSoundTrigger = (snap) => {
+            const soundId = snap.key;
+            if (!soundId) return;
+
             BingerBGUtils.broadcastToTabs({
                 command: "playSoundEffect",
                 soundId
             });
         };
 
-        ref.on("child_changed", onSoundChange);
+        // Listen to both child_added AND child_changed
+        // child_added: first time a specific sound is played
+        // child_changed: subsequent plays of same sound
+        ref.on("child_added", onSoundTrigger);
+        ref.on("child_changed", onSoundTrigger);
 
         // Store unsubscribe function
-        listeners[roomId] = () => ref.off("child_changed", onSoundChange);
+        listeners[roomId] = () => {
+            ref.off("child_added", onSoundTrigger);
+            ref.off("child_changed", onSoundTrigger);
+        };
 
-        sendResponse({ status: "soundboard listener attached" });
+        console.log(`[Binger] Started soundboard listener for room ${roomId}`);
+        safeSendResponse(sendResponse, { status: "soundboard listener attached", roomId: roomId });
     }
 
     /**
@@ -79,13 +196,28 @@
      * @param {function} sendResponse - Response callback
      */
     function handleStopSoundboardListener(msg, sendResponse) {
-        const { roomId } = msg;
+        // Validate dependencies
+        if (!validateDependencies()) {
+            safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            return;
+        }
+
+        // Validate input
+        if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
+            safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            return;
+        }
+
+        const roomId = msg.roomId.trim();
         const listeners = BingerBGState.getSoundboardListeners();
 
         if (listeners[roomId]) {
             listeners[roomId]();
             delete listeners[roomId];
-            sendResponse({ status: "soundboard listener removed" });
+            console.log(`[Binger] Stopped soundboard listener for room ${roomId}`);
+            safeSendResponse(sendResponse, { status: "soundboard listener removed", roomId: roomId });
+        } else {
+            safeSendResponse(sendResponse, { status: "no-listener", roomId: roomId });
         }
     }
 
@@ -97,13 +229,40 @@
      * Request a visual effect to be played in the room
      * @param {object} msg - Message containing visualId
      */
-    function handleRequestVisualEffect(msg) {
-        chrome.storage.local.get("bingerCurrentRoomId", ({ bingerCurrentRoomId }) => {
-            if (!bingerCurrentRoomId) return;
+    async function handleRequestVisualEffect(msg) {
+        // Validate dependencies
+        if (!validateDependencies()) {
+            console.error("[Binger] Cannot request visual effect - missing dependencies");
+            return;
+        }
 
-            BingerBGFirebase.ref(`rooms/${bingerCurrentRoomId}/visualboard/${msg.visualId}`)
-                .set(Date.now());
-        });
+        // Validate input
+        if (!msg || typeof msg.visualId !== "string" || msg.visualId.trim() === "") {
+            console.error("[Binger] requestVisualEffect called with invalid visualId");
+            return;
+        }
+
+        const visualId = msg.visualId.trim();
+        const roomId = await getCurrentRoomId();
+
+        if (!roomId) {
+            console.warn("[Binger] Cannot request visual effect - not in a room");
+            return;
+        }
+
+        const ref = BingerBGFirebase.ref(`rooms/${roomId}/visualboard/${visualId}`);
+        if (!ref) {
+            console.error("[Binger] Failed to create visualboard ref");
+            return;
+        }
+
+        ref.set(Date.now())
+            .then(() => {
+                console.log(`[Binger] Visual effect requested: ${visualId}`);
+            })
+            .catch((err) => {
+                console.error("[Binger] Failed to request visual effect:", err);
+            });
     }
 
     /**
@@ -112,7 +271,19 @@
      * @param {function} sendResponse - Response callback
      */
     function handleStartVisualboardListener(msg, sendResponse) {
-        const { roomId } = msg;
+        // Validate dependencies
+        if (!validateDependencies()) {
+            safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            return;
+        }
+
+        // Validate input
+        if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
+            safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            return;
+        }
+
+        const roomId = msg.roomId.trim();
         const listeners = BingerBGState.getVisualboardListeners();
 
         // Remove old listener if it exists
@@ -123,22 +294,33 @@
 
         const ref = BingerBGFirebase.ref(`rooms/${roomId}/visualboard`);
 
-        const onVisualChange = (snap) => {
-            const visualId = snap.key;
+        if (!ref) {
+            safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
+            return;
+        }
 
-            // Broadcast only this visual
+        const onVisualTrigger = (snap) => {
+            const visualId = snap.key;
+            if (!visualId) return;
+
             BingerBGUtils.broadcastToTabs({
                 command: "playVisualEffect",
                 visualId
             });
         };
 
-        ref.on("child_changed", onVisualChange);
+        // Listen to both child_added AND child_changed
+        ref.on("child_added", onVisualTrigger);
+        ref.on("child_changed", onVisualTrigger);
 
         // Store unsubscribe function
-        listeners[roomId] = () => ref.off("child_changed", onVisualChange);
+        listeners[roomId] = () => {
+            ref.off("child_added", onVisualTrigger);
+            ref.off("child_changed", onVisualTrigger);
+        };
 
-        sendResponse({ status: "visualboard listener attached" });
+        console.log(`[Binger] Started visualboard listener for room ${roomId}`);
+        safeSendResponse(sendResponse, { status: "visualboard listener attached", roomId: roomId });
     }
 
     /**
@@ -147,13 +329,28 @@
      * @param {function} sendResponse - Response callback
      */
     function handleStopVisualboardListener(msg, sendResponse) {
-        const { roomId } = msg;
+        // Validate dependencies
+        if (!validateDependencies()) {
+            safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            return;
+        }
+
+        // Validate input
+        if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
+            safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            return;
+        }
+
+        const roomId = msg.roomId.trim();
         const listeners = BingerBGState.getVisualboardListeners();
 
         if (listeners[roomId]) {
             listeners[roomId]();
             delete listeners[roomId];
-            sendResponse({ status: "visualboard listener removed" });
+            console.log(`[Binger] Stopped visualboard listener for room ${roomId}`);
+            safeSendResponse(sendResponse, { status: "visualboard listener removed", roomId: roomId });
+        } else {
+            safeSendResponse(sendResponse, { status: "no-listener", roomId: roomId });
         }
     }
 
@@ -165,18 +362,48 @@
      * Request a pin to be placed on the video
      * @param {object} msg - Message containing visualId, relX, relY
      */
-    function handleRequestPin(msg) {
-        chrome.storage.local.get("bingerCurrentRoomId", ({ bingerCurrentRoomId }) => {
-            if (!bingerCurrentRoomId) return;
+    async function handleRequestPin(msg) {
+        // Validate dependencies
+        if (!validateDependencies()) {
+            console.error("[Binger] Cannot request pin - missing dependencies");
+            return;
+        }
 
-            const ts = Date.now();
-            BingerBGFirebase.ref(`rooms/${bingerCurrentRoomId}/activePins/${msg.visualId}`)
-                .set({
-                    timestamp: ts,
-                    relX: msg.relX,
-                    relY: msg.relY
-                });
-        });
+        // Validate input
+        if (!msg || typeof msg.visualId !== "string" || msg.visualId.trim() === "") {
+            console.error("[Binger] requestPin called with invalid visualId");
+            return;
+        }
+        if (typeof msg.relX !== "number" || typeof msg.relY !== "number") {
+            console.error("[Binger] requestPin called with invalid coordinates");
+            return;
+        }
+
+        const visualId = msg.visualId.trim();
+        const roomId = await getCurrentRoomId();
+
+        if (!roomId) {
+            console.warn("[Binger] Cannot request pin - not in a room");
+            return;
+        }
+
+        const ref = BingerBGFirebase.ref(`rooms/${roomId}/activePins/${visualId}`);
+        if (!ref) {
+            console.error("[Binger] Failed to create activePins ref");
+            return;
+        }
+
+        ref.set({
+            timestamp: Date.now(),
+            relX: msg.relX,
+            relY: msg.relY
+        })
+            .then(() => {
+                console.log(`[Binger] Pin requested: ${visualId} at (${msg.relX}, ${msg.relY})`);
+            })
+            .catch((err) => {
+                console.error("[Binger] Failed to request pin:", err);
+            });
     }
 
     /**
@@ -185,7 +412,19 @@
      * @param {function} sendResponse - Response callback
      */
     function handleStartPinListener(msg, sendResponse) {
-        const { roomId } = msg;
+        // Validate dependencies
+        if (!validateDependencies()) {
+            safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            return;
+        }
+
+        // Validate input
+        if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
+            safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            return;
+        }
+
+        const roomId = msg.roomId.trim();
         const listeners = BingerBGState.getPinListeners();
 
         // Remove old listener if it exists
@@ -196,7 +435,12 @@
 
         const ref = BingerBGFirebase.ref(`rooms/${roomId}/activePins`);
 
-        const onPinChange = (snap) => {
+        if (!ref) {
+            safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
+            return;
+        }
+
+        const onPinTrigger = (snap) => {
             const visualId = snap.key;
             const data = snap.val();
             if (!visualId || !data) return;
@@ -208,11 +452,17 @@
             });
         };
 
-        ref.on("child_changed", onPinChange);
+        // Listen to both child_added AND child_changed
+        ref.on("child_added", onPinTrigger);
+        ref.on("child_changed", onPinTrigger);
 
-        listeners[roomId] = () => ref.off("child_changed", onPinChange);
+        listeners[roomId] = () => {
+            ref.off("child_added", onPinTrigger);
+            ref.off("child_changed", onPinTrigger);
+        };
 
-        sendResponse({ status: "pin listener attached" });
+        console.log(`[Binger] Started pin listener for room ${roomId}`);
+        safeSendResponse(sendResponse, { status: "pin listener attached", roomId: roomId });
     }
 
     /**
@@ -221,13 +471,28 @@
      * @param {function} sendResponse - Response callback
      */
     function handleStopPinListener(msg, sendResponse) {
-        const { roomId } = msg;
+        // Validate dependencies
+        if (!validateDependencies()) {
+            safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            return;
+        }
+
+        // Validate input
+        if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
+            safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            return;
+        }
+
+        const roomId = msg.roomId.trim();
         const listeners = BingerBGState.getPinListeners();
 
         if (listeners[roomId]) {
             listeners[roomId]();
             delete listeners[roomId];
-            sendResponse({ status: "pin listener removed" });
+            console.log(`[Binger] Stopped pin listener for room ${roomId}`);
+            safeSendResponse(sendResponse, { status: "pin listener removed", roomId: roomId });
+        } else {
+            safeSendResponse(sendResponse, { status: "no-listener", roomId: roomId });
         }
     }
 

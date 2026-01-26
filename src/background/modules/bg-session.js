@@ -7,6 +7,52 @@
     "use strict";
 
     // ========================================================================
+    // CONSTANTS
+    // ========================================================================
+
+    // Delay before sending resumePlay after all users are ready (in milliseconds)
+    // Prevents rapid on/off if users briefly buffer
+    const RESUME_PLAY_DELAY_MS = 300;
+
+    // ========================================================================
+    // DEPENDENCY VALIDATION
+    // ========================================================================
+
+    /**
+     * Check that all required global dependencies exist
+     * @returns {boolean} - True if all dependencies are available
+     */
+    function validateDependencies() {
+        const required = ["BingerBGFirebase", "BingerBGState", "BingerBGUtils"];
+        const missing = required.filter(dep => typeof self[dep] === "undefined");
+
+        if (missing.length > 0) {
+            console.error("[Binger] bg-session missing dependencies:", missing.join(", "));
+            return false;
+        }
+        return true;
+    }
+
+    // ========================================================================
+    // HELPER: SAFE SEND RESPONSE
+    // ========================================================================
+
+    /**
+     * Safely send response - tab may have closed
+     * @param {function} sendResponse - Response callback
+     * @param {object} data - Data to send
+     */
+    function safeSendResponse(sendResponse, data) {
+        try {
+            if (typeof sendResponse === "function") {
+                sendResponse(data);
+            }
+        } catch (err) {
+            // Tab closed before response - ignore
+        }
+    }
+
+    // ========================================================================
     // IN-SESSION LISTENER
     // ========================================================================
 
@@ -16,8 +62,26 @@
      * @param {function} sendResponse - Response callback
      */
     function handleStartInSessionListener(msg, sendResponse) {
-        const { roomId } = msg;
+        // Validate dependencies
+        if (!validateDependencies()) {
+            safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            return;
+        }
+
+        // Validate input
+        if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
+            safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            return;
+        }
+
+        const roomId = msg.roomId.trim();
         const ref = BingerBGFirebase.ref(`rooms/${roomId}/inSession`);
+
+        if (!ref) {
+            safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
+            return;
+        }
+
         const listeners = BingerBGState.getInSessionListeners();
 
         // Detach old one if it exists
@@ -41,7 +105,42 @@
         listeners[roomId] = callback;
 
         console.log(`[Binger] Started inSession listener for room ${roomId}`);
-        sendResponse({ status: "attached" });
+        safeSendResponse(sendResponse, { status: "attached", roomId: roomId });
+    }
+
+    /**
+     * Stop listening to inSession flag changes
+     * @param {object} msg - Message containing roomId
+     * @param {function} sendResponse - Response callback
+     */
+    function handleStopInSessionListener(msg, sendResponse) {
+        // Validate dependencies
+        if (!validateDependencies()) {
+            safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            return;
+        }
+
+        // Validate input
+        if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
+            safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            return;
+        }
+
+        const roomId = msg.roomId.trim();
+        const listeners = BingerBGState.getInSessionListeners();
+
+        if (listeners[roomId]) {
+            const ref = BingerBGFirebase.ref(`rooms/${roomId}/inSession`);
+            if (ref) {
+                ref.off("value", listeners[roomId]);
+            }
+            delete listeners[roomId];
+            console.log(`[Binger] Stopped inSession listener for room ${roomId}`);
+            safeSendResponse(sendResponse, { status: "detached", roomId: roomId });
+        } else {
+            console.log(`[Binger] No active inSession listener for room ${roomId}`);
+            safeSendResponse(sendResponse, { status: "no-listener", roomId: roomId });
+        }
     }
 
     // ========================================================================
@@ -55,21 +154,47 @@
      * @param {function} sendResponse - Response callback
      */
     function handleUserReady(msg, sendResponse) {
-        const { roomId } = msg;
-        const userId = BingerBGFirebase.getCurrentUser()?.uid;
-        if (!roomId || !userId) return;
+        // Validate dependencies
+        if (!validateDependencies()) {
+            safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            return;
+        }
+
+        // Validate input
+        if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
+            safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            return;
+        }
+
+        const roomId = msg.roomId.trim();
+        const user = BingerBGFirebase.getCurrentUser();
+
+        if (!user || !user.uid) {
+            safeSendResponse(sendResponse, { status: "error", error: "Not signed in" });
+            return;
+        }
+
+        const userId = user.uid;
 
         // Mark this user as ready in Firebase
         const readyRef = BingerBGFirebase.ref(`rooms/${roomId}/readyUsers/${userId}`);
-        
-        readyRef.set(true).then(() => {
-            console.log(`[Binger] ${userId} marked as ready`);
 
-            // Check if all users are ready
-            Promise.all([
-                BingerBGFirebase.ref(`rooms/${roomId}/users`).once("value"),
-                BingerBGFirebase.ref(`rooms/${roomId}/readyUsers`).once("value"),
-            ]).then(([usersSnap, readySnap]) => {
+        if (!readyRef) {
+            safeSendResponse(sendResponse, { status: "error", error: "Failed to create ready ref" });
+            return;
+        }
+
+        readyRef.set(true)
+            .then(() => {
+                console.log(`[Binger] ${userId} marked as ready`);
+
+                // Check if all users are ready
+                return Promise.all([
+                    BingerBGFirebase.ref(`rooms/${roomId}/users`).once("value"),
+                    BingerBGFirebase.ref(`rooms/${roomId}/readyUsers`).once("value"),
+                ]);
+            })
+            .then(([usersSnap, readySnap]) => {
                 const users = usersSnap.val() || {};
                 const readyUsers = readySnap.val() || {};
 
@@ -79,19 +204,26 @@
                 const allReady = allUserIds.every(uid => readyUserIds.includes(uid));
 
                 if (allReady && allUserIds.length > 0) {
-                    console.log(`[Binger] All users are ready - setting inSession`);
+                    console.log("[Binger] All users are ready - setting inSession");
 
                     // Set inSession = true
-                    BingerBGFirebase.ref(`rooms/${roomId}/inSession`).set(true).then(() => {
-                        // Clean up readyUsers list
-                        BingerBGFirebase.ref(`rooms/${roomId}/readyUsers`).remove();
-                        console.log(`[Binger] Cleaned up readyUsers`);
-                    });
+                    return BingerBGFirebase.ref(`rooms/${roomId}/inSession`).set(true)
+                        .then(() => {
+                            // Clean up readyUsers list
+                            return BingerBGFirebase.ref(`rooms/${roomId}/readyUsers`).remove();
+                        })
+                        .then(() => {
+                            console.log("[Binger] Cleaned up readyUsers");
+                        });
                 }
+            })
+            .then(() => {
+                safeSendResponse(sendResponse, { status: "ready acknowledged" });
+            })
+            .catch((err) => {
+                console.error("[Binger] Error in userReady:", err);
+                safeSendResponse(sendResponse, { status: "error", error: err.message });
             });
-        });
-
-        sendResponse({ status: "ready acknowledged" });
     }
 
     // ========================================================================
@@ -103,8 +235,35 @@
      * @param {object} msg - Message containing roomId, action, time
      */
     function handleSyncPlayerState(msg) {
-        const { roomId, action, time } = msg;
-        BingerBGFirebase.ref(`rooms/${roomId}/playerState`).set({ action, time });
+        // Validate dependencies
+        if (!validateDependencies()) {
+            console.error("[Binger] Cannot sync player state - missing dependencies");
+            return;
+        }
+
+        // Validate input
+        if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
+            console.error("[Binger] syncPlayerState called with invalid roomId");
+            return;
+        }
+
+        const roomId = msg.roomId.trim();
+        const action = msg.action;
+        const time = msg.time;
+
+        const ref = BingerBGFirebase.ref(`rooms/${roomId}/playerState`);
+        if (!ref) {
+            console.error("[Binger] Failed to create playerState ref");
+            return;
+        }
+
+        ref.set({ action, time })
+            .then(() => {
+                console.log(`[Binger] Player state synced: ${action} at ${time}`);
+            })
+            .catch((err) => {
+                console.error("[Binger] Failed to sync player state:", err);
+            });
     }
 
     /**
@@ -113,7 +272,19 @@
      * @param {function} sendResponse - Response callback
      */
     function handleStartPlayerListener(msg, sendResponse) {
-        const { roomId } = msg;
+        // Validate dependencies
+        if (!validateDependencies()) {
+            safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            return;
+        }
+
+        // Validate input
+        if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
+            safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            return;
+        }
+
+        const roomId = msg.roomId.trim();
         const listeners = BingerBGState.getPlayerListeners();
 
         // Always clear previous listener if exists
@@ -123,7 +294,12 @@
         }
 
         const ref = BingerBGFirebase.ref(`rooms/${roomId}/playerState`);
-        
+
+        if (!ref) {
+            safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
+            return;
+        }
+
         const onPlayerStateChange = (snap) => {
             const data = snap.val();
             if (!data) return;
@@ -138,8 +314,9 @@
 
         ref.on("value", onPlayerStateChange);
         listeners[roomId] = () => ref.off("value", onPlayerStateChange);
-        
-        sendResponse({ status: "listening" });
+
+        console.log(`[Binger] Started player listener for room ${roomId}`);
+        safeSendResponse(sendResponse, { status: "listening", roomId: roomId });
     }
 
     /**
@@ -148,15 +325,28 @@
      * @param {function} sendResponse - Response callback
      */
     function handleStopPlayerListener(msg, sendResponse) {
-        const { roomId } = msg;
+        // Validate dependencies
+        if (!validateDependencies()) {
+            safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            return;
+        }
+
+        // Validate input
+        if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
+            safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            return;
+        }
+
+        const roomId = msg.roomId.trim();
         const listeners = BingerBGState.getPlayerListeners();
 
         if (listeners[roomId]) {
             listeners[roomId]();
             delete listeners[roomId];
+            console.log(`[Binger] Stopped player listener for room ${roomId}`);
         }
-        
-        sendResponse({ status: "playerState listener removed" });
+
+        safeSendResponse(sendResponse, { status: "playerState listener removed", roomId: roomId });
     }
 
     // ========================================================================
@@ -168,11 +358,35 @@
      * @param {object} msg - Message containing roomId, userId, status
      */
     function handleReportBufferStatus(msg) {
-        const { roomId, userId, status } = msg;
-        BingerBGFirebase.ref(`rooms/${roomId}/bufferStatus/${userId}`)
-            .set(status)
+        // Validate dependencies
+        if (!validateDependencies()) {
+            console.error("[Binger] Cannot report buffer status - missing dependencies");
+            return;
+        }
+
+        // Validate input
+        if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
+            console.error("[Binger] reportBufferStatus called with invalid roomId");
+            return;
+        }
+        if (!msg.userId || typeof msg.userId !== "string") {
+            console.error("[Binger] reportBufferStatus called with invalid userId");
+            return;
+        }
+
+        const roomId = msg.roomId.trim();
+        const userId = msg.userId;
+        const status = msg.status;
+
+        const ref = BingerBGFirebase.ref(`rooms/${roomId}/bufferStatus/${userId}`);
+        if (!ref) {
+            console.error("[Binger] Failed to create bufferStatus ref");
+            return;
+        }
+
+        ref.set(status)
             .then(() => console.log(`[Binger] Buffer status for ${userId} = ${status}`))
-            .catch(err => console.error("[Binger] Failed to update bufferStatus", err));
+            .catch((err) => console.error("[Binger] Failed to update bufferStatus:", err));
     }
 
     /**
@@ -181,7 +395,19 @@
      * @param {function} sendResponse - Response callback
      */
     function handleStartBufferStatusListener(msg, sendResponse) {
-        const { roomId } = msg;
+        // Validate dependencies
+        if (!validateDependencies()) {
+            safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            return;
+        }
+
+        // Validate input
+        if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
+            safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            return;
+        }
+
+        const roomId = msg.roomId.trim();
         const listeners = BingerBGState.getBufferListeners();
 
         // Always destroy any prior listener for this room
@@ -191,7 +417,13 @@
         }
 
         const ref = BingerBGFirebase.ref(`rooms/${roomId}/bufferStatus`);
-        let resumeTimeout = null; // Delay before sending "resumePlay"
+
+        if (!ref) {
+            safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
+            return;
+        }
+
+        let resumeTimeout = null;
 
         const onValue = (snap) => {
             const data = snap.val();
@@ -201,7 +433,7 @@
             console.log("[Binger] Buffer status update:", data, "-> allReady =", allReady);
 
             if (allReady) {
-                // Wait 300ms before sending resumePlay
+                // Wait before sending resumePlay
                 if (!resumeTimeout) {
                     resumeTimeout = setTimeout(() => {
                         BingerBGUtils.broadcastToTabs({
@@ -209,7 +441,7 @@
                             roomId
                         });
                         resumeTimeout = null;
-                    }, 300);
+                    }, RESUME_PLAY_DELAY_MS);
                 }
             } else {
                 // If even one person is not ready, cancel the pending resumePlay
@@ -235,7 +467,8 @@
             }
         };
 
-        sendResponse({ status: "bufferStatus listener attached" });
+        console.log(`[Binger] Started buffer status listener for room ${roomId}`);
+        safeSendResponse(sendResponse, { status: "bufferStatus listener attached", roomId: roomId });
     }
 
     /**
@@ -244,15 +477,28 @@
      * @param {function} sendResponse - Response callback
      */
     function handleStopBufferStatusListener(msg, sendResponse) {
-        const { roomId } = msg;
+        // Validate dependencies
+        if (!validateDependencies()) {
+            safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            return;
+        }
+
+        // Validate input
+        if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
+            safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            return;
+        }
+
+        const roomId = msg.roomId.trim();
         const listeners = BingerBGState.getBufferListeners();
 
         if (listeners[roomId]) {
             listeners[roomId]();
             delete listeners[roomId];
+            console.log(`[Binger] Stopped buffer status listener for room ${roomId}`);
         }
-        
-        sendResponse({ status: "bufferStatus listener removed" });
+
+        safeSendResponse(sendResponse, { status: "bufferStatus listener removed", roomId: roomId });
     }
 
     // ========================================================================
@@ -264,19 +510,43 @@
      * @param {object} msg - Message containing roomId
      */
     function handleBroadcastCallReset(msg) {
-        const { roomId } = msg;
+        // Validate dependencies
+        if (!validateDependencies()) {
+            console.error("[Binger] Cannot broadcast call reset - missing dependencies");
+            return;
+        }
+
+        // Validate input
+        if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
+            console.error("[Binger] broadcastCallReset called with invalid roomId");
+            return;
+        }
+
+        const roomId = msg.roomId.trim();
         const user = BingerBGFirebase.getCurrentUser();
-        if (!user) return;
+
+        if (!user) {
+            console.error("[Binger] Cannot broadcast call reset - not signed in");
+            return;
+        }
 
         const flagRef = BingerBGFirebase.ref(`rooms/${roomId}/resetIframeFlag`);
+
+        if (!flagRef) {
+            console.error("[Binger] Failed to create resetIframeFlag ref");
+            return;
+        }
+
         flagRef.set({
             by: user.uid,
             at: Date.now()
-        }).then(() => {
-            console.log(`[Binger] Set resetIframeFlag for room ${roomId}`);
-        }).catch(err => {
-            console.error("[Binger] Failed to write resetIframeFlag:", err);
-        });
+        })
+            .then(() => {
+                console.log(`[Binger] Set resetIframeFlag for room ${roomId}`);
+            })
+            .catch((err) => {
+                console.error("[Binger] Failed to write resetIframeFlag:", err);
+            });
     }
 
     /**
@@ -285,10 +555,23 @@
      * @param {function} sendResponse - Response callback
      */
     function handleStartResetIframeListener(msg, sendResponse) {
-        const { roomId } = msg;
+        // Validate dependencies
+        if (!validateDependencies()) {
+            safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            return;
+        }
+
+        // Validate input
+        if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
+            safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            return;
+        }
+
+        const roomId = msg.roomId.trim();
         const user = BingerBGFirebase.getCurrentUser();
+
         if (!user) {
-            sendResponse({ status: "error", error: "not signed in" });
+            safeSendResponse(sendResponse, { status: "error", error: "Not signed in" });
             return;
         }
 
@@ -301,7 +584,12 @@
         }
 
         const ref = BingerBGFirebase.ref(`rooms/${roomId}/resetIframeFlag`);
-        
+
+        if (!ref) {
+            safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
+            return;
+        }
+
         const cb = (snap) => {
             const data = snap.val();
             if (!data) return;
@@ -321,15 +609,20 @@
             });
 
             // Cleanup the flag
-            ref.remove().then(() => {
-                console.log("[Binger] resetIframeFlag removed after broadcast");
-            });
+            ref.remove()
+                .then(() => {
+                    console.log("[Binger] resetIframeFlag removed after broadcast");
+                })
+                .catch((err) => {
+                    console.warn("[Binger] Failed to remove resetIframeFlag:", err);
+                });
         };
 
         ref.on("value", cb);
         listeners[roomId] = () => ref.off("value", cb);
-        
-        sendResponse({ status: "attached" });
+
+        console.log(`[Binger] Started resetIframe listener for room ${roomId}`);
+        safeSendResponse(sendResponse, { status: "attached", roomId: roomId });
     }
 
     /**
@@ -338,16 +631,28 @@
      * @param {function} sendResponse - Response callback
      */
     function handleStopResetIframeListener(msg, sendResponse) {
-        const { roomId } = msg;
+        // Validate dependencies
+        if (!validateDependencies()) {
+            safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            return;
+        }
+
+        // Validate input
+        if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
+            safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            return;
+        }
+
+        const roomId = msg.roomId.trim();
         const listeners = BingerBGState.getResetIframeListeners();
 
         if (listeners[roomId]) {
             listeners[roomId]();
             delete listeners[roomId];
-            console.log(`[Binger] resetIframeListener detached for room ${roomId}`);
+            console.log(`[Binger] Stopped resetIframe listener for room ${roomId}`);
         }
-        
-        sendResponse({ status: "detached" });
+
+        safeSendResponse(sendResponse, { status: "detached", roomId: roomId });
     }
 
     // ========================================================================
@@ -357,6 +662,7 @@
     self.BingerBGSession = {
         // inSession
         handleStartInSessionListener,
+        handleStopInSessionListener,
         handleUserReady,
 
         // Player state
