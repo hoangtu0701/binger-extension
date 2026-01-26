@@ -58,12 +58,11 @@ body {
   background-color: #38000e; 
   color: #fffab4; 
   width: 300px;
-  height: 230px;
+  height: 260px;
   display: flex;
   justify-content: center;
   align-items: center;
 }
-
 
 .popup-container {
   /* Applies regardless of whether we're on phimbro.com */
@@ -179,6 +178,12 @@ button:hover {
   text-align: center;
   font-size: 12px;
   font-weight: 500;
+  width: 90%;
+  max-width: 260px;
+  margin: 0 auto;
+  line-height: 1.4;
+  word-wrap: break-word;
+  min-height: 16px;
 }
 
 .auth-status.success {
@@ -188,7 +193,6 @@ button:hover {
 .auth-status.error {
   color: #ff4d4d;
 }
-
 
 
 
@@ -231,6 +235,18 @@ button:hover {
 .signout-btn:hover {
   background-color: #ffffff;
   color: #800020;
+}
+
+.phimbro-reminder {
+  font-size: 11px;
+  color: rgba(255, 250, 180, 0.7);
+  text-align: center;
+  margin: 12px 0 4px 0;
+  line-height: 1.4;
+}
+
+.phimbro-reminder strong {
+  color: #fffab4;
 }
 
 .versionText {

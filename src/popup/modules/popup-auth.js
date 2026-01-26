@@ -15,6 +15,18 @@ import { showSignedInUI, showMainUI } from "./popup-navigation.js";
 // Minimum password length requirement
 const MIN_PASSWORD_LENGTH = 6;
 
+// Firebase error code to user-friendly message mapping
+const AUTH_ERROR_MESSAGES = {
+    // Signup errors
+    "auth/email-already-in-use": "Username already taken.",
+    "auth/invalid-email": "Invalid username format.",
+    
+    // General errors
+    "auth/too-many-requests": "Too many attempts. Try again later.",
+    "auth/network-request-failed": "Network error. Check your connection.",
+    "auth/internal-error": "Something went wrong. Try again."
+};
+
 // DOM element references
 let elements = {
     usernameInput: null,
@@ -162,7 +174,8 @@ export async function handleAuthSubmit() {
             showSignedInUI();
         }, 1000);
     } else {
-        showStatus("Invalid credentials", true);
+        const errorMessage = AUTH_ERROR_MESSAGES[response?.code] || "Something went wrong. Try again.";
+        showStatus(errorMessage, true);
     }
 }
 

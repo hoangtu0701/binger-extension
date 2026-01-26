@@ -288,6 +288,39 @@
     }
 
     // ========================================================================
+    // SYSTEM NOTIFICATION RENDERING
+    // ========================================================================
+
+    /**
+     * Render a system notification (join/leave events)
+     * @param {string} notificationType - "join" or "leave"
+     * @param {string} username - The username involved
+     */
+    function renderSystemNotification(notificationType, username) {
+        const chatLog = BingerOverlayDOM.getElement("chatLog");
+        if (!chatLog) return;
+
+        // Build notification text
+        let text = "";
+        if (notificationType === "join") {
+            text = `${username} joined the room`;
+        } else if (notificationType === "leave") {
+            text = `${username} left the room`;
+        } else {
+            return;
+        }
+
+        // Create notification element
+        const notificationEl = document.createElement("div");
+        notificationEl.className = "bingerSystemNotification";
+        notificationEl.textContent = text;
+
+        // Append to chat log and scroll
+        chatLog.appendChild(notificationEl);
+        chatLog.scrollTop = chatLog.scrollHeight;
+    }
+
+    // ========================================================================
     // CHATBOX ACTIVATION
     // ========================================================================
 
@@ -426,6 +459,9 @@
         // Messages
         sendMessage,
         renderMessage,
+
+        // System notifications
+        renderSystemNotification,
 
         // Typing
         renderTypingBubbles,

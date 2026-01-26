@@ -52,6 +52,14 @@
                 break;
 
             // ================================================================
+            // USER NOTIFICATIONS (join/leave)
+            // ================================================================
+
+            case "userNotification":
+                BingerChatbox.renderSystemNotification(msg.notificationType, msg.username);
+                break;
+
+            // ================================================================
             // TYPING STATUS
             // ================================================================
 

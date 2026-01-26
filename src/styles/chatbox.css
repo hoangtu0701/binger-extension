@@ -565,3 +565,38 @@
 .theme-forest #bingerChatLog {
   scrollbar-color: #6fa056 transparent;
 }
+
+/* ----------------------------------------------------------------------------
+   SYSTEM NOTIFICATIONS (join/leave)
+   ---------------------------------------------------------------------------- */
+
+.bingerSystemNotification {
+  text-align: center;
+  font-size: 12px;
+  color: #666;
+  padding: 6px 12px;
+  margin: 8px 0;
+  font-style: italic;
+  font-family: 'Segoe UI', sans-serif;
+  animation: fadeInUp 0.25s ease forwards;
+}
+
+.theme-pink .bingerSystemNotification {
+  color: #7a5c6b;
+}
+
+.theme-blackwhite .bingerSystemNotification {
+  color: #888888;
+}
+
+.theme-ocean .bingerSystemNotification {
+  color: #6d4510;
+}
+
+.theme-volcano .bingerSystemNotification {
+  color: #ff9966;
+}
+
+.theme-forest .bingerSystemNotification {
+  color: #c6ff9e;
+}

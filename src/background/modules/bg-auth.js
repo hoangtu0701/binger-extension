@@ -25,7 +25,7 @@
             })
             .catch((error) => {
                 console.error("[Binger] Signup error:", error);
-                sendResponse({ status: "error" });
+                sendResponse({ status: "error", code: error.code });
             });
     }
 
@@ -48,7 +48,7 @@
             })
             .catch((error) => {
                 console.error("[Binger] Signin error:", error);
-                sendResponse({ status: "error" });
+                sendResponse({ status: "error", code: error.code });
             });
     }
 
