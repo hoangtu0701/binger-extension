@@ -8,6 +8,12 @@
 
     // Typing timeout reference
     let typingTimeout = null;
+    
+    // Track if initial message load is complete
+    let isInitialLoad = true;
+    
+    // Intersection observer for chat messages
+    let chatObserver = null;
 
     // ========================================================================
     // MENTION PILL
@@ -278,13 +284,70 @@
 
         const messageEl = document.createElement("div");
         messageEl.className = "bingerChatMsg";
+        
+        // Old messages (from initial load) skip entrance animation
+        if (isInitialLoad) {
+            messageEl.classList.add("no-entrance");
+        }
+        
+        // Start paused until observed as visible
+        messageEl.classList.add("paused");
+        
         messageEl.innerHTML = `<strong>${sender}</strong> [${time}]: ${text}`;
 
         chatLog.appendChild(messageEl);
         chatLog.scrollTop = chatLog.scrollHeight;
 
-        // Spawn leaves if forest theme
-        BingerTheme.spawnLeaves(messageEl);
+        // Observe for visibility
+        if (chatObserver) {
+            chatObserver.observe(messageEl);
+        }
+
+        // Spawn leaves if forest theme (only for new messages)
+        if (!isInitialLoad) {
+            BingerTheme.spawnLeaves(messageEl);
+        }
+    }
+
+    // ========================================================================
+    // VISIBILITY OBSERVER
+    // ========================================================================
+
+    /**
+     * Setup intersection observer for chat messages
+     * Only visible messages get animations
+     */
+    function setupChatObserver() {
+        const chatLog = BingerOverlayDOM.getElement("chatLog");
+        if (!chatLog) return;
+        
+        // Clean up old observer
+        if (chatObserver) {
+            chatObserver.disconnect();
+        }
+        
+        chatObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.remove("paused");
+                } else {
+                    entry.target.classList.add("paused");
+                }
+            });
+        }, {
+            root: chatLog,
+            threshold: 0
+        });
+    }
+
+    /**
+     * Cleanup the chat observer
+     */
+    function cleanupChatObserver() {
+        if (chatObserver) {
+            chatObserver.disconnect();
+            chatObserver = null;
+        }
     }
 
     // ========================================================================
@@ -382,6 +445,11 @@
         // Clear chat and user list
         elements.chatLog.innerHTML = "";
         BingerOverlayDOM.setUserListDisplay(null);
+        
+        // Reset initial load flag and setup observer
+        isInitialLoad = true;
+        setupChatObserver();
+        setTimeout(() => { isInitialLoad = false; }, 1500);
 
         // Subscribe to users
         BingerConnection.sendMessageAsync({
@@ -445,6 +513,10 @@
 
         // Reset subscription flag
         BingerState.setIsChatSubscribed(false);
+        
+        // Cleanup
+        cleanupChatObserver();
+        isInitialLoad = true;
     }
 
     // ========================================================================

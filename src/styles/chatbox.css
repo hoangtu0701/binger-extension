@@ -600,3 +600,27 @@
 .theme-forest .bingerSystemNotification {
   color: #c6ff9e;
 }
+
+/* ----------------------------------------------------------------------------
+   ANIMATION CONTROL CLASSES
+   ---------------------------------------------------------------------------- */
+
+/* Paused (out of view) - disable ALL animations */
+.bingerChatMsg.paused,
+.bingerChatMsg.paused::before {
+  animation: none !important;
+}
+
+/* Old messages - no entrance animation */
+.bingerChatMsg.no-entrance {
+  animation: none !important;
+}
+
+/* Old messages still get idle animations when visible */
+.theme-ocean .bingerChatMsg.no-entrance:not(.paused)::before {
+  animation: sandShift 30s linear infinite;
+}
+
+.theme-volcano .bingerChatMsg.no-entrance:not(.paused)::before {
+  animation: lavaGlow 6s ease-in-out infinite alternate;
+}
