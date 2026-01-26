@@ -7,6 +7,25 @@
     "use strict";
 
     // ========================================================================
+    // DEPENDENCY VALIDATION
+    // ========================================================================
+
+    /**
+     * Check that all required global dependencies exist
+     * @returns {boolean} - True if all dependencies are available
+     */
+    function validateDependencies() {
+        const required = ["BingerBGFirebase", "BingerBGUtils"];
+        const missing = required.filter(dep => typeof self[dep] === "undefined");
+
+        if (missing.length > 0) {
+            console.error("[Binger] bg-auth missing dependencies:", missing.join(", "));
+            return false;
+        }
+        return true;
+    }
+
+    // ========================================================================
     // SIGNUP
     // ========================================================================
 
@@ -16,17 +35,40 @@
      * @param {function} sendResponse - Response callback
      */
     function handleSignup(msg, sendResponse) {
-        const { email, password } = msg.data || {};
-        
-        BingerBGFirebase.auth().createUserWithEmailAndPassword(email, password)
-            .then((userCredential) => {
-                console.log("[Binger] Signup success:", userCredential.user);
-                sendResponse({ status: "success" });
-            })
-            .catch((error) => {
-                console.error("[Binger] Signup error:", error);
-                sendResponse({ status: "error", code: error.code });
-            });
+        // Validate dependencies
+        if (!validateDependencies()) {
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            return;
+        }
+
+        // Validate input
+        const email = msg?.data?.email;
+        const password = msg?.data?.password;
+
+        if (!email || typeof email !== "string" || email.trim() === "") {
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", code: "invalid-email" });
+            return;
+        }
+
+        if (!password || typeof password !== "string" || password.length < 6) {
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", code: "weak-password" });
+            return;
+        }
+
+        try {
+            BingerBGFirebase.auth().createUserWithEmailAndPassword(email.trim(), password)
+                .then((userCredential) => {
+                    console.log("[Binger] Signup success:", userCredential.user?.email);
+                    BingerBGUtils.safeSendResponse(sendResponse, { status: "success" });
+                })
+                .catch((error) => {
+                    console.error("[Binger] Signup error:", error.code);
+                    BingerBGUtils.safeSendResponse(sendResponse, { status: "error", code: error.code });
+                });
+        } catch (err) {
+            console.error("[Binger] Signup exception:", err);
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", code: "unknown-error" });
+        }
     }
 
     // ========================================================================
@@ -39,17 +81,40 @@
      * @param {function} sendResponse - Response callback
      */
     function handleSignin(msg, sendResponse) {
-        const { email, password } = msg.data || {};
-        
-        BingerBGFirebase.auth().signInWithEmailAndPassword(email, password)
-            .then((userCredential) => {
-                console.log("[Binger] Signin success:", userCredential.user);
-                sendResponse({ status: "success" });
-            })
-            .catch((error) => {
-                console.error("[Binger] Signin error:", error);
-                sendResponse({ status: "error", code: error.code });
-            });
+        // Validate dependencies
+        if (!validateDependencies()) {
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            return;
+        }
+
+        // Validate input
+        const email = msg?.data?.email;
+        const password = msg?.data?.password;
+
+        if (!email || typeof email !== "string" || email.trim() === "") {
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", code: "invalid-email" });
+            return;
+        }
+
+        if (!password || typeof password !== "string") {
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", code: "invalid-password" });
+            return;
+        }
+
+        try {
+            BingerBGFirebase.auth().signInWithEmailAndPassword(email.trim(), password)
+                .then((userCredential) => {
+                    console.log("[Binger] Signin success:", userCredential.user?.email);
+                    BingerBGUtils.safeSendResponse(sendResponse, { status: "success" });
+                })
+                .catch((error) => {
+                    console.error("[Binger] Signin error:", error.code);
+                    BingerBGUtils.safeSendResponse(sendResponse, { status: "error", code: error.code });
+                });
+        } catch (err) {
+            console.error("[Binger] Signin exception:", err);
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", code: "unknown-error" });
+        }
     }
 
     // ========================================================================
@@ -61,12 +126,23 @@
      * @param {function} sendResponse - Response callback
      */
     function handleCheckAuth(sendResponse) {
-        const unsubscribe = BingerBGFirebase.auth().onAuthStateChanged((user) => {
-            unsubscribe(); // Immediately unsubscribe to avoid memory leaks
-            sendResponse({ 
-                user: user ? { uid: user.uid, email: user.email } : null 
+        // Validate dependencies
+        if (!validateDependencies()) {
+            BingerBGUtils.safeSendResponse(sendResponse, { user: null, error: "Missing dependencies" });
+            return;
+        }
+
+        try {
+            const unsubscribe = BingerBGFirebase.auth().onAuthStateChanged((user) => {
+                unsubscribe(); // Immediately unsubscribe to avoid memory leaks
+                BingerBGUtils.safeSendResponse(sendResponse, {
+                    user: user ? { uid: user.uid, email: user.email } : null
+                });
             });
-        });
+        } catch (err) {
+            console.error("[Binger] CheckAuth exception:", err);
+            BingerBGUtils.safeSendResponse(sendResponse, { user: null, error: "Auth check failed" });
+        }
     }
 
     // ========================================================================
@@ -78,17 +154,31 @@
      * @param {function} sendResponse - Response callback
      */
     function handleSignOut(sendResponse) {
-        BingerBGFirebase.auth().signOut()
-            .then(() => {
-                chrome.storage.local.clear(() => {
-                    console.log("[Binger] Signed out and cleared local storage");
-                    sendResponse({ status: "success" });
+        // Validate dependencies
+        if (!validateDependencies()) {
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            return;
+        }
+
+        try {
+            BingerBGFirebase.auth().signOut()
+                .then(() => {
+                    chrome.storage.local.clear(() => {
+                        if (chrome.runtime.lastError) {
+                            console.warn("[Binger] Error clearing storage:", chrome.runtime.lastError.message);
+                        }
+                        console.log("[Binger] Signed out and cleared local storage");
+                        BingerBGUtils.safeSendResponse(sendResponse, { status: "success" });
+                    });
+                })
+                .catch((error) => {
+                    console.error("[Binger] Signout error:", error);
+                    BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: error.message });
                 });
-            })
-            .catch((error) => {
-                console.error("[Binger] Signout error:", error);
-                sendResponse({ status: "error", error: error.message });
-            });
+        } catch (err) {
+            console.error("[Binger] Signout exception:", err);
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Signout failed" });
+        }
     }
 
     // ========================================================================

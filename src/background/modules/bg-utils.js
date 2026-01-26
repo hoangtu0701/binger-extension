@@ -18,6 +18,51 @@
     const PHIMBRO_URL_PATTERN = "*://phimbro.com/*";
 
     // ========================================================================
+    // SAFE SEND RESPONSE
+    // ========================================================================
+
+    /**
+     * Safely send response - tab may have closed
+     * @param {function} sendResponse - Response callback
+     * @param {object} data - Data to send
+     */
+    function safeSendResponse(sendResponse, data) {
+        try {
+            if (typeof sendResponse === "function") {
+                sendResponse(data);
+            }
+        } catch (err) {
+            // Tab closed before response - ignore
+        }
+    }
+
+    // ========================================================================
+    // UNSUBSCRIBE FROM TYPING
+    // ========================================================================
+
+    /**
+     * Unsubscribe from typing - try direct call first, fallback to message
+     * Used by bg-connection.js and bg-rooms.js during cleanup
+     * @param {string} roomId - The room ID
+     */
+    function unsubscribeFromTyping(roomId) {
+        if (!roomId || typeof roomId !== "string") return;
+
+        // Try direct call if BingerBGTyping is available
+        if (typeof self.BingerBGTyping !== "undefined" && self.BingerBGTyping.handleUnsubscribeFromTyping) {
+            self.BingerBGTyping.handleUnsubscribeFromTyping({ roomId }, () => {});
+        } else {
+            // Fallback to message (module might not be loaded yet)
+            chrome.runtime.sendMessage({ command: "unsubscribeFromTyping", roomId }, () => {
+                // Ignore errors - receiver might not exist
+                if (chrome.runtime.lastError) {
+                    // Silently ignore - expected if typing module not ready
+                }
+            });
+        }
+    }
+
+    // ========================================================================
     // TAB BROADCASTING
     // ========================================================================
 
@@ -46,7 +91,7 @@
                     chrome.tabs.sendMessage(tab.id, message, () => {
                         // Check for send errors (tab closed, no content script, etc.)
                         if (chrome.runtime.lastError) {
-                            // Silently ignore - this is expected for tabs without content script
+                            // Silently ignore - expected for tabs without content script
                         }
                     });
                 }
@@ -185,6 +230,8 @@
     // ========================================================================
 
     self.BingerBGUtils = {
+        safeSendResponse,
+        unsubscribeFromTyping,
         broadcastToTabs,
         broadcastUpdatedUserList,
         generateRoomId,

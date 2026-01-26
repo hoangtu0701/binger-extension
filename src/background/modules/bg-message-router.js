@@ -7,25 +7,6 @@
     "use strict";
 
     // ========================================================================
-    // HELPER: SAFE SEND RESPONSE
-    // ========================================================================
-
-    /**
-     * Safely send response - tab may have closed
-     * @param {function} sendResponse - Response callback
-     * @param {object} data - Data to send
-     */
-    function safeSendResponse(sendResponse, data) {
-        try {
-            if (typeof sendResponse === "function") {
-                sendResponse(data);
-            }
-        } catch (err) {
-            // Tab closed before response - ignore
-        }
-    }
-
-    // ========================================================================
     // HELPER: CHECK IF HANDLER EXISTS
     // ========================================================================
 
@@ -64,7 +45,7 @@
     function executeHandler(moduleName, methodName, args, sendResponse) {
         const handler = getHandler(moduleName, methodName);
         if (!handler) {
-            safeSendResponse(sendResponse, { status: "error", error: `Handler unavailable: ${moduleName}.${methodName}` });
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: `Handler unavailable: ${moduleName}.${methodName}` });
             return false;
         }
 
@@ -73,7 +54,7 @@
             return true;
         } catch (err) {
             console.error(`[Binger] Handler error in ${moduleName}.${methodName}:`, err);
-            safeSendResponse(sendResponse, { status: "error", error: err.message || "Handler threw an exception" });
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: err.message || "Handler threw an exception" });
             return false;
         }
     }
@@ -90,7 +71,7 @@
             // Validate msg exists
             if (!msg || typeof msg !== "object") {
                 console.warn("[Binger] Invalid message received:", typeof msg);
-                safeSendResponse(sendResponse, { status: "error", error: "Invalid message format" });
+                BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid message format" });
                 return false;
             }
 
@@ -296,7 +277,7 @@
             // ----------------------------------------------------------------
             default:
                 console.warn(`[Binger] Unknown command: ${msg.command}`);
-                safeSendResponse(sendResponse, { status: "error", error: `Unknown command: ${msg.command}` });
+                BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: `Unknown command: ${msg.command}` });
                 return false;
         }
     }

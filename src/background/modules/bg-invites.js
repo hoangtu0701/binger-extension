@@ -43,25 +43,6 @@
     }
 
     // ========================================================================
-    // HELPER: SAFE SEND RESPONSE
-    // ========================================================================
-
-    /**
-     * Safely send response - tab may have closed
-     * @param {function} sendResponse - Response callback
-     * @param {object} data - Data to send
-     */
-    function safeSendResponse(sendResponse, data) {
-        try {
-            if (typeof sendResponse === "function") {
-                sendResponse(data);
-            }
-        } catch (err) {
-            // Tab closed before response - ignore
-        }
-    }
-
-    // ========================================================================
     // INVITE EXPIRY CHECKER
     // ========================================================================
 
@@ -150,17 +131,17 @@
     function handleSendInviteAndBroadcast(msg, sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
         if (!msg.inviteData || typeof msg.inviteData !== "object") {
-            safeSendResponse(sendResponse, { status: "error", error: "Invalid inviteData" });
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid inviteData" });
             return;
         }
 
@@ -194,7 +175,7 @@
         const chatRef = BingerBGFirebase.ref(chatPath);
 
         if (!inviteRef || !chatRef) {
-            safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase refs" });
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase refs" });
             return;
         }
 
@@ -209,11 +190,11 @@
             })
             .then(() => {
                 console.log("[Binger] Invite message pushed to chat");
-                safeSendResponse(sendResponse, { status: "success" });
+                BingerBGUtils.safeSendResponse(sendResponse, { status: "success" });
             })
             .catch((err) => {
                 console.error("[Binger] Failed to handle invite broadcast:", err);
-                safeSendResponse(sendResponse, { status: "error", error: err.message });
+                BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: err.message });
             });
     }
 
@@ -229,13 +210,13 @@
     function handleSubscribeToActiveInvite(msg, sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
 
@@ -243,7 +224,7 @@
         const ref = BingerBGFirebase.ref(`rooms/${roomId}/activeInvite`);
 
         if (!ref) {
-            safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
             return;
         }
 
@@ -275,7 +256,7 @@
         listeners[roomId] = callback;
 
         console.log(`[Binger] Subscribed to activeInvite in room ${roomId}`);
-        safeSendResponse(sendResponse, { status: "subscribed", roomId: roomId });
+        BingerBGUtils.safeSendResponse(sendResponse, { status: "subscribed", roomId: roomId });
     }
 
     /**
@@ -286,13 +267,13 @@
     function handleUnsubscribeFromActiveInvite(msg, sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
 
@@ -306,10 +287,10 @@
             }
             delete listeners[roomId];
             console.log(`[Binger] Unsubscribed from activeInvite in room ${roomId}`);
-            safeSendResponse(sendResponse, { status: "unsubscribed", roomId: roomId });
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "unsubscribed", roomId: roomId });
         } else {
             console.log(`[Binger] No active listener for activeInvite in room ${roomId}`);
-            safeSendResponse(sendResponse, { status: "no-listener", roomId: roomId });
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "no-listener", roomId: roomId });
         }
 
         // Also stop the expiry checker
@@ -394,13 +375,13 @@
 
         // Validate dependencies
         if (!validateDependencies()) {
-            safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
 
@@ -408,7 +389,7 @@
         const inviteRef = BingerBGFirebase.ref(`rooms/${roomId}/activeInvite`);
 
         if (!inviteRef) {
-            safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
             return;
         }
 
@@ -418,11 +399,11 @@
         inviteRef.remove()
             .then(() => {
                 console.log("[Binger] Active invite cancelled by sender");
-                safeSendResponse(sendResponse, { status: "success" });
+                BingerBGUtils.safeSendResponse(sendResponse, { status: "success" });
             })
             .catch((error) => {
                 console.error("[Binger] Failed to cancel invite:", error);
-                safeSendResponse(sendResponse, { status: "error", error: error.message });
+                BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: error.message });
             });
     }
 

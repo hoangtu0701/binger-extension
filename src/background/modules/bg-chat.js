@@ -26,23 +26,6 @@
     }
 
     // ========================================================================
-    // HELPER: SAFE SEND RESPONSE
-    // ========================================================================
-
-    /**
-     * Safely send response - tab may have closed
-     * @param {function} sendResponse - Response callback
-     * @param {object} data - Data to send
-     */
-    function safeSendResponse(sendResponse, data) {
-        try {
-            sendResponse(data);
-        } catch (err) {
-            // Tab closed before response - ignore
-        }
-    }
-
-    // ========================================================================
     // HELPER: DETERMINE WRITE METHOD
     // ========================================================================
 
@@ -57,13 +40,9 @@
         const segments = refPath.split("/");
 
         // Paths that should use .set() (exact segment matches)
-        // - rooms/{id}/acceptedInvitees/{uid}
-        // - rooms/{id}/inSession
-        // - rooms/{id}/theme
         const setSegments = ["acceptedInvitees", "inSession", "theme", "typing", "playerState"];
 
         // Check if any segment exactly matches a set-path keyword
-        // AND it's either the last segment or second-to-last (for acceptedInvitees/{uid})
         for (let i = 0; i < segments.length; i++) {
             const segment = segments[i];
             if (setSegments.includes(segment)) {
@@ -87,13 +66,13 @@
     function handlePost(msg, sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.path !== "string" || msg.path.trim() === "") {
-            safeSendResponse(sendResponse, { status: "error", error: "Invalid path" });
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid path" });
             return;
         }
 
@@ -107,11 +86,11 @@
         write
             .then(() => {
                 console.log(`[Binger] Data posted to /${refPath}`);
-                safeSendResponse(sendResponse, { status: "success" });
+                BingerBGUtils.safeSendResponse(sendResponse, { status: "success" });
             })
             .catch((err) => {
                 console.error("[Binger] Firebase post error:", err);
-                safeSendResponse(sendResponse, { status: "error", error: err.message });
+                BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: err.message });
             });
     }
 
@@ -128,13 +107,13 @@
     function handleSubscribeToMessages(msg, sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
 
@@ -164,7 +143,7 @@
         listeners[roomId] = callback;
 
         console.log(`[Binger] Subscribed to messages in room ${roomId}`);
-        safeSendResponse(sendResponse, { status: "subscribed", roomId: roomId });
+        BingerBGUtils.safeSendResponse(sendResponse, { status: "subscribed", roomId: roomId });
     }
 
     // ========================================================================
@@ -179,13 +158,13 @@
     function handleUnsubscribeFromMessages(msg, sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
 
@@ -196,10 +175,10 @@
             BingerBGFirebase.ref(`rooms/${roomId}/messages`).off("child_added", listeners[roomId]);
             delete listeners[roomId];
             console.log(`[Binger] Unsubscribed from messages in room ${roomId}`);
-            safeSendResponse(sendResponse, { status: "unsubscribed", roomId: roomId });
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "unsubscribed", roomId: roomId });
         } else {
             console.log(`[Binger] No active listener for room ${roomId}`);
-            safeSendResponse(sendResponse, { status: "no-listener", roomId: roomId });
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "no-listener", roomId: roomId });
         }
     }
 

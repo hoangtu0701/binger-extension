@@ -27,7 +27,7 @@
         const missing = required.filter(dep => typeof self[dep] === "undefined");
 
         if (missing.length > 0) {
-            console.error("[Binger] Missing dependencies:", missing.join(", "));
+            console.error("[Binger] bg-bot missing dependencies:", missing.join(", "));
             return false;
         }
         return true;
@@ -74,8 +74,13 @@
      */
     function getRoomIdFromStorage() {
         return new Promise((resolve) => {
-            chrome.storage.local.get("bingerCurrentRoomId", ({ bingerCurrentRoomId }) => {
-                resolve(bingerCurrentRoomId || null);
+            chrome.storage.local.get("bingerCurrentRoomId", (result) => {
+                if (chrome.runtime.lastError) {
+                    console.warn("[Binger] Error getting room ID:", chrome.runtime.lastError.message);
+                    resolve(null);
+                    return;
+                }
+                resolve(result?.bingerCurrentRoomId || null);
             });
         });
     }
@@ -90,8 +95,24 @@
      * @param {string} text - Message text
      */
     async function postBotMessage(roomId, text) {
+        // Validate inputs
+        if (!roomId || typeof roomId !== "string") {
+            console.error("[Binger] postBotMessage called with invalid roomId");
+            return;
+        }
+        if (!text || typeof text !== "string") {
+            console.error("[Binger] postBotMessage called with invalid text");
+            return;
+        }
+
         try {
-            await BingerBGFirebase.ref(`rooms/${roomId}/messages`).push({
+            const ref = BingerBGFirebase.ref(`rooms/${roomId}/messages`);
+            if (!ref) {
+                console.error("[Binger] Failed to create messages ref");
+                return;
+            }
+
+            await ref.push({
                 sender: "Binger Bot",
                 type: "bot",
                 text: text,
@@ -114,9 +135,12 @@
         try {
             const roomId = await getRoomIdFromStorage() || originalRoomId;
             if (roomId) {
+                const typingRef = BingerBGFirebase.ref(`rooms/${roomId}/typing/${BOT_UID}`);
+                const seekRef = BingerBGFirebase.ref(`rooms/${roomId}/typing/${BOT_SEEK_UID}`);
+
                 await Promise.all([
-                    BingerBGFirebase.ref(`rooms/${roomId}/typing/${BOT_UID}`).remove(),
-                    BingerBGFirebase.ref(`rooms/${roomId}/typing/${BOT_SEEK_UID}`).remove()
+                    typingRef ? typingRef.remove() : Promise.resolve(),
+                    seekRef ? seekRef.remove() : Promise.resolve()
                 ]);
             }
         } catch (err) {
@@ -135,7 +159,7 @@
      * @returns {string|null} - The scene description or null if not found
      */
     function extractSceneDescription(text) {
-        if (!text) return null;
+        if (!text || typeof text !== "string") return null;
 
         // Flexible patterns to handle LLM variations
         // - "the" is optional
@@ -172,7 +196,7 @@
      * @returns {object} - Validated movie context
      */
     function validateMovieContext(movieContext) {
-        if (!movieContext) {
+        if (!movieContext || typeof movieContext !== "object") {
             return { valid: false };
         }
 
@@ -193,7 +217,7 @@
      * Build a unique cache key for movie embeddings using title and year
      * @param {string} title - Movie title
      * @param {string} year - Movie year
-     * @returns {string} - Cache key like "Dune (2021)"
+     * @returns {string|null} - Cache key like "Dune (2021)" or null
      */
     function buildMovieCacheKey(title, year) {
         if (!title || title === "Unknown") return null;
@@ -211,6 +235,10 @@
      * @returns {object} - { cleanDesc, numerator, denominator }
      */
     function parseTimingFraction(sceneDesc) {
+        if (!sceneDesc || typeof sceneDesc !== "string") {
+            return { cleanDesc: sceneDesc || "", numerator: null, denominator: null };
+        }
+
         let cleanDesc = sceneDesc;
         let numerator = null;
         let denominator = null;
@@ -243,20 +271,29 @@
     async function handleBotQuery(msg, sendResponse) {
         // Validate dependencies first
         if (!validateDependencies()) {
-            try { sendResponse({ error: "missing-dependencies" }); } catch {}
+            BingerBGUtils.safeSendResponse(sendResponse, { error: "missing-dependencies" });
+            return;
+        }
+
+        // Validate input
+        if (!msg || typeof msg.prompt !== "string" || msg.prompt.trim() === "") {
+            BingerBGUtils.safeSendResponse(sendResponse, { error: "invalid-prompt" });
             return;
         }
 
         // Get current room ID
         let roomId = await getRoomIdFromStorage();
         if (!roomId) {
-            try { sendResponse({ error: "no-room" }); } catch {}
+            BingerBGUtils.safeSendResponse(sendResponse, { error: "no-room" });
             return;
         }
 
         // Show "Binger Bot is typing"
         try {
-            await BingerBGFirebase.ref(`rooms/${roomId}/typing/${BOT_UID}`).set(true);
+            const typingRef = BingerBGFirebase.ref(`rooms/${roomId}/typing/${BOT_UID}`);
+            if (typingRef) {
+                await typingRef.set(true);
+            }
         } catch (err) {
             console.warn("[Binger] Failed to set typing indicator:", err);
         }
@@ -312,8 +349,13 @@
 
             // Clear typing before scene detection
             try {
-                await BingerBGFirebase.ref(`rooms/${roomId}/typing/${BOT_UID}`).remove();
-            } catch {}
+                const typingRef = BingerBGFirebase.ref(`rooms/${roomId}/typing/${BOT_UID}`);
+                if (typingRef) {
+                    await typingRef.remove();
+                }
+            } catch (err) {
+                // Ignore - will be cleaned up in finally block
+            }
 
             // Check for scene seeking pattern
             const sceneDesc = extractSceneDescription(answer);
@@ -321,11 +363,11 @@
                 await handleSceneSeeking(sceneDesc, msg.movieContext, roomId, inSession);
             }
 
-            try { sendResponse({ ok: true }); } catch {}
+            BingerBGUtils.safeSendResponse(sendResponse, { ok: true });
 
         } catch (err) {
             console.error("[Binger] botQuery error:", err);
-            try { sendResponse({ error: String(err?.message || err) }); } catch {}
+            BingerBGUtils.safeSendResponse(sendResponse, { error: String(err?.message || err) });
         } finally {
             await clearBotTypingStatus(roomId);
         }
@@ -448,7 +490,10 @@
 
         // Show "Binger Bot is seeking"
         try {
-            await BingerBGFirebase.ref(`rooms/${roomId}/typing/${BOT_SEEK_UID}`).set(true);
+            const seekRef = BingerBGFirebase.ref(`rooms/${roomId}/typing/${BOT_SEEK_UID}`);
+            if (seekRef) {
+                await seekRef.set(true);
+            }
         } catch (err) {
             console.warn("[Binger] Failed to set seeking indicator:", err);
         }
@@ -571,6 +616,16 @@
      * @returns {number|null} - Target time in seconds or null
      */
     function findBestMatchTime(vector, stored, numerator, denominator) {
+        // Validate inputs
+        if (!vector || !Array.isArray(vector)) {
+            console.warn("[Binger] findBestMatchTime called with invalid vector");
+            return null;
+        }
+        if (!stored || !stored.chunks || !Array.isArray(stored.chunks)) {
+            console.warn("[Binger] findBestMatchTime called with invalid stored data");
+            return null;
+        }
+
         const totalChunks = stored.chunks.length;
         let searchChunks = stored.chunks;
         let baseOffset = 0;
@@ -650,10 +705,26 @@
      * @returns {Promise<boolean>} - True if seek was initiated successfully
      */
     async function seekToTime(target, roomId, inSession) {
+        // Validate inputs
+        if (typeof target !== "number" || !Number.isFinite(target)) {
+            console.warn("[Binger] seekToTime called with invalid target:", target);
+            return false;
+        }
+        if (!roomId || typeof roomId !== "string") {
+            console.warn("[Binger] seekToTime called with invalid roomId");
+            return false;
+        }
+
         try {
             if (inSession) {
                 // In session - sync via Firebase so everyone seeks
-                await BingerBGFirebase.ref(`rooms/${roomId}/playerState`).set({
+                const playerRef = BingerBGFirebase.ref(`rooms/${roomId}/playerState`);
+                if (!playerRef) {
+                    console.error("[Binger] Failed to create playerState ref");
+                    return false;
+                }
+
+                await playerRef.set({
                     action: "seek",
                     time: target
                 });
@@ -662,6 +733,13 @@
                 // Not in session - directly seek on active tab
                 return new Promise((resolve) => {
                     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                        // Check for query errors
+                        if (chrome.runtime.lastError) {
+                            console.warn("[Binger] Tab query error:", chrome.runtime.lastError.message);
+                            resolve(false);
+                            return;
+                        }
+
                         const tab = tabs && tabs[0];
 
                         // Check if on phimbro watch page

@@ -31,7 +31,7 @@
      * @returns {boolean} - True if all dependencies are available
      */
     function validateDependencies() {
-        const required = ["BingerBGState", "BingerBGFirebase"];
+        const required = ["BingerBGState", "BingerBGFirebase", "BingerBGUtils"];
         const missing = required.filter(dep => typeof self[dep] === "undefined");
 
         if (missing.length > 0) {
@@ -155,8 +155,8 @@
 
                 const roomId = result.bingerCurrentRoomId;
 
-                // Unsubscribe from typing (call directly if available, otherwise via message)
-                unsubscribeFromTyping(roomId);
+                // Unsubscribe from typing using shared helper
+                BingerBGUtils.unsubscribeFromTyping(roomId);
 
                 // Skip cleanup if we're just reloading (only for forced reload, not browser refresh)
                 if (result.bingerIsReloading) {
@@ -204,27 +204,6 @@
     }
 
     /**
-     * Unsubscribe from typing - try direct call first, fallback to message
-     * @param {string} roomId - The room ID
-     */
-    function unsubscribeFromTyping(roomId) {
-        if (!roomId || typeof roomId !== "string") return;
-
-        // Try direct call if BingerBGTyping is available
-        if (typeof self.BingerBGTyping !== "undefined" && self.BingerBGTyping.handleUnsubscribeFromTyping) {
-            self.BingerBGTyping.handleUnsubscribeFromTyping({ roomId }, () => {});
-        } else {
-            // Fallback to message (module might not be loaded yet)
-            chrome.runtime.sendMessage({ command: "unsubscribeFromTyping", roomId }, () => {
-                // Ignore errors - receiver might not exist
-                if (chrome.runtime.lastError) {
-                    // Silently ignore - this is expected if typing module isn't ready
-                }
-            });
-        }
-    }
-
-    /**
      * Clean up user from a room (remove from users, handle invite, reset session)
      * @param {string} roomId - The room to clean up
      * @param {firebase.User} user - The current user
@@ -256,8 +235,8 @@
         typingRef.remove()
             .catch((err) => console.warn("[Binger] Failed to remove typing status:", err));
 
-        // Unsubscribe from typing updates
-        unsubscribeFromTyping(roomId);
+        // Unsubscribe from typing updates using shared helper
+        BingerBGUtils.unsubscribeFromTyping(roomId);
 
         // Remove user from room
         userRef.remove()

@@ -26,25 +26,6 @@
     }
 
     // ========================================================================
-    // HELPER: SAFE SEND RESPONSE
-    // ========================================================================
-
-    /**
-     * Safely send response - tab may have closed
-     * @param {function} sendResponse - Response callback
-     * @param {object} data - Data to send
-     */
-    function safeSendResponse(sendResponse, data) {
-        try {
-            if (typeof sendResponse === "function") {
-                sendResponse(data);
-            }
-        } catch (err) {
-            // Tab closed before response - ignore
-        }
-    }
-
-    // ========================================================================
     // SUBSCRIBE TO THEME
     // ========================================================================
 
@@ -56,13 +37,13 @@
     function handleSubscribeToTheme(msg, sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
 
@@ -70,7 +51,7 @@
         const ref = BingerBGFirebase.ref(`rooms/${roomId}/theme`);
 
         if (!ref) {
-            safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
             return;
         }
 
@@ -97,7 +78,7 @@
         listeners[roomId] = cb;
 
         console.log(`[Binger] Subscribed to theme in room ${roomId}`);
-        safeSendResponse(sendResponse, { status: "subscribed", roomId: roomId });
+        BingerBGUtils.safeSendResponse(sendResponse, { status: "subscribed", roomId: roomId });
     }
 
     // ========================================================================
@@ -112,13 +93,13 @@
     function handleUnsubscribeFromTheme(msg, sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
 
@@ -132,10 +113,10 @@
             }
             delete listeners[roomId];
             console.log(`[Binger] Unsubscribed from theme in room ${roomId}`);
-            safeSendResponse(sendResponse, { status: "unsubscribed", roomId: roomId });
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "unsubscribed", roomId: roomId });
         } else {
             console.log(`[Binger] No active theme listener for room ${roomId}`);
-            safeSendResponse(sendResponse, { status: "no-listener", roomId: roomId });
+            BingerBGUtils.safeSendResponse(sendResponse, { status: "no-listener", roomId: roomId });
         }
     }
 

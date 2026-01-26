@@ -68,6 +68,21 @@ try {
     // INITIALIZE
     // ========================================================================
 
+    // Validate critical modules before initialization
+    const criticalModules = [
+        { name: "BingerBGFirebase", module: self.BingerBGFirebase },
+        { name: "BingerBGState", module: self.BingerBGState },
+        { name: "BingerBGUtils", module: self.BingerBGUtils },
+        { name: "BingerBGTabMonitor", module: self.BingerBGTabMonitor },
+        { name: "BingerBGConnection", module: self.BingerBGConnection },
+        { name: "BingerBGMessageRouter", module: self.BingerBGMessageRouter }
+    ];
+
+    const missingModules = criticalModules.filter(m => !m.module);
+    if (missingModules.length > 0) {
+        throw new Error(`Critical modules failed to load: ${missingModules.map(m => m.name).join(", ")}`);
+    }
+
     // Initialize tab monitor (listens for tab events)
     BingerBGTabMonitor.init();
 
