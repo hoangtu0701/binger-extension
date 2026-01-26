@@ -1,0 +1,328 @@
+/* ============================================================================
+   OVERLAY BASE STYLES
+   Main container, layout, header, username
+   ============================================================================ */
+
+/* ----------------------------------------------------------------------------
+   OVERLAY CONTAINER
+   ---------------------------------------------------------------------------- */
+
+#bingerOverlay {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(143, 70, 70, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  z-index: 9999;
+  cursor: default;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  opacity: 0.97;
+  height: 580px;
+}
+
+.theme-pink #bingerOverlay {
+  background: linear-gradient(
+    135deg,
+    rgba(233, 131, 157, 0.25),
+    rgba(255, 219, 229, 0.35)
+  );
+  border: 1px solid rgba(233, 131, 157, 0.5);
+  box-shadow: 0 8px 28px rgba(233, 131, 157, 0.35);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.theme-blackwhite #bingerOverlay {
+  background:
+    radial-gradient(1.5px 1.5px at 15% 25%, rgba(255,255,255,1), transparent),
+    radial-gradient(1px 1px at 40% 70%, rgba(200,220,255,0.9), transparent),
+    radial-gradient(2px 2px at 75% 35%, rgba(255,255,200,0.9), transparent),
+    radial-gradient(1px 1px at 30% 60%, rgba(180,220,255,0.8), transparent),
+    radial-gradient(2px 2px at 60% 15%, rgba(255,255,255,0.95), transparent),
+    radial-gradient(1px 1px at 85% 80%, rgba(255,255,255,0.85), transparent),
+    radial-gradient(2px 2px at 25% 50%, rgba(220,200,255,0.9), transparent),
+    radial-gradient(1px 1px at 55% 90%, rgba(255,255,255,0.75), transparent),
+    rgba(31, 31, 31, 0.9); 
+  background-size: 120px 120px, 160px 160px, 200px 200px, 220px 220px, 260px 260px, 280px 280px, 300px 300px, 320px 320px, cover;
+  background-repeat: repeat;
+  animation: starDrift1 20s linear infinite,
+             starDrift2 35s linear infinite reverse,
+             starDrift3 50s linear infinite;
+}
+
+.theme-ocean #bingerOverlay {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 119, 182, 0.25),
+    rgba(46, 196, 182, 0.35)
+  );
+  border: 1px solid rgba(0, 119, 182, 0.5);
+  box-shadow: 0 8px 28px rgba(46, 196, 182, 0.35);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.theme-ocean #bingerOverlay.in-session {
+  background: radial-gradient(circle at 25% 35%, rgba(145, 100, 60, 0.9), transparent 70%),
+              radial-gradient(circle at 75% 65%, rgba(120, 78, 45, 0.85), transparent 70%),
+              linear-gradient(135deg, rgba(110, 70, 40, 0.95), rgba(85, 55, 30, 0.92), rgba(60, 40, 20, 0.9));
+  border: none;
+  box-shadow: 0 0 14px rgba(60, 40, 20, 0.35);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.theme-volcano #bingerOverlay {
+  background: radial-gradient(circle at 25% 35%, rgba(157, 2, 8, 0.9), transparent 70%),
+              radial-gradient(circle at 75% 65%, rgba(232, 93, 4, 0.85), transparent 70%),
+              linear-gradient(135deg, rgba(106, 4, 15, 0.95), rgba(61, 0, 8, 0.92), rgba(28, 0, 3, 0.9));
+  border: none;
+  box-shadow: 0 0 14px rgba(232, 93, 4, 0.35);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.theme-volcano #bingerOverlay.in-session {
+  background: linear-gradient(
+    135deg,
+    rgba(109, 2, 8, 0.25),
+    rgba(232, 93, 4, 0.35)
+  );
+  border: 1px solid rgba(157, 2, 8, 0.5);
+  box-shadow: 0 8px 28px rgba(232, 93, 4, 0.35);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.theme-forest #bingerOverlay {
+  background-color: #173803;
+}
+
+.theme-forest #bingerOverlay.in-session {
+  background:
+    radial-gradient(circle at 20% 30%, rgba(120, 180, 100, 0.25), transparent 60%),
+    radial-gradient(circle at 80% 70%, rgba(70, 110, 60, 0.25), transparent 60%),
+    linear-gradient(
+      135deg,
+      rgba(23, 56, 3, 0.3),
+      rgba(80, 120, 60, 0.35),
+      rgba(40, 70, 30, 0.3)
+    );
+  border: 1px solid rgba(120, 200, 120, 0.5);
+  box-shadow:
+    0 0 25px rgba(120, 200, 120, 0.3),
+    0 0 60px rgba(160, 240, 160, 0.25) inset;
+  backdrop-filter: blur(22px) saturate(1.2);
+  -webkit-backdrop-filter: blur(22px) saturate(1.2);
+  animation: forestGlow 12s ease-in-out infinite alternate;
+}
+
+/* ----------------------------------------------------------------------------
+   LAYOUT CONTAINER
+   ---------------------------------------------------------------------------- */
+
+#bingerLayoutContainer {
+  color: white;
+  padding: 12px 20px;
+  height: 580px;
+  font-size: 16px;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ----------------------------------------------------------------------------
+   HEADER
+   ---------------------------------------------------------------------------- */
+
+.bingerHeader {
+  margin-top: 5px;
+  background: rgba(153, 0, 0, 0.673);
+  padding: 12px 8px 15px 8px;
+  font-size: 20px;
+  font-weight: 700;
+  border-radius: 50px;
+  text-align: center;
+  color: #ffffff;
+}
+
+.theme-pink .bingerHeader {
+  background: #E9839D;  
+  color: #F4F3F1;       
+}
+
+.theme-blackwhite .bingerHeader {
+  background: linear-gradient(135deg, #000000, #1a1a1a);
+  color: #ffffff;
+  text-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
+}
+
+.theme-ocean .bingerHeader {
+  background: #704214;
+  color: #f4f1ec;
+  font-weight: 700;
+  font-size: 20px;
+  border-radius: 40px;
+  padding: 12px 8px 15px 8px;
+  text-align: center;
+  letter-spacing: 0.5px;
+  box-shadow: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-ocean #bingerOverlay.in-session .bingerHeader {
+  background: #dbcba6;
+  color: #574729;
+  font-weight: 700;
+  font-size: 20px;
+  border-radius: 40px;
+  padding: 12px 8px 15px 8px;
+  text-align: center;
+  letter-spacing: 0.5px;
+  box-shadow: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-volcano .bingerHeader {
+  background: linear-gradient(
+    to bottom,
+    #4a4a4a 0%,
+    #2e2e2e 40%,
+    #1a1a1a 100%
+  );
+  color: #cccccc;
+  font-weight: 700;
+  font-size: 20px;
+  border-radius: 28px;
+  padding: 12px 8px 15px 8px;
+  text-align: center;
+  letter-spacing: 0.8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-volcano .bingerHeader::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 28px;
+  background: linear-gradient(to top, #0d0d0d 70%, transparent 100%);
+  clip-path: polygon(
+    0% 100%, 0% 60%, 15% 68%, 30% 58%, 45% 66%, 
+    60% 57%, 75% 65%, 90% 59%, 100% 63%, 100% 100%
+  );
+  filter: drop-shadow(0 -3px 8px rgba(255, 80, 20, 0.8));
+  z-index: 1;
+}
+
+.theme-volcano .bingerHeader span {
+  position: relative;
+  z-index: 2;
+}
+
+.theme-volcano #bingerOverlay.in-session .bingerHeader {
+  background: linear-gradient(135deg, #e25822, #b33a1a, #4a1a0a);
+  color: #fff6e8;
+  font-weight: 700;
+  font-size: 20px;
+  border-radius: 28px;
+  padding: 12px 8px 15px 8px;
+  text-align: center;
+  letter-spacing: 0.8px;
+  box-shadow: 0 0 10px rgba(255, 120, 60, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-forest .bingerHeader {
+  background-color: #4a6e01;
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+  z-index: 0;
+}
+
+.theme-forest .bingerHeader::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: black;
+  clip-path: polygon(
+    0% 100%,
+    3% 72%,
+    5% 48%,
+    7% 76%,
+    9% 42%,
+    11% 80%,
+    13% 55%,
+    15% 78%,
+    17% 60%,
+    19% 82%,
+    21% 46%,
+    23% 74%,
+    25% 53%,
+    27% 85%,
+    29% 40%,
+    31% 79%,
+    33% 58%,
+    35% 81%,
+    37% 44%,
+    39% 77%,
+    41% 50%,
+    43% 83%,
+    45% 41%,
+    47% 75%,
+    49% 57%,
+    51% 84%,
+    53% 43%,
+    55% 73%,
+    57% 52%,
+    59% 87%,
+    61% 39%,
+    63% 78%,
+    65% 61%,
+    67% 82%,
+    69% 45%,
+    71% 76%,
+    73% 54%,
+    75% 85%,
+    77% 41%,
+    79% 80%,
+    81% 59%,
+    83% 83%,
+    85% 42%,
+    87% 77%,
+    89% 56%,
+    91% 86%,
+    93% 40%,
+    95% 79%,
+    97% 62%,
+    100% 100%
+  );
+  opacity: 0.65;
+  z-index: -1;
+}
+
+/* ----------------------------------------------------------------------------
+   USERNAME
+   ---------------------------------------------------------------------------- */
+
+#bingerUsername {
+  text-align: center;
+  margin-top: 10px;  
+  font-size: 16px;
+}
+
+#bingerButtonWrapper {
+  margin-top: 12px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}

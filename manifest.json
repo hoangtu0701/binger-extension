@@ -23,13 +23,31 @@
         "https://phimbro.com/*"
       ],
       "js": [
-        "src/content/sessionMode.js",
-        "src/content/fullscreenMode.js",
-        "src/content/main.js",
-        "src/content/soundboard.js"
+        "src/content/utils/helpers.js",
+        "src/content/modules/state.js",
+        "src/content/modules/connection.js",
+        "src/content/modules/navigation.js",
+        "src/content/modules/overlay-dom.js",
+        "src/content/modules/theme.js",
+        "src/content/modules/chatbox.js",
+        "src/content/modules/room.js",
+        "src/content/modules/invite.js",
+        "src/content/modules/message-router.js",
+        "src/content/modules/session.js",
+        "src/content/modules/fullscreen.js",
+        "src/content/modules/soundboard.js",
+        "src/content/main.js"
       ],
       "css": [
-        "src/styles/main.css"
+        "src/styles/animations.css",
+        "src/styles/overlay.css",
+        "src/styles/buttons.css",
+        "src/styles/chatbox.css",
+        "src/styles/invite.css",
+        "src/styles/session.css",
+        "src/styles/fullscreen.css",
+        "src/styles/components.css",
+        "src/styles/soundboard.css"
       ],
       "run_at": "document_idle"
     }

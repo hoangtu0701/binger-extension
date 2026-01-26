@@ -1,0 +1,567 @@
+/* ============================================================================
+   CHATBOX STYLES
+   Chat wrapper, log, messages, input, scrollbar
+   ============================================================================ */
+
+/* ----------------------------------------------------------------------------
+   CHAT WRAPPER - BASE
+   ---------------------------------------------------------------------------- */
+
+#bingerChatWrapper {
+  margin-top: 12px;
+  background-color: #fff;
+  color: #333;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  width: 320px;
+  height: 332px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#bingerChatWrapper.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+#bingerChatRoomHeader {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+}
+
+.theme-pink #bingerChatWrapper {
+  background-color: #FFDBE5;
+  color: #2d0033;
+}
+
+.theme-blackwhite #bingerChatWrapper {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.theme-ocean #bingerChatWrapper {
+  background: linear-gradient(
+    160deg,
+    #f7deba,
+    #dfb590,
+    #c49a6c
+  );
+  color: #3a2a1d;
+  border-radius: 15px;
+}
+
+.theme-volcano #bingerChatWrapper {
+  background: #370617;
+  color: #ffebe0;
+  border-radius: 15px;
+}
+
+.theme-forest #bingerChatWrapper {
+  background: #648550;
+  border-radius: 15px;
+  color: #0c2d1a;
+}
+
+/* ----------------------------------------------------------------------------
+   CHAT LOG - BASE
+   ---------------------------------------------------------------------------- */
+
+#bingerChatLog {
+  flex: 1;
+  background-color: #f5f5f5;
+  padding: 6px;
+  border-radius: 4px;
+  overflow-y: auto;
+  height: 100%;
+  font-family: monospace;
+}
+
+.theme-pink #bingerChatLog {
+  background-color: #FFDBE5;
+  color: #434D20;
+}
+
+.theme-blackwhite #bingerChatLog {
+  background-color: #242424;
+  color: #ffffff;
+}
+
+.theme-ocean #bingerChatLog {
+  background: linear-gradient(
+    0deg,
+    #f7deba,
+    #dfb590,
+    #c49a6c
+  );
+  color: #3a2a1d;
+  box-shadow: inset 0 0 10px rgba(196, 154, 108, 0.35);
+  border-radius: 12px;
+  padding: 10px 10px;
+}
+
+.theme-volcano #bingerChatLog {
+  background: #370617;
+  color: #ffebe0;
+  border-radius: 12px;
+  padding: 10px 10px;
+}
+
+.theme-forest #bingerChatLog {
+  background: #416100;
+  color: #0c2d1a;
+  border-radius: 15px;
+  padding: 10px 10px;
+}
+
+/* ----------------------------------------------------------------------------
+   CHAT MESSAGES - BASE
+   ---------------------------------------------------------------------------- */
+
+.bingerChatMsg {
+  background: #ffffff;
+  color: #222;
+  padding: 8px 12px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  max-width: 90%;
+  font-family: 'Segoe UI', sans-serif;
+  word-wrap: break-word;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  line-height: 1.4;
+  animation: fadeInUp 0.25s ease forwards;
+}
+
+.bingerChatMsg strong {
+  color: #800020;
+}
+
+.invite-message {
+  margin-bottom: 8px;
+}
+
+/* ----------------------------------------------------------------------------
+   CHAT MESSAGES - PINK THEME
+   ---------------------------------------------------------------------------- */
+
+.theme-pink .bingerChatMsg {
+  background: #EA9AB2;
+  color: #F4F3F1;
+}
+
+.theme-pink .bingerChatMsg:nth-child(even) {
+  background: #6D9F71;
+  color: #ffffff;
+}
+
+.theme-pink .bingerChatMsg:nth-child(even) strong {
+  color: #ffdee7;
+}
+
+.theme-pink .bingerChatMsg:nth-child(odd) strong {
+  color: #b62b4e;
+}
+
+/* ----------------------------------------------------------------------------
+   CHAT MESSAGES - BLACK & WHITE THEME
+   ---------------------------------------------------------------------------- */
+
+.theme-blackwhite .bingerChatMsg {
+  background: #000000;
+  color: #ffffff;
+}
+
+.theme-blackwhite .bingerChatMsg:nth-child(even) {
+  background: #ffffff;
+  color: #000000;
+}
+
+.theme-blackwhite .bingerChatMsg:nth-child(even) strong {
+  color: #000000;
+}
+
+.theme-blackwhite .bingerChatMsg:nth-child(odd) strong {
+  color: #ffffff;
+}
+
+/* ----------------------------------------------------------------------------
+   CHAT MESSAGES - OCEAN THEME
+   ---------------------------------------------------------------------------- */
+
+.theme-ocean .bingerChatMsg {
+  background: linear-gradient(
+    135deg,
+    #ddc7a6,
+    #be8f56,
+    #865e39
+  );
+  color: #ffefe3;
+  font-weight: 500;
+  border-radius: 18px;
+  padding: 8px 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-ocean .bingerChatMsg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(0,0,0,0.45) 1.2px, transparent 1px),
+    radial-gradient(circle, rgba(0,0,0,0.35) 1px, transparent 1px);
+  background-size: 32px 32px, 48px 48px;
+  opacity: 0.7;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  animation: sandShift 30s linear infinite;
+}
+
+.theme-ocean .bingerChatMsg strong {
+  color: #6d4510;
+}
+
+/* ----------------------------------------------------------------------------
+   CHAT MESSAGES - VOLCANO THEME
+   ---------------------------------------------------------------------------- */
+
+.theme-volcano .bingerChatMsg {
+  background: linear-gradient(
+    135deg,
+    #6a040f,
+    #9d0208,
+    #e85d04
+  );
+  color: #fff4e8;
+  font-weight: 600;
+  border-radius: 20px;
+  padding: 8px 12px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 8px rgba(255, 60, 0, 0.4);
+  animation: lavaErupt 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+.theme-volcano .bingerChatMsg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(255,80,20,0.35) 2px, transparent 2px),
+    radial-gradient(circle, rgba(255,150,50,0.25) 3px, transparent 3px);
+  background-size: 40px 40px, 70px 70px;
+  opacity: 0.6;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  animation: lavaGlow 6s ease-in-out infinite alternate;
+}
+
+.theme-volcano .bingerChatMsg strong {
+  color: #ffd979;
+}
+
+/* ----------------------------------------------------------------------------
+   CHAT MESSAGES - FOREST THEME
+   ---------------------------------------------------------------------------- */
+
+.theme-forest .bingerChatMsg {
+  background: #648550;
+  color: #f0ffe8;
+  font-weight: 600;
+  border-radius: 20px;
+  padding: 12px 16px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 15px rgba(50, 120, 60, 0.6);
+  animation: growIn 1s ease forwards;
+}
+
+.theme-forest .bingerChatMsg strong {
+  color: #c6ff9e;
+}
+
+.theme-forest .leaf {
+  position: absolute;
+  bottom: 0;
+  pointer-events: none;
+  opacity: 0;
+  animation: floatLeaf var(--dur, 6s) ease-in-out forwards;
+  animation-delay: var(--delay, 0s);
+}
+
+/* ----------------------------------------------------------------------------
+   CHAT INPUT - BASE
+   ---------------------------------------------------------------------------- */
+
+#bingerChatInputBar {
+  display: flex;
+  gap: 6px;
+}
+
+#bingerChatInput {
+  flex: 1;
+  padding: 6px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.theme-pink #bingerChatInput {
+  background-color: #ffeef3;
+}
+
+.theme-blackwhite #bingerChatInput {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.theme-ocean #bingerChatInput {
+  background: #ecc994;
+  color: #351c07;
+  border: none;
+}
+
+.theme-volcano #bingerChatInput {
+  background: #3a3a3a;
+  color: #ffebe0;
+  border: none;
+  border-radius: 12px;
+}
+
+.theme-forest #bingerChatInput {
+  background: #2f4e24;
+  color: #f0ffe8;
+  border: none;
+  border-radius: 15px;
+}
+
+/* ----------------------------------------------------------------------------
+   SEND BUTTON - BASE
+   ---------------------------------------------------------------------------- */
+
+#bingerSendBtn {
+  padding: 6px 10px;
+  background-color: #800020;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#bingerSendBtn:disabled {
+  background-color: #ccc;
+  cursor: default;
+}
+
+.theme-pink #bingerSendBtn {
+  background-color: #6D9F71;
+  color: #ffffff;
+}
+
+.theme-pink #bingerSendBtn:hover {
+  background-color: #337357;
+  color: #F4F3F1;
+}
+
+.theme-pink #bingerSendBtn:disabled {
+  background-color: #ccc;
+  cursor: default;
+}
+
+.theme-blackwhite #bingerSendBtn {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.theme-blackwhite #bingerSendBtn:hover {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.theme-blackwhite #bingerSendBtn:disabled {
+  background-color: #cccccc;
+  cursor: default;
+}
+
+.theme-ocean #bingerSendBtn {
+  background: linear-gradient(135deg, #7499ff, #1a7b88);
+  color: #ffffff;
+}
+
+.theme-ocean #bingerSendBtn:hover {
+  background: linear-gradient(135deg, #ff9f1c, #ffe8d6);
+  color: #001f3f;
+}
+
+.theme-ocean #bingerSendBtn:disabled {
+  background-color: #a9d6e5;
+  color: #5e6472;
+  cursor: default;
+}
+
+.theme-volcano #bingerSendBtn {
+  background: linear-gradient(135deg, #9d0208, #e85d04);
+  color: #fff4e8;
+  border-radius: 15px;
+}
+
+.theme-volcano #bingerSendBtn:hover {
+  background: linear-gradient(135deg, #ff6a00, #ffb347);
+  color: #1a1a1a;
+}
+
+.theme-volcano #bingerSendBtn:disabled {
+  background-color: #5c1409;
+  color: #999999;
+  cursor: default;
+}
+
+.theme-forest #bingerSendBtn {
+  background: linear-gradient(135deg, #4c6b3d, #274216);
+  color: #f0ffe8;
+  border-radius: 15px;
+}
+
+.theme-forest #bingerSendBtn:hover {
+  background: linear-gradient(135deg, #76a863, #a7d890);
+  color: #1a1a1a;
+}
+
+.theme-forest #bingerSendBtn:disabled {
+  background-color: #2f4e24;
+  color: #888888;
+  cursor: default;
+}
+
+/* ----------------------------------------------------------------------------
+   SCROLLBAR - BASE (NORMAL MODE)
+   ---------------------------------------------------------------------------- */
+
+#bingerChatLog::-webkit-scrollbar {
+  width: 8px;
+}
+
+#bingerChatLog::-webkit-scrollbar-track {
+  background: transparent; 
+}
+
+#bingerChatLog::-webkit-scrollbar-thumb {
+  background-color: #800020;
+  border-radius: 4px;
+}
+
+#bingerChatLog::-webkit-scrollbar-thumb:hover {
+  background-color: #a00030; 
+}
+
+#bingerChatLog {
+  scrollbar-color: #800020 transparent;
+  scrollbar-width: thin;
+}
+
+/* ----------------------------------------------------------------------------
+   SCROLLBAR - PINK THEME
+   ---------------------------------------------------------------------------- */
+
+.theme-pink #bingerChatLog::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.theme-pink #bingerChatLog::-webkit-scrollbar-thumb {
+  background-color: #6D9F71;
+}
+
+.theme-pink #bingerChatLog::-webkit-scrollbar-thumb:hover {
+  background-color: #337357;
+}
+
+.theme-pink #bingerChatLog {
+  scrollbar-color: #6D9F71 transparent;
+}
+
+/* ----------------------------------------------------------------------------
+   SCROLLBAR - BLACK & WHITE THEME
+   ---------------------------------------------------------------------------- */
+
+.theme-blackwhite #bingerChatLog::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.theme-blackwhite #bingerChatLog::-webkit-scrollbar-thumb {
+  background-color: #ffffff;
+}
+
+.theme-blackwhite #bingerChatLog::-webkit-scrollbar-thumb:hover {
+  background-color: #cccccc;
+}
+
+.theme-blackwhite #bingerChatLog {
+  scrollbar-color: #ffffff transparent;
+}
+
+/* ----------------------------------------------------------------------------
+   SCROLLBAR - OCEAN THEME
+   ---------------------------------------------------------------------------- */
+
+.theme-ocean #bingerChatLog::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 12px;
+}
+
+.theme-ocean #bingerChatLog::-webkit-scrollbar-thumb {
+  background-color: #f7e9d1;
+  border-radius: 6px;
+}
+
+.theme-ocean #bingerChatLog::-webkit-scrollbar-thumb:hover {
+  background-color: #b68b62;
+}
+
+.theme-ocean #bingerChatLog {
+  scrollbar-color: #f7e9d1 transparent;
+}
+
+/* ----------------------------------------------------------------------------
+   SCROLLBAR - VOLCANO THEME
+   ---------------------------------------------------------------------------- */
+
+.theme-volcano #bingerChatLog::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 12px;
+}
+
+.theme-volcano #bingerChatLog::-webkit-scrollbar-thumb {
+  background-color: #9d0208;
+  border-radius: 6px;
+}
+
+.theme-volcano #bingerChatLog::-webkit-scrollbar-thumb:hover {
+  background-color: #e85d04;
+}
+
+.theme-volcano #bingerChatLog {
+  scrollbar-color: #9d0208 transparent;
+}
+
+/* ----------------------------------------------------------------------------
+   SCROLLBAR - FOREST THEME
+   ---------------------------------------------------------------------------- */
+
+.theme-forest #bingerChatLog::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 12px;
+}
+
+.theme-forest #bingerChatLog::-webkit-scrollbar-thumb {
+  background-color: #6fa056;
+  border-radius: 6px;
+}
+
+.theme-forest #bingerChatLog::-webkit-scrollbar-thumb:hover {
+  background-color: #76a863;
+}
+
+.theme-forest #bingerChatLog {
+  scrollbar-color: #6fa056 transparent;
+}

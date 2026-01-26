@@ -1,0 +1,259 @@
+/* ============================================================================
+   INVITE STYLES
+   Inviter, invitee, and accepted button states
+   ============================================================================ */
+
+/* ----------------------------------------------------------------------------
+   INVITER BUTTON - BASE
+   ---------------------------------------------------------------------------- */
+
+#watchTogetherBtn.binge-inviter-active {
+  background-color: #ff6b6b !important;   
+  background-image: none !important;     
+  color: #fff !important;
+  border: none !important; 
+  transition: all 0.2s ease-in-out !important;
+}
+
+#watchTogetherBtn.binge-inviter-active:hover {
+  background-color: #ffffff !important;
+  color: #ff6b6b !important;
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.45) !important;
+}
+
+/* ----------------------------------------------------------------------------
+   INVITEE BUTTON - BASE
+   ---------------------------------------------------------------------------- */
+
+#watchTogetherBtn.binge-invitee-active {
+  background-color: #ffd166 !important;
+  background-image: none !important;
+  color: black !important;
+  border: none !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+#watchTogetherBtn.binge-invitee-active:hover {
+  background-color: white !important;
+  color: #ffd166 !important;
+  box-shadow: 0 4px 12px rgba(255, 209, 102, 0.5) !important;
+}
+
+/* ----------------------------------------------------------------------------
+   ACCEPTED BUTTON - BASE
+   ---------------------------------------------------------------------------- */
+
+#watchTogetherBtn.binge-invitee-accepted {
+  background-color: gray !important;
+  color: white !important;
+  border: none !important;
+  box-shadow: none !important;
+  cursor: default !important;
+  pointer-events: none !important;
+}
+
+/* ----------------------------------------------------------------------------
+   PINK THEME
+   ---------------------------------------------------------------------------- */
+
+.theme-pink #watchTogetherBtn.binge-inviter-active {
+  background: linear-gradient(135deg, #EA9AB2, #E27396) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 4px 12px rgba(234, 154, 178, 0.45) !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.theme-pink #watchTogetherBtn.binge-inviter-active:hover {
+  background: linear-gradient(135deg, #E27396, #EA9AB2) !important;
+  color: #F4F3F1 !important;
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 18px rgba(226, 115, 150, 0.65) !important;
+}
+
+.theme-pink #watchTogetherBtn.binge-invitee-active {
+  background: linear-gradient(135deg, #6D9F71, #337357) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 4px 12px rgba(51, 115, 87, 0.45) !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.theme-pink #watchTogetherBtn.binge-invitee-active:hover {
+  background: linear-gradient(135deg, #337357, #6D9F71) !important;
+  color: #F4F3F1 !important;
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 18px rgba(51, 115, 87, 0.65) !important;
+}
+
+.theme-pink #watchTogetherBtn.binge-invitee-accepted {
+  background-color: gray !important;
+  color: white !important;
+  border: none !important;
+  box-shadow: none !important;
+  cursor: default !important;
+  pointer-events: none !important;
+}
+
+/* ----------------------------------------------------------------------------
+   BLACK & WHITE THEME
+   ---------------------------------------------------------------------------- */
+
+.theme-blackwhite #watchTogetherBtn.binge-inviter-active {
+  background: linear-gradient(135deg, #000000, #333333) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45) !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.theme-blackwhite #watchTogetherBtn.binge-inviter-active:hover {
+  background: linear-gradient(135deg, #ffffff, #cccccc) !important;
+  color: #000000 !important;
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 18px rgba(255, 255, 255, 0.65) !important;
+}
+
+.theme-blackwhite #watchTogetherBtn.binge-invitee-active {
+  background: linear-gradient(135deg, #111111, #444444) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45) !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.theme-blackwhite #watchTogetherBtn.binge-invitee-active:hover {
+  background: linear-gradient(135deg, #ffffff, #cccccc) !important;
+  color: #000000 !important;
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 18px rgba(255, 255, 255, 0.65) !important;
+}
+
+.theme-blackwhite #watchTogetherBtn.binge-invitee-accepted {
+  background-color: gray !important;
+  color: white !important;
+  border: none !important;
+  box-shadow: none !important;
+  cursor: default !important;
+  pointer-events: none !important;
+}
+
+/* ----------------------------------------------------------------------------
+   OCEAN THEME
+   ---------------------------------------------------------------------------- */
+
+.theme-ocean #watchTogetherBtn.binge-inviter-active {
+  background: linear-gradient(135deg, #0077b6, #0096c7) !important;
+  color: #e0fbfc !important;
+  box-shadow: 0 4px 12px rgba(0, 180, 216, 0.45) !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.theme-ocean #watchTogetherBtn.binge-inviter-active:hover {
+  background: linear-gradient(135deg, #00b4d8, #48cae4) !important;
+  color: #023047 !important;
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 20px rgba(144, 224, 239, 0.7) !important;
+}
+
+.theme-ocean #watchTogetherBtn.binge-invitee-active {
+  background: linear-gradient(135deg, #023e8a, #0077b6) !important;
+  color: #caf0f8 !important;
+  box-shadow: 0 4px 12px rgba(0, 119, 182, 0.45) !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.theme-ocean #watchTogetherBtn.binge-invitee-active:hover {
+  background: linear-gradient(135deg, #0096c7, #00b4d8) !important;
+  color: #023047 !important;
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 20px rgba(72, 202, 228, 0.65) !important;
+}
+
+.theme-ocean #watchTogetherBtn.binge-invitee-accepted {
+  background-color: #5e6472 !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+  cursor: default !important;
+  pointer-events: none !important;
+}
+
+/* ----------------------------------------------------------------------------
+   VOLCANO THEME
+   ---------------------------------------------------------------------------- */
+
+.theme-volcano #watchTogetherBtn.binge-inviter-active {
+  background: linear-gradient(135deg, #9d0208, #d00000) !important;
+  color: #fff4e8 !important;
+  box-shadow: 0 4px 12px rgba(255, 60, 0, 0.45) !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.theme-volcano #watchTogetherBtn.binge-inviter-active:hover {
+  background: linear-gradient(135deg, #ff6a00, #ff922b) !important;
+  color: #1a1a1a !important;
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 20px rgba(255, 100, 40, 0.65) !important;
+}
+
+.theme-volcano #watchTogetherBtn.binge-invitee-active {
+  background: linear-gradient(135deg, #6a040f, #9d0208) !important;
+  color: #ffe3d3 !important;
+  box-shadow: 0 4px 12px rgba(230, 60, 20, 0.45) !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.theme-volcano #watchTogetherBtn.binge-invitee-active:hover {
+  background: linear-gradient(135deg, #d00000, #e85d04) !important;
+  color: #1a1a1a !important;
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 20px rgba(255, 90, 30, 0.65) !important;
+}
+
+.theme-volcano #watchTogetherBtn.binge-invitee-accepted {
+  background-color: #5c1409 !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+  cursor: default !important;
+  pointer-events: none !important;
+}
+
+/* ----------------------------------------------------------------------------
+   FOREST THEME
+   ---------------------------------------------------------------------------- */
+
+.theme-forest #watchTogetherBtn.binge-inviter-active {
+  background: linear-gradient(135deg, #4c6b3d, #648550) !important;
+  color: #f0ffe8 !important;
+  box-shadow: 0 4px 12px rgba(90, 200, 120, 0.45) !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.theme-forest #watchTogetherBtn.binge-inviter-active:hover {
+  background: linear-gradient(135deg, #76a863, #9ad38a) !important;
+  color: #1a1a1a !important;
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 20px rgba(120, 230, 150, 0.65) !important;
+}
+
+.theme-forest #watchTogetherBtn.binge-invitee-active {
+  background: linear-gradient(135deg, #2f4e24, #4c6b3d) !important;
+  color: #e8ffe3 !important;
+  box-shadow: 0 4px 12px rgba(80, 180, 100, 0.45) !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.theme-forest #watchTogetherBtn.binge-invitee-active:hover {
+  background: linear-gradient(135deg, #648550, #86b97d) !important;
+  color: #1a1a1a !important;
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 20px rgba(100, 200, 120, 0.65) !important;
+}
+
+.theme-forest #watchTogetherBtn.binge-invitee-accepted {
+  background-color: #2f4e24 !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+  cursor: default !important;
+  pointer-events: none !important;
+}
