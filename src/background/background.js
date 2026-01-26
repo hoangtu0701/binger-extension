@@ -17,8 +17,8 @@ try {
     // 2. State management (listener maps, caches, port tracking)
     self.importScripts("./modules/bg-state.js");
 
-    // 3. Utilities (broadcast helpers, room ID generation, vector math)
-    self.importScripts("./modules/bg-utils.js");
+    // 3. Helpers (broadcast helpers, room ID generation, vector math)
+    self.importScripts("./utils/bg-helpers.js");
 
     // 4. Tab monitor (multi-tab overlay detection)
     self.importScripts("./modules/bg-tab-monitor.js");
@@ -72,7 +72,7 @@ try {
     const criticalModules = [
         { name: "BingerBGFirebase", module: self.BingerBGFirebase },
         { name: "BingerBGState", module: self.BingerBGState },
-        { name: "BingerBGUtils", module: self.BingerBGUtils },
+        { name: "BingerBGHelpers", module: self.BingerBGHelpers },
         { name: "BingerBGTabMonitor", module: self.BingerBGTabMonitor },
         { name: "BingerBGConnection", module: self.BingerBGConnection },
         { name: "BingerBGMessageRouter", module: self.BingerBGMessageRouter }

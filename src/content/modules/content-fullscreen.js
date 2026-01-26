@@ -67,6 +67,12 @@
         restoreFn: null
     };
 
+    // Track if fullscreen listener is attached (prevents duplicate listeners)
+    let fullscreenListenerAttached = false;
+
+    // Track if currently processing a fullscreen change (prevents race conditions)
+    let isProcessingFullscreen = false;
+
     // ========================================================================
     // HELPER UTILITIES
     // ========================================================================
@@ -140,13 +146,18 @@
     function restoreCamMicState(iframe) {
         if (!iframe || !window.BINGER?.camMicState) return;
 
-        iframe.onload = () => {
+        // Use addEventListener instead of onload to avoid overwriting other handlers
+        iframe.addEventListener("load", () => {
             const { camOn, micOn } = window.BINGER.camMicState;
-            iframe.contentWindow.postMessage(
-                { type: "restoreCamMic", camOn, micOn },
-                "*"
-            );
-        };
+            try {
+                iframe.contentWindow.postMessage(
+                    { type: "restoreCamMic", camOn, micOn },
+                    "*"
+                );
+            } catch (err) {
+                console.warn("[Binger] Failed to restore cam/mic state:", err);
+            }
+        }, { once: true });
     }
 
     /**
@@ -155,7 +166,7 @@
      */
     function broadcastCallReset(roomId) {
         if (!roomId) return;
-        chrome.runtime.sendMessage({
+        BingerConnection.sendMessageAsync({
             command: "broadcastCallReset",
             roomId
         });
@@ -209,15 +220,25 @@
 
     /**
      * Save iframe position for later restoration
+     * Only saves if not already saved (prevents overwriting during repeated calls)
      */
     function saveIframePosition() {
         state.iframe = document.querySelector(SELECTORS.callIframe);
 
-        if (state.iframe) {
+        if (state.iframe && !state.iframeOriginalParent) {
             state.iframeOriginalParent = state.iframe.parentNode;
             state.iframeOriginalStyles = state.iframe.getAttribute("style");
             state.iframeNextSibling = skipEphemeralSiblings(state.iframe.nextSibling);
         }
+    }
+
+    /**
+     * Clear saved iframe position (called after restore)
+     */
+    function clearIframePosition() {
+        state.iframeOriginalParent = null;
+        state.iframeNextSibling = null;
+        state.iframeOriginalStyles = null;
     }
 
     /**
@@ -272,6 +293,9 @@
 
         broadcastCallReset(roomId);
         syncIframeReference(newIframe);
+
+        // Clear saved position after restore
+        clearIframePosition();
     }
 
     // ========================================================================
@@ -288,6 +312,14 @@
             state.soundboardOriginalParent = soundboard.parentNode;
             state.soundboardNextSibling = skipEphemeralSiblings(soundboard.nextSibling);
         }
+    }
+
+    /**
+     * Clear saved soundboard position (called after restore)
+     */
+    function clearSoundboardPosition() {
+        state.soundboardOriginalParent = null;
+        state.soundboardNextSibling = null;
     }
 
     /**
@@ -313,6 +345,9 @@
             soundboard.classList.remove(CSS_CLASSES.fullscreen);
             const insertBefore = skipEphemeralSiblings(state.soundboardNextSibling);
             state.soundboardOriginalParent.insertBefore(soundboard, insertBefore);
+
+            // Clear saved position after restore
+            clearSoundboardPosition();
         }
     }
 
@@ -539,37 +574,58 @@
      * Handle fullscreen change event
      */
     function handleFullscreenChange() {
-        chrome.runtime.sendMessage({ command: "checkAuth" }, (response) => {
-            // Skip if user not signed in
-            if (!response?.user) {
-                console.log("[Binger] Ignoring fullscreen change (user signed out)");
-                return;
-            }
+        // Prevent race conditions from rapid fullscreen toggles
+        if (isProcessingFullscreen) {
+            console.log("[Binger] Already processing fullscreen change - skipping");
+            return;
+        }
 
-            const { vjsContainer, video } = getVideoElements();
+        isProcessingFullscreen = true;
 
-            if (!vjsContainer || !video) {
-                console.warn("[Binger] fullscreenchange: no vjsContainer or video");
-                return;
-            }
-
-            // Remove floating emojis
-            removeAllEphemeralElements();
-
-            const isFullscreen = !!document.fullscreenElement;
-
-            if (isFullscreen) {
-                enterFullscreenLayout(vjsContainer, video, state.overlay);
-            } else {
-                if (state.restoreFn) {
-                    state.restoreFn();
-                } else {
-                    // Emergency fallback
-                    console.warn("[Binger] restoreFn missing - attempting manual cleanup");
-                    restoreNormalLayout(vjsContainer, video, state.overlay);
+        BingerConnection.sendMessage({ command: "checkAuth" })
+            .then((response) => {
+                // Skip if user not signed in
+                if (!response?.user) {
+                    console.log("[Binger] Ignoring fullscreen change (user signed out)");
+                    isProcessingFullscreen = false;
+                    return;
                 }
-            }
-        });
+
+                const { vjsContainer, video } = getVideoElements();
+
+                if (!vjsContainer || !video) {
+                    console.warn("[Binger] fullscreenchange: no vjsContainer or video");
+                    isProcessingFullscreen = false;
+                    return;
+                }
+
+                // Remove floating emojis
+                removeAllEphemeralElements();
+
+                const isFullscreen = !!document.fullscreenElement;
+
+                try {
+                    if (isFullscreen) {
+                        enterFullscreenLayout(vjsContainer, video, state.overlay);
+                    } else {
+                        if (state.restoreFn) {
+                            state.restoreFn();
+                        } else {
+                            // Emergency fallback
+                            console.warn("[Binger] restoreFn missing - attempting manual cleanup");
+                            restoreNormalLayout(vjsContainer, video, state.overlay);
+                        }
+                    }
+                } catch (err) {
+                    console.error("[Binger] Error during fullscreen transition:", err);
+                }
+
+                isProcessingFullscreen = false;
+            })
+            .catch((err) => {
+                console.warn("[Binger] Auth check failed:", err);
+                isProcessingFullscreen = false;
+            });
     }
 
     // ========================================================================
@@ -581,6 +637,12 @@
      * @param {string} overlaySelector - CSS selector for the overlay
      */
     function attachFullscreenListener(overlaySelector = SELECTORS.overlay) {
+        // Prevent duplicate listener attachment
+        if (fullscreenListenerAttached) {
+            console.log("[Binger] Fullscreen listener already attached - skipping");
+            return;
+        }
+
         state.overlay = document.querySelector(overlaySelector);
 
         if (!state.overlay) {
@@ -594,6 +656,7 @@
 
         // Attach event listener
         document.addEventListener("fullscreenchange", handleFullscreenChange);
+        fullscreenListenerAttached = true;
     }
 
     // ========================================================================

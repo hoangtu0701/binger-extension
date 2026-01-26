@@ -15,7 +15,7 @@
      * @returns {boolean} - True if all dependencies are available
      */
     function validateDependencies() {
-        const required = ["BingerBGFirebase", "BingerBGState", "BingerBGUtils"];
+        const required = ["BingerBGFirebase", "BingerBGState", "BingerBGHelpers"];
         const missing = required.filter(dep => typeof self[dep] === "undefined");
 
         if (missing.length > 0) {
@@ -37,13 +37,13 @@
     function handleSubscribeToTheme(msg, sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
 
@@ -51,7 +51,7 @@
         const ref = BingerBGFirebase.ref(`rooms/${roomId}/theme`);
 
         if (!ref) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
             return;
         }
 
@@ -67,7 +67,7 @@
         const cb = (snapshot) => {
             const theme = snapshot.val();
 
-            BingerBGUtils.broadcastToTabs({
+            BingerBGHelpers.broadcastToTabs({
                 command: "themeUpdated",
                 theme,
                 roomId
@@ -78,7 +78,7 @@
         listeners[roomId] = cb;
 
         console.log(`[Binger] Subscribed to theme in room ${roomId}`);
-        BingerBGUtils.safeSendResponse(sendResponse, { status: "subscribed", roomId: roomId });
+        BingerBGHelpers.safeSendResponse(sendResponse, { status: "subscribed", roomId: roomId });
     }
 
     // ========================================================================
@@ -93,13 +93,13 @@
     function handleUnsubscribeFromTheme(msg, sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
 
@@ -113,10 +113,10 @@
             }
             delete listeners[roomId];
             console.log(`[Binger] Unsubscribed from theme in room ${roomId}`);
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "unsubscribed", roomId: roomId });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "unsubscribed", roomId: roomId });
         } else {
             console.log(`[Binger] No active theme listener for room ${roomId}`);
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "no-listener", roomId: roomId });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "no-listener", roomId: roomId });
         }
     }
 

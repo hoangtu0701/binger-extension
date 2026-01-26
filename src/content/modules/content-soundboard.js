@@ -176,7 +176,8 @@
     const state = {
         soundboardEl: null,
         currentRoomId: null,
-        listenerAttached: false
+        listenerAttached: false,
+        initialized: false
     };
 
     // Audio cache
@@ -184,7 +185,7 @@
     const readyAudioSet = new Set();
 
     // ========================================================================
-    // INITIALIZATION
+    // INITIALIZATION HELPERS
     // ========================================================================
 
     /**
@@ -231,6 +232,11 @@
      * @param {string} soundId - The sound ID to play
      */
     function playSound(soundId) {
+        if (!soundId || typeof soundId !== "string") {
+            console.warn("[Binger] Invalid soundId:", soundId);
+            return;
+        }
+
         const audio = audioMap[soundId];
         if (audio) {
             audio.currentTime = 0;
@@ -279,6 +285,11 @@
      * @param {string} effectId - The visual effect ID
      */
     function triggerVisualEffect(effectId) {
+        if (!effectId || typeof effectId !== "string") {
+            console.warn("[Binger] Invalid effectId:", effectId);
+            return;
+        }
+
         const visual = findVisualById(effectId);
         const emoji = visual?.emoji || "?";
 
@@ -317,49 +328,95 @@
     }
 
     /**
+     * Get client coordinates from mouse or touch event
+     * @param {Event} e - Mouse or touch event
+     * @returns {object} { clientX, clientY }
+     */
+    function getEventCoordinates(e) {
+        if (e.touches && e.touches.length > 0) {
+            return {
+                clientX: e.touches[0].clientX,
+                clientY: e.touches[0].clientY
+            };
+        }
+        if (e.changedTouches && e.changedTouches.length > 0) {
+            return {
+                clientX: e.changedTouches[0].clientX,
+                clientY: e.changedTouches[0].clientY
+            };
+        }
+        return {
+            clientX: e.clientX,
+            clientY: e.clientY
+        };
+    }
+
+    /**
      * Setup drag-to-pin behavior for visual element
+     * Supports both mouse and touch events
      * @param {HTMLElement} el - The visual element
      * @param {number} despawnTimer - The auto-remove timer
      */
     function setupDragToPinBehavior(el, despawnTimer) {
-        el.addEventListener("mousedown", (e) => {
+        /**
+         * Handle drag start (mouse or touch)
+         * @param {Event} e - Start event
+         */
+        function handleDragStart(e) {
             e.preventDefault();
             clearTimeout(despawnTimer);
             el.style.animation = "none";
 
+            const coords = getEventCoordinates(e);
             const rect = el.getBoundingClientRect();
-            const offsetX = e.clientX - rect.left;
-            const offsetY = e.clientY - rect.top;
+            const offsetX = coords.clientX - rect.left;
+            const offsetY = coords.clientY - rect.top;
 
             document.body.style.cursor = "crosshair";
 
-            const move = (ev) => {
-                el.style.left = `${ev.clientX - offsetX}px`;
-                el.style.top = `${ev.clientY - offsetY}px`;
-            };
+            /**
+             * Handle drag move
+             * @param {Event} ev - Move event
+             */
+            function handleMove(ev) {
+                const moveCoords = getEventCoordinates(ev);
+                el.style.left = `${moveCoords.clientX - offsetX}px`;
+                el.style.top = `${moveCoords.clientY - offsetY}px`;
+            }
 
-            const up = (ev) => {
-                window.removeEventListener("mousemove", move);
-                window.removeEventListener("mouseup", up);
+            /**
+             * Handle drag end
+             * @param {Event} ev - End event
+             */
+            function handleEnd(ev) {
+                // Remove all move/end listeners
+                window.removeEventListener("mousemove", handleMove);
+                window.removeEventListener("mouseup", handleEnd);
+                window.removeEventListener("touchmove", handleMove);
+                window.removeEventListener("touchend", handleEnd);
+                window.removeEventListener("touchcancel", handleEnd);
+
                 document.body.style.cursor = "";
+
+                const endCoords = getEventCoordinates(ev);
 
                 // Check if dropped on video
                 const video = document.querySelector(SELECTORS.video);
                 if (video) {
-                    const rect = video.getBoundingClientRect();
+                    const videoRect = video.getBoundingClientRect();
                     const isOverVideo = (
-                        ev.clientX >= rect.left &&
-                        ev.clientX <= rect.right &&
-                        ev.clientY >= rect.top &&
-                        ev.clientY <= rect.bottom
+                        endCoords.clientX >= videoRect.left &&
+                        endCoords.clientX <= videoRect.right &&
+                        endCoords.clientY >= videoRect.top &&
+                        endCoords.clientY <= videoRect.bottom
                     );
 
                     if (isOverVideo) {
-                        const relX = (ev.clientX - rect.left) / rect.width;
-                        const relY = (ev.clientY - rect.top) / rect.height;
+                        const relX = (endCoords.clientX - videoRect.left) / videoRect.width;
+                        const relY = (endCoords.clientY - videoRect.top) / videoRect.height;
                         const visual = findVisualByEmoji(el.innerText);
 
-                        chrome.runtime.sendMessage({
+                        BingerConnection.sendMessageAsync({
                             command: "requestPin",
                             visualId: visual?.id,
                             relX,
@@ -369,11 +426,19 @@
                 }
 
                 el.remove();
-            };
+            }
 
-            window.addEventListener("mousemove", move);
-            window.addEventListener("mouseup", up);
-        });
+            // Add move/end listeners for both mouse and touch
+            window.addEventListener("mousemove", handleMove);
+            window.addEventListener("mouseup", handleEnd);
+            window.addEventListener("touchmove", handleMove, { passive: false });
+            window.addEventListener("touchend", handleEnd);
+            window.addEventListener("touchcancel", handleEnd);
+        }
+
+        // Attach both mouse and touch start handlers
+        el.addEventListener("mousedown", handleDragStart);
+        el.addEventListener("touchstart", handleDragStart, { passive: false });
     }
 
     // ========================================================================
@@ -391,13 +456,29 @@
         const video = document.querySelector(SELECTORS.video);
         if (!video) return;
 
+        // Validate visualId
+        if (!visualId || typeof visualId !== "string") {
+            console.warn("[Binger] displayPin: invalid visualId");
+            return;
+        }
+
+        // Validate coordinates are numbers in valid range
+        if (typeof relX !== "number" || typeof relY !== "number") {
+            console.warn("[Binger] displayPin: invalid coordinates");
+            return;
+        }
+
+        // Clamp coordinates to valid range
+        const clampedX = Math.max(0, Math.min(1, relX));
+        const clampedY = Math.max(0, Math.min(1, relY));
+
         const visual = findVisualById(visualId);
         const emoji = visual?.emoji || "?";
 
         // Calculate absolute position
         const rect = video.getBoundingClientRect();
-        const absX = rect.left + relX * rect.width;
-        const absY = rect.top + relY * rect.height;
+        const absX = rect.left + clampedX * rect.width;
+        const absY = rect.top + clampedY * rect.height;
 
         // Create pin element
         const pinEl = document.createElement("div");
@@ -442,7 +523,7 @@
         btn.innerText = sound.emoji;
         btn.title = sound.id;
         btn.onclick = () => {
-            chrome.runtime.sendMessage({
+            BingerConnection.sendMessageAsync({
                 command: "requestSoundEffect",
                 soundId: sound.id
             });
@@ -461,7 +542,7 @@
         btn.innerText = visual.emoji;
         btn.title = visual.id;
         btn.onclick = () => {
-            chrome.runtime.sendMessage({
+            BingerConnection.sendMessageAsync({
                 command: "requestVisualEffect",
                 visualId: visual.id
             });
@@ -528,21 +609,28 @@
      * Start Firebase listeners for soundboard events
      */
     function startListeners() {
-        chrome.storage.local.get("bingerCurrentRoomId", ({ bingerCurrentRoomId }) => {
+        chrome.storage.local.get("bingerCurrentRoomId", (result) => {
+            // Check for storage errors
+            if (chrome.runtime.lastError) {
+                console.warn("[Binger] Storage error in startListeners:", chrome.runtime.lastError.message);
+                return;
+            }
+
+            const bingerCurrentRoomId = result?.bingerCurrentRoomId;
             if (!bingerCurrentRoomId) return;
             if (state.listenerAttached && state.currentRoomId === bingerCurrentRoomId) return;
 
-            chrome.runtime.sendMessage({
+            BingerConnection.sendMessageAsync({
                 command: "startSoundboardListener",
                 roomId: bingerCurrentRoomId
             });
 
-            chrome.runtime.sendMessage({
+            BingerConnection.sendMessageAsync({
                 command: "startVisualboardListener",
                 roomId: bingerCurrentRoomId
             });
 
-            chrome.runtime.sendMessage({
+            BingerConnection.sendMessageAsync({
                 command: "startPinListener",
                 roomId: bingerCurrentRoomId
             });
@@ -557,17 +645,17 @@
      */
     function stopListeners() {
         if (state.listenerAttached && state.currentRoomId) {
-            chrome.runtime.sendMessage({
+            BingerConnection.sendMessageAsync({
                 command: "stopSoundboardListener",
                 roomId: state.currentRoomId
             });
 
-            chrome.runtime.sendMessage({
+            BingerConnection.sendMessageAsync({
                 command: "stopVisualboardListener",
                 roomId: state.currentRoomId
             });
 
-            chrome.runtime.sendMessage({
+            BingerConnection.sendMessageAsync({
                 command: "stopPinListener",
                 roomId: state.currentRoomId
             });
@@ -586,6 +674,9 @@
      * @param {object} msg - The message object
      */
     function handleMessage(msg) {
+        // Validate message
+        if (!msg || typeof msg !== "object") return;
+
         switch (msg.command) {
             case "toggleSoundboard":
                 if (msg.inSession) {
@@ -621,21 +712,29 @@
 
     /**
      * Initialize the soundboard module
+     * Only initializes once to prevent duplicate listeners
      */
     function init() {
+        // Prevent duplicate initialization
+        if (state.initialized) {
+            console.log("[Binger] Soundboard already initialized - skipping");
+            return;
+        }
+
         injectAnimationStyles();
         preloadAudio();
         chrome.runtime.onMessage.addListener(handleMessage);
-    }
 
-    // Run initialization
-    init();
+        state.initialized = true;
+        console.log("[Binger] Soundboard module initialized");
+    }
 
     // ========================================================================
     // EXPOSE TO WINDOW
     // ========================================================================
 
     window.BingerSoundboard = {
+        init,
         create: createSoundboardUI,
         destroy: destroySoundboardUI,
         playSound,

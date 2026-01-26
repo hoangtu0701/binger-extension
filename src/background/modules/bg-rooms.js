@@ -25,7 +25,7 @@
      * @returns {boolean} - True if all dependencies are available
      */
     function validateDependencies() {
-        const required = ["BingerBGFirebase", "BingerBGUtils"];
+        const required = ["BingerBGFirebase", "BingerBGHelpers"];
         const missing = required.filter(dep => typeof self[dep] === "undefined");
 
         if (missing.length > 0) {
@@ -70,7 +70,7 @@
                     }
 
                     // Unsubscribe from typing using shared helper
-                    BingerBGUtils.unsubscribeFromTyping(currentRoomId);
+                    BingerBGHelpers.unsubscribeFromTyping(currentRoomId);
 
                     // Remove user from room
                     const userRef = BingerBGFirebase.ref(`rooms/${currentRoomId}/users/${user.uid}`);
@@ -109,7 +109,7 @@
                     }
 
                     // Broadcast updated user list for old room
-                    BingerBGUtils.broadcastUpdatedUserList(currentRoomId);
+                    BingerBGHelpers.broadcastUpdatedUserList(currentRoomId);
 
                     console.log(`[Binger] Silently left room ${currentRoomId}`);
                 } catch (err) {
@@ -132,13 +132,13 @@
     async function handleCreateRoom(sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         const user = BingerBGFirebase.getCurrentUser();
         if (!user) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Not signed in" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Not signed in" });
             return;
         }
 
@@ -156,15 +156,15 @@
      */
     function tryCreateRoom(attempts, user, sendResponse) {
         if (attempts > 5) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Failed to generate unique room ID" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Failed to generate unique room ID" });
             return;
         }
 
-        const roomId = BingerBGUtils.generateRoomId();
+        const roomId = BingerBGHelpers.generateRoomId();
         const roomRef = BingerBGFirebase.ref(`rooms/${roomId}`);
 
         if (!roomRef) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Failed to create room reference" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Failed to create room reference" });
             return;
         }
 
@@ -198,18 +198,18 @@
                         roomRef.set(roomData)
                             .then(() => {
                                 console.log(`[Binger] Room ${roomId} created by ${user.email} with theme ${hostTheme}`);
-                                BingerBGUtils.safeSendResponse(sendResponse, { status: "success", roomId });
+                                BingerBGHelpers.safeSendResponse(sendResponse, { status: "success", roomId });
                             })
                             .catch((err) => {
                                 console.error("[Binger] Error creating room:", err);
-                                BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: err.message });
+                                BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: err.message });
                             });
                     });
                 }
             })
             .catch((err) => {
                 console.error("[Binger] Error checking room existence:", err);
-                BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: err.message });
+                BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: err.message });
             });
     }
 
@@ -226,13 +226,13 @@
     async function handleJoinRoom(msg, sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
 
@@ -240,7 +240,7 @@
         const user = BingerBGFirebase.getCurrentUser();
 
         if (!user) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Not signed in" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Not signed in" });
             return;
         }
 
@@ -257,7 +257,7 @@
 
         const roomRef = BingerBGFirebase.ref(`rooms/${roomId}`);
         if (!roomRef) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Failed to create room reference" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Failed to create room reference" });
             return;
         }
 
@@ -265,7 +265,7 @@
         // This prevents race condition where multiple users join simultaneously
         const usersRef = BingerBGFirebase.ref(`rooms/${roomId}/users`);
         if (!usersRef) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Failed to create users reference" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Failed to create users reference" });
             return;
         }
 
@@ -273,7 +273,7 @@
         roomRef.once("value")
             .then((snapshot) => {
                 if (!snapshot.exists()) {
-                    BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Room not found" });
+                    BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Room not found" });
                     return;
                 }
 
@@ -306,13 +306,13 @@
                 }, (error, committed, snapshot) => {
                     if (error) {
                         console.error("[Binger] Join room transaction error:", error);
-                        BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: error.message });
+                        BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: error.message });
                         return;
                     }
 
                     if (!committed) {
                         // Transaction aborted - room was full
-                        BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Room is full" });
+                        BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Room is full" });
                         return;
                     }
 
@@ -320,17 +320,17 @@
                     const users = snapshot.val() || {};
                     if (users[user.uid]) {
                         console.log(`[Binger] User ${user.email} joined room ${roomId}`);
-                        BingerBGUtils.safeSendResponse(sendResponse, { status: "success", roomId });
-                        BingerBGUtils.broadcastUpdatedUserList(roomId);
+                        BingerBGHelpers.safeSendResponse(sendResponse, { status: "success", roomId });
+                        BingerBGHelpers.broadcastUpdatedUserList(roomId);
                     } else {
                         // Shouldn't happen, but handle it
-                        BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Failed to join room" });
+                        BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Failed to join room" });
                     }
                 });
             })
             .catch((err) => {
                 console.error("[Binger] Firebase read error:", err);
-                BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: err.message });
+                BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: err.message });
             });
     }
 
@@ -346,13 +346,13 @@
     function handleLeaveRoom(msg, sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
 
@@ -360,7 +360,7 @@
         const user = BingerBGFirebase.getCurrentUser();
 
         if (!user) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Not signed in" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Not signed in" });
             return;
         }
 
@@ -372,11 +372,11 @@
         }
 
         // Unsubscribe from typing using shared helper
-        BingerBGUtils.unsubscribeFromTyping(roomId);
+        BingerBGHelpers.unsubscribeFromTyping(roomId);
 
         const userRef = BingerBGFirebase.ref(`rooms/${roomId}/users/${user.uid}`);
         if (!userRef) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Failed to create user reference" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Failed to create user reference" });
             return;
         }
 
@@ -436,12 +436,12 @@
                         .catch((err) => console.warn("[Binger] Failed to check room users:", err));
                 }
 
-                BingerBGUtils.safeSendResponse(sendResponse, { status: "success" });
-                BingerBGUtils.broadcastUpdatedUserList(roomId);
+                BingerBGHelpers.safeSendResponse(sendResponse, { status: "success" });
+                BingerBGHelpers.broadcastUpdatedUserList(roomId);
             })
             .catch((err) => {
                 console.error("[Binger] Leave room error:", err);
-                BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: err.message });
+                BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: err.message });
             });
     }
 
@@ -457,13 +457,13 @@
     function handleRejoinIfRecentlyKicked(msg, sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
 
@@ -471,20 +471,20 @@
         const user = BingerBGFirebase.getCurrentUser();
 
         if (!user) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Not signed in" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Not signed in" });
             return;
         }
 
         const roomRef = BingerBGFirebase.ref(`rooms/${roomId}`);
         if (!roomRef) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Failed to create room reference" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Failed to create room reference" });
             return;
         }
 
         roomRef.once("value")
             .then((snapshot) => {
                 if (!snapshot.exists()) {
-                    BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Room not found" });
+                    BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Room not found" });
                     return;
                 }
 
@@ -497,12 +497,12 @@
 
                 if (userInRoom) {
                     // User still in room
-                    BingerBGUtils.safeSendResponse(sendResponse, { status: "rejoined" });
+                    BingerBGHelpers.safeSendResponse(sendResponse, { status: "rejoined" });
                 } else if (lastLeave >= cutoffTime) {
                     // Was recently in room - check if room is full before re-adding
                     const currentUsers = Object.keys(roomData.users || {});
                     if (currentUsers.length >= MAX_USERS_PER_ROOM) {
-                        BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Room is full" });
+                        BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Room is full" });
                         return;
                     }
 
@@ -516,20 +516,20 @@
                     roomRef.update(updates)
                         .then(() => {
                             console.log(`[Binger] Re-added user ${user.email} to room ${roomId} after reload`);
-                            BingerBGUtils.safeSendResponse(sendResponse, { status: "rejoined" });
+                            BingerBGHelpers.safeSendResponse(sendResponse, { status: "rejoined" });
                         })
                         .catch((err) => {
                             console.error("[Binger] Rejoin update error:", err);
-                            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: err.message });
+                            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: err.message });
                         });
                 } else {
                     // Too late - no rejoin
-                    BingerBGUtils.safeSendResponse(sendResponse, { status: "stale" });
+                    BingerBGHelpers.safeSendResponse(sendResponse, { status: "stale" });
                 }
             })
             .catch((err) => {
                 console.error("[Binger] Firebase error on rejoin check:", err);
-                BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: err.message });
+                BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: err.message });
             });
     }
 
@@ -553,7 +553,7 @@
             return;
         }
 
-        BingerBGUtils.broadcastUpdatedUserList(msg.roomId.trim());
+        BingerBGHelpers.broadcastUpdatedUserList(msg.roomId.trim());
     }
 
     // ========================================================================

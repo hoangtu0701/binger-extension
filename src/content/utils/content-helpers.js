@@ -20,10 +20,12 @@
 
     /**
      * Check if current page is a watch page
+     * Uses hostname + pathname for reliability (protocol-agnostic)
      * @returns {boolean}
      */
     function isOnWatchPage() {
-        return window.location.href.startsWith("https://phimbro.com/watch");
+        return window.location.hostname === "phimbro.com" &&
+               window.location.pathname.startsWith("/watch");
     }
 
     /**
@@ -40,10 +42,13 @@
      * @returns {string} The movie code or empty string
      */
     function extractMovieCode(url) {
-        if (!url || !url.includes("/watch/")) return "";
+        // Type check - must be a string
+        if (typeof url !== "string") return "";
+        if (!url.includes("/watch/")) return "";
 
         const parts = url.split("/watch/");
-        if (parts.length === 2) {
+        if (parts.length >= 2) {
+            // Get everything after /watch/ up to query string or hash
             return parts[1].split(/[?#]/)[0];
         }
         return "";
@@ -59,6 +64,10 @@
      * @returns {string} Formatted time string
      */
     function formatTime(timestamp) {
+        // Handle invalid timestamps
+        if (typeof timestamp !== "number" || isNaN(timestamp)) {
+            return "--:--";
+        }
         return new Date(timestamp).toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit"
@@ -79,9 +88,9 @@
     }
 
     /**
-     * Create an element with optional attributes and styles
+     * Create an element with optional attributes, styles, and events
      * @param {string} tag - The HTML tag name
-     * @param {object} options - Optional attributes, styles, and content
+     * @param {object} options - Optional attributes, styles, content, and events
      * @returns {HTMLElement}
      */
     function createElement(tag, options = {}) {
@@ -92,18 +101,30 @@
         if (options.textContent) element.textContent = options.textContent;
         if (options.innerHTML) element.innerHTML = options.innerHTML;
 
+        // Set custom attributes
         if (options.attributes) {
             for (const [key, value] of Object.entries(options.attributes)) {
                 element.setAttribute(key, value);
             }
         }
 
+        // Apply inline styles
         if (options.styles) {
             Object.assign(element.style, options.styles);
         }
 
+        // Set disabled state
         if (options.disabled !== undefined) {
             element.disabled = options.disabled;
+        }
+
+        // Attach event listeners
+        if (options.events) {
+            for (const [event, handler] of Object.entries(options.events)) {
+                if (typeof handler === "function") {
+                    element.addEventListener(event, handler);
+                }
+            }
         }
 
         return element;
@@ -130,6 +151,7 @@
     function scrapeMovieContext() {
         const url = location.href;
 
+        // Only scrape on relevant pages
         if (
             !url.includes("/watch/") &&
             !url.includes("/movie/") &&
@@ -148,31 +170,31 @@
             const subtitleElem = document.querySelector("h2[class^='subtitle']");
             if (subtitleElem) {
                 const rawText = subtitleElem.childNodes[0]?.textContent?.trim() || "";
-                title = rawText.replace(/["]/g, "").trim();
+                title = rawText.replace(/["]/g, "").trim() || "Unknown";
 
                 const yearElem = subtitleElem.querySelector("a[href*='/year/']");
                 if (yearElem) {
-                    year = yearElem.textContent.trim();
+                    year = (yearElem.textContent || "").trim() || "Unknown";
                 }
             }
 
             // Get current video time
             const video = document.querySelector("video");
-            if (video) {
+            if (video && typeof video.currentTime === "number") {
                 minutes = Math.floor(video.currentTime / 60);
             }
         } else if (url.includes("/movie/") || url.includes("/tv/")) {
             // On /movie/ or /tv/ page
             const titleElem = document.querySelector("h1[class^='title']");
             if (titleElem) {
-                title = titleElem.textContent.trim();
+                title = (titleElem.textContent || "").trim() || "Unknown";
             }
 
             const subtitleElem = document.querySelector("h2[class^='subtitle']");
             if (subtitleElem) {
                 const yearElem = subtitleElem.querySelector("a[href*='/year/']");
                 if (yearElem) {
-                    year = yearElem.textContent.trim();
+                    year = (yearElem.textContent || "").trim() || "Unknown";
                 }
             }
         }
@@ -180,7 +202,9 @@
         // Fallback - try any h1/h2
         if (title === "Unknown") {
             const fallback = document.querySelector("h1, h2");
-            if (fallback) title = fallback.textContent.trim();
+            if (fallback) {
+                title = (fallback.textContent || "").trim() || "Unknown";
+            }
         }
 
         return { title, year, minutes, isWatching };
@@ -192,11 +216,16 @@
 
     /**
      * Validate a 6-digit room code
-     * @param {string} code - The code to validate
+     * @param {string|number} code - The code to validate
      * @returns {boolean}
      */
     function isValidRoomCode(code) {
-        return /^\d{6}$/.test(code);
+        // Must be string or number
+        if (typeof code !== "string" && typeof code !== "number") {
+            return false;
+        }
+        // Convert to string and test for exactly 6 digits
+        return /^\d{6}$/.test(String(code));
     }
 
     // ========================================================================

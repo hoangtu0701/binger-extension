@@ -31,7 +31,7 @@
      * @returns {boolean} - True if all dependencies are available
      */
     function validateDependencies() {
-        const required = ["BingerBGState", "BingerBGFirebase", "BingerBGUtils"];
+        const required = ["BingerBGState", "BingerBGFirebase", "BingerBGHelpers"];
         const missing = required.filter(dep => typeof self[dep] === "undefined");
 
         if (missing.length > 0) {
@@ -156,7 +156,7 @@
                 const roomId = result.bingerCurrentRoomId;
 
                 // Unsubscribe from typing using shared helper
-                BingerBGUtils.unsubscribeFromTyping(roomId);
+                BingerBGHelpers.unsubscribeFromTyping(roomId);
 
                 // Skip cleanup if we're just reloading (only for forced reload, not browser refresh)
                 if (result.bingerIsReloading) {
@@ -236,7 +236,7 @@
             .catch((err) => console.warn("[Binger] Failed to remove typing status:", err));
 
         // Unsubscribe from typing updates using shared helper
-        BingerBGUtils.unsubscribeFromTyping(roomId);
+        BingerBGHelpers.unsubscribeFromTyping(roomId);
 
         // Remove user from room
         userRef.remove()

@@ -32,7 +32,7 @@
      * @returns {boolean} - True if all dependencies are available
      */
     function validateDependencies() {
-        const required = ["BingerBGFirebase", "BingerBGState", "BingerBGUtils"];
+        const required = ["BingerBGFirebase", "BingerBGState", "BingerBGHelpers"];
         const missing = required.filter(dep => typeof self[dep] === "undefined");
 
         if (missing.length > 0) {
@@ -131,17 +131,17 @@
     function handleSendInviteAndBroadcast(msg, sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
         if (!msg.inviteData || typeof msg.inviteData !== "object") {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid inviteData" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Invalid inviteData" });
             return;
         }
 
@@ -175,7 +175,7 @@
         const chatRef = BingerBGFirebase.ref(chatPath);
 
         if (!inviteRef || !chatRef) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase refs" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase refs" });
             return;
         }
 
@@ -190,11 +190,11 @@
             })
             .then(() => {
                 console.log("[Binger] Invite message pushed to chat");
-                BingerBGUtils.safeSendResponse(sendResponse, { status: "success" });
+                BingerBGHelpers.safeSendResponse(sendResponse, { status: "success" });
             })
             .catch((err) => {
                 console.error("[Binger] Failed to handle invite broadcast:", err);
-                BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: err.message });
+                BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: err.message });
             });
     }
 
@@ -210,13 +210,13 @@
     function handleSubscribeToActiveInvite(msg, sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
 
@@ -224,7 +224,7 @@
         const ref = BingerBGFirebase.ref(`rooms/${roomId}/activeInvite`);
 
         if (!ref) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
             return;
         }
 
@@ -241,7 +241,7 @@
             const invite = snapshot.val();
 
             // Broadcast invite info to all tabs
-            BingerBGUtils.broadcastToTabs({
+            BingerBGHelpers.broadcastToTabs({
                 command: "activeInviteUpdated",
                 invite
             });
@@ -256,7 +256,7 @@
         listeners[roomId] = callback;
 
         console.log(`[Binger] Subscribed to activeInvite in room ${roomId}`);
-        BingerBGUtils.safeSendResponse(sendResponse, { status: "subscribed", roomId: roomId });
+        BingerBGHelpers.safeSendResponse(sendResponse, { status: "subscribed", roomId: roomId });
     }
 
     /**
@@ -267,13 +267,13 @@
     function handleUnsubscribeFromActiveInvite(msg, sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
 
@@ -287,10 +287,10 @@
             }
             delete listeners[roomId];
             console.log(`[Binger] Unsubscribed from activeInvite in room ${roomId}`);
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "unsubscribed", roomId: roomId });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "unsubscribed", roomId: roomId });
         } else {
             console.log(`[Binger] No active listener for activeInvite in room ${roomId}`);
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "no-listener", roomId: roomId });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "no-listener", roomId: roomId });
         }
 
         // Also stop the expiry checker
@@ -346,7 +346,7 @@
                             console.log("[Binger] Deleted active invite after full acceptance");
 
                             // Broadcast to all tabs that session is starting
-                            BingerBGUtils.broadcastToTabs({
+                            BingerBGHelpers.broadcastToTabs({
                                 command: "startSession",
                                 movieUrl: invite.movieUrl
                             });
@@ -375,13 +375,13 @@
 
         // Validate dependencies
         if (!validateDependencies()) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
 
@@ -389,7 +389,7 @@
         const inviteRef = BingerBGFirebase.ref(`rooms/${roomId}/activeInvite`);
 
         if (!inviteRef) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
             return;
         }
 
@@ -399,11 +399,11 @@
         inviteRef.remove()
             .then(() => {
                 console.log("[Binger] Active invite cancelled by sender");
-                BingerBGUtils.safeSendResponse(sendResponse, { status: "success" });
+                BingerBGHelpers.safeSendResponse(sendResponse, { status: "success" });
             })
             .catch((error) => {
                 console.error("[Binger] Failed to cancel invite:", error);
-                BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: error.message });
+                BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: error.message });
             });
     }
 

@@ -6,7 +6,10 @@
 (function() {
     "use strict";
 
-    // Private state object
+    // ========================================================================
+    // PRIVATE STATE
+    // ========================================================================
+
     const state = {
         currentUser: null,
         currentUsersInRoom: [],
@@ -19,23 +22,48 @@
     // GETTERS
     // ========================================================================
 
+    /**
+     * Get the current user object
+     * @returns {object|null} User object with uid and email, or null
+     */
     function getCurrentUser() {
         return state.currentUser;
     }
 
+    /**
+     * Get the list of users currently in the room
+     * @returns {Array} Array of user display strings
+     */
     function getCurrentUsersInRoom() {
         return state.currentUsersInRoom;
     }
 
+    /**
+     * Check if chat messages are currently subscribed
+     * @returns {boolean}
+     */
     function getIsChatSubscribed() {
         return state.isChatSubscribed;
     }
 
+    /**
+     * Check if theme changes are currently subscribed
+     * @returns {boolean}
+     */
     function getIsThemeSubscribed() {
         return state.isThemeSubscribed;
     }
 
+    /**
+     * Get the progress bar element reference
+     * Clears stale references if element is no longer in DOM
+     * @returns {HTMLElement|null}
+     */
     function getProgressBar() {
+        // Clear stale reference if element was removed from DOM
+        if (state.progressBar && !document.contains(state.progressBar)) {
+            state.progressBar = null;
+        }
         return state.progressBar;
     }
 
@@ -43,23 +71,54 @@
     // SETTERS
     // ========================================================================
 
+    /**
+     * Set the current user object
+     * @param {object|null} user - User object with uid and email, or null
+     */
     function setCurrentUser(user) {
+        // Allow null or object with uid
+        if (user !== null && (typeof user !== "object" || !user.uid)) {
+            console.warn("[Binger] setCurrentUser called with invalid user object");
+            return;
+        }
         state.currentUser = user;
     }
 
+    /**
+     * Set the list of users in the room
+     * @param {Array} users - Array of user display strings
+     */
     function setCurrentUsersInRoom(users) {
-        state.currentUsersInRoom = users;
+        // Ensure we always have an array
+        state.currentUsersInRoom = Array.isArray(users) ? users : [];
     }
 
+    /**
+     * Set chat subscription status
+     * @param {boolean} value - Whether chat is subscribed
+     */
     function setIsChatSubscribed(value) {
-        state.isChatSubscribed = value;
+        state.isChatSubscribed = Boolean(value);
     }
 
+    /**
+     * Set theme subscription status
+     * @param {boolean} value - Whether theme is subscribed
+     */
     function setIsThemeSubscribed(value) {
-        state.isThemeSubscribed = value;
+        state.isThemeSubscribed = Boolean(value);
     }
 
+    /**
+     * Set the progress bar element reference
+     * @param {HTMLElement|null} element - The progress bar element
+     */
     function setProgressBar(element) {
+        // Allow null or HTMLElement
+        if (element !== null && !(element instanceof HTMLElement)) {
+            console.warn("[Binger] setProgressBar called with non-element");
+            return;
+        }
         state.progressBar = element;
     }
 
@@ -105,10 +164,14 @@
     }
 
     /**
-     * Check if there are enough users for watch together
+     * Check if there are enough users for watch together (2+ users)
      * @returns {boolean}
      */
     function hasEnoughUsers() {
+        // Defensive check in case state was corrupted
+        if (!Array.isArray(state.currentUsersInRoom)) {
+            return false;
+        }
         return state.currentUsersInRoom.length >= 2;
     }
 

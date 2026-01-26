@@ -32,7 +32,8 @@
         iframeMargin: 8,
         playPauseDebounce: 300,
         bufferReportDelay: 200,
-        videoWaitInterval: 500
+        videoWaitInterval: 500,
+        videoWaitMaxAttempts: 20
     };
 
     // ========================================================================
@@ -40,6 +41,9 @@
     // ========================================================================
 
     const state = {
+        // Session active flag
+        sessionActive: false,
+
         // Player sync
         stopPlayerSync: null,
         lastBufferStatus: null,
@@ -51,7 +55,10 @@
 
         // Event listeners
         networkWarningListener: null,
-        camMicMessageListener: null
+        camMicMessageListener: null,
+
+        // Click blockers
+        clickBlockers: []
     };
 
     // ========================================================================
@@ -120,17 +127,19 @@
 
         // Style close button
         const closeBtn = document.getElementById("bingerBannerClose");
-        Object.assign(closeBtn.style, {
-            position: "absolute",
-            top: "6px",
-            right: "10px",
-            fontSize: "14px",
-            color: "#000",
-            cursor: "pointer",
-            fontWeight: "bold"
-        });
+        if (closeBtn) {
+            Object.assign(closeBtn.style, {
+                position: "absolute",
+                top: "6px",
+                right: "10px",
+                fontSize: "14px",
+                color: "#000",
+                cursor: "pointer",
+                fontWeight: "bold"
+            });
 
-        closeBtn.onclick = () => banner.remove();
+            closeBtn.onclick = () => banner.remove();
+        }
     }
 
     /**
@@ -171,18 +180,23 @@
 
     /**
      * Restore cam/mic state to iframe
+     * Uses addEventListener to avoid overwriting other handlers
      * @param {HTMLIFrameElement} iframe
      */
     function restoreCamMicToIframe(iframe) {
         if (!iframe) return;
 
-        iframe.onload = () => {
+        iframe.addEventListener("load", () => {
             const { camOn, micOn } = window.BINGER.camMicState;
-            iframe.contentWindow.postMessage(
-                { type: "restoreCamMic", camOn, micOn },
-                "*"
-            );
-        };
+            try {
+                iframe.contentWindow.postMessage(
+                    { type: "restoreCamMic", camOn, micOn },
+                    "*"
+                );
+            } catch (err) {
+                console.warn("[Binger] Failed to restore cam/mic state:", err);
+            }
+        }, { once: true });
     }
 
     /**
@@ -218,9 +232,10 @@
 
     /**
      * Toggle call iframe visibility
+     * @returns {boolean} New visibility state
      */
     function toggleCallIframeVisibility() {
-        if (!state.callIframe) return;
+        if (!state.callIframe) return false;
 
         state.callIframeVisible = !state.callIframeVisible;
 
@@ -251,8 +266,22 @@
     function resetCallIframe(sendResponse) {
         if (!state.callIframe) return;
 
-        // Extract current state
-        const roomId = new URL(state.callIframe.src).searchParams.get("roomId");
+        // Extract current state with error handling
+        let roomId;
+        try {
+            roomId = new URL(state.callIframe.src).searchParams.get("roomId");
+        } catch (err) {
+            console.error("[Binger] Failed to parse iframe src:", err);
+            if (sendResponse) sendResponse({ ack: false, error: "Invalid iframe src" });
+            return;
+        }
+
+        if (!roomId) {
+            console.error("[Binger] No roomId found in iframe src");
+            if (sendResponse) sendResponse({ ack: false, error: "No roomId" });
+            return;
+        }
+
         const wasHidden = state.callIframe.classList.contains(CSS_CLASSES.callHidden);
         const wasFullscreen = state.callIframe.classList.contains(CSS_CLASSES.fullscreen);
         const oldStyle = state.callIframe.getAttribute("style");
@@ -322,6 +351,7 @@
         if (!cameraToggleBtn) return;
 
         cameraToggleBtn.disabled = true;
+        cameraToggleBtn.onclick = null;
         cameraToggleBtn.classList.remove(CSS_CLASSES.camActive);
     }
 
@@ -333,6 +363,9 @@
      * Setup cam/mic state listener
      */
     function setupCamMicListener() {
+        // Remove existing listener first
+        removeCamMicListener();
+
         state.camMicMessageListener = (event) => {
             const { type, camOn, micOn } = event.data || {};
             if (type === "updateCamMic") {
@@ -356,6 +389,9 @@
      * Setup network warning listener
      */
     function setupNetworkWarningListener() {
+        // Remove existing listener first
+        removeNetworkWarningListener();
+
         state.networkWarningListener = (event) => {
             if (event.data?.type === "network-warning") {
                 showNetworkWarningBanner();
@@ -377,8 +413,6 @@
     // ========================================================================
     // CLICK BLOCKERS
     // ========================================================================
-
-    const clickBlockers = [];
 
     /**
      * Add click blocker over an element
@@ -402,7 +436,7 @@
 
         const container = document.fullscreenElement || document.body;
         container.appendChild(blocker);
-        clickBlockers.push(blocker);
+        state.clickBlockers.push(blocker);
     }
 
     /**
@@ -425,8 +459,8 @@
      * Remove all click blockers
      */
     function removeClickBlockers() {
-        clickBlockers.forEach(el => el.remove());
-        clickBlockers.length = 0;
+        state.clickBlockers.forEach(el => el.remove());
+        state.clickBlockers.length = 0;
     }
 
     // ========================================================================
@@ -435,16 +469,26 @@
 
     /**
      * Wait for video element to be available
-     * @param {Function} callback
+     * @param {Function} callback - Called with video element when found
+     * @param {Function} onTimeout - Called if video not found after max attempts
      */
-    function waitForVideo(callback) {
+    function waitForVideo(callback, onTimeout = null) {
+        let attempts = 0;
+
         const attempt = () => {
+            attempts++;
             const video = document.querySelector(SELECTORS.video) ||
                          document.querySelector(SELECTORS.videoFallback);
+
             if (video) {
                 callback(video);
-            } else {
+            } else if (attempts < CONFIG.videoWaitMaxAttempts) {
                 setTimeout(attempt, CONFIG.videoWaitInterval);
+            } else {
+                console.warn("[Binger] Video element not found after max attempts");
+                if (typeof onTimeout === "function") {
+                    onTimeout();
+                }
             }
         };
         attempt();
@@ -469,7 +513,7 @@
 
         state.lastBufferTimeout = setTimeout(() => {
             state.lastBufferStatus = status;
-            chrome.runtime.sendMessage({
+            BingerConnection.sendMessageAsync({
                 command: "reportBufferStatus",
                 roomId,
                 userId,
@@ -488,7 +532,7 @@
         window.BINGER.camMicState.reset();
 
         // Force initial seek to time 0
-        chrome.runtime.sendMessage({
+        BingerConnection.sendMessageAsync({
             command: "syncPlayerState",
             roomId,
             action: "seek",
@@ -496,7 +540,7 @@
         });
 
         // Start iframe reset listener
-        chrome.runtime.sendMessage({
+        BingerConnection.sendMessageAsync({
             command: "startResetIframeListener",
             roomId
         });
@@ -547,8 +591,8 @@
             }
 
             // Start Firebase listeners
-            chrome.runtime.sendMessage({ command: "startPlayerListener", roomId });
-            chrome.runtime.sendMessage({ command: "startBufferStatusListener", roomId });
+            BingerConnection.sendMessageAsync({ command: "startPlayerListener", roomId });
+            BingerConnection.sendMessageAsync({ command: "startBufferStatusListener", roomId });
 
             // Suppress flag to prevent echo
             let suppress = false;
@@ -565,7 +609,7 @@
                 lastStateSent = action;
                 lastStateTimestamp = now;
 
-                chrome.runtime.sendMessage({
+                BingerConnection.sendMessageAsync({
                     command: "syncPlayerState",
                     roomId,
                     action,
@@ -632,11 +676,12 @@
                 // Player state update
                 if (msg.command !== "playerStateUpdated" || msg.roomId !== roomId) return;
 
-                const { action, time } = msg.data;
+                const { action, time } = msg.data || {};
+                if (!action) return;
 
                 suppress = true;
 
-                if (Math.abs(video.currentTime - time) > 1) {
+                if (typeof time === "number" && Math.abs(video.currentTime - time) > 1) {
                     video.currentTime = time;
                 }
                 if (action === "play") video.play().catch(() => {});
@@ -672,9 +717,9 @@
                 chrome.runtime.onMessage.removeListener(msgHandler);
 
                 // Stop Firebase listeners
-                chrome.runtime.sendMessage({ command: "stopPlayerListener", roomId });
-                chrome.runtime.sendMessage({ command: "stopBufferStatusListener", roomId });
-                chrome.runtime.sendMessage({ command: "stopResetIframeListener", roomId });
+                BingerConnection.sendMessageAsync({ command: "stopPlayerListener", roomId });
+                BingerConnection.sendMessageAsync({ command: "stopBufferStatusListener", roomId });
+                BingerConnection.sendMessageAsync({ command: "stopResetIframeListener", roomId });
 
                 // Remove click blockers
                 removeClickBlockers();
@@ -683,11 +728,22 @@
                 video.play = originalPlay;
                 playLockActive = true;
 
+                // Clear buffer timeout
+                if (state.lastBufferTimeout) {
+                    clearTimeout(state.lastBufferTimeout);
+                    state.lastBufferTimeout = null;
+                }
+                state.lastBufferStatus = null;
+
                 state.stopPlayerSync = null;
             };
 
             // Report initial ready state
             reportBufferStatus(roomId, userId, "ready");
+
+        }, () => {
+            // onTimeout - video not found
+            console.error("[Binger] Could not start player sync - video not found");
         });
     }
 
@@ -700,8 +756,17 @@
      * @param {object} context - Context from message-router
      */
     function inSessionMode(context) {
-        const { chrome, cameraToggleBtn, currentUser } = context;
+        // Prevent duplicate session activation
+        if (state.sessionActive) {
+            console.log("[Binger] Already in session mode - skipping");
+            return;
+        }
+
+        const { chrome: chromeRef, cameraToggleBtn, currentUser } = context;
         const currentUserId = currentUser?.uid;
+
+        // Mark session as active
+        state.sessionActive = true;
 
         // Setup listeners
         setupCamMicListener();
@@ -711,8 +776,20 @@
         addSessionStyling();
 
         // Get room ID and initialize
-        chrome.storage.local.get("bingerCurrentRoomId", ({ bingerCurrentRoomId }) => {
-            if (!bingerCurrentRoomId) return;
+        chromeRef.storage.local.get("bingerCurrentRoomId", (result) => {
+            // Check for storage errors
+            if (chromeRef.runtime.lastError) {
+                console.error("[Binger] Storage error:", chromeRef.runtime.lastError.message);
+                state.sessionActive = false;
+                return;
+            }
+
+            const bingerCurrentRoomId = result?.bingerCurrentRoomId;
+            if (!bingerCurrentRoomId) {
+                console.warn("[Binger] No room ID found for session");
+                state.sessionActive = false;
+                return;
+            }
 
             // Initialize call iframe
             initializeCallIframe(bingerCurrentRoomId);
@@ -724,7 +801,7 @@
             startPlayerSync(bingerCurrentRoomId, currentUserId);
 
             // Show soundboard
-            chrome.runtime.sendMessage({
+            BingerConnection.sendMessageAsync({
                 command: "toggleSoundboard",
                 inSession: true
             });
@@ -736,7 +813,13 @@
      * @param {object} context - Context from message-router
      */
     function outSessionMode(context) {
-        const { chrome, cameraToggleBtn } = context;
+        // Check if actually in session
+        if (!state.sessionActive) {
+            console.log("[Binger] Not in session mode - skipping outSessionMode");
+            return;
+        }
+
+        const { cameraToggleBtn } = context;
 
         // Reset camera button
         resetCameraButton(cameraToggleBtn);
@@ -752,7 +835,7 @@
         destroyCallIframe();
 
         // Hide soundboard
-        chrome.runtime.sendMessage({
+        BingerConnection.sendMessageAsync({
             command: "toggleSoundboard",
             inSession: false
         });
@@ -761,6 +844,13 @@
         if (typeof state.stopPlayerSync === "function") {
             state.stopPlayerSync();
         }
+
+        // Remove network warning banner if present
+        const banner = document.querySelector(SELECTORS.networkWarning);
+        if (banner) banner.remove();
+
+        // Mark session as inactive
+        state.sessionActive = false;
     }
 
     // ========================================================================
@@ -771,9 +861,5 @@
         inSessionMode,
         outSessionMode
     };
-
-    // Legacy support (for message-router.js)
-    window.inSessionMode = inSessionMode;
-    window.outSessionMode = outSessionMode;
 
 })();

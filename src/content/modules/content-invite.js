@@ -7,6 +7,13 @@
     "use strict";
 
     // ========================================================================
+    // CONSTANTS
+    // ========================================================================
+
+    // Long press threshold for decline action (milliseconds)
+    const LONG_PRESS_THRESHOLD_MS = 800;
+
+    // ========================================================================
     // INVITE SENDING
     // ========================================================================
 
@@ -19,48 +26,55 @@
 
         const movieUrl = window.location.href;
 
-        BingerConnection.getCurrentRoomId().then((roomId) => {
-            if (!roomId) {
-                alert("You're not in a room!");
-                return;
-            }
-
-            BingerConnection.sendMessage({ command: "checkAuth" }).then((response) => {
-                if (!response?.user) {
-                    alert("Not signed in.");
+        BingerConnection.getCurrentRoomId()
+            .then((roomId) => {
+                if (!roomId) {
+                    alert("You're not in a room!");
                     return;
                 }
 
-                const sender = response.user.email.split("@")[0];
-                const senderUid = response.user.uid;
+                return BingerConnection.sendMessage({ command: "checkAuth" })
+                    .then((response) => {
+                        if (!response?.user) {
+                            alert("Not signed in.");
+                            return;
+                        }
 
-                // Construct invite data
-                const inviteData = {
-                    createdBy: senderUid,
-                    sender,
-                    movieUrl,
-                    timestamp: Date.now(),
-                    accepted: {}
-                };
+                        const email = response.user.email || "";
+                        const sender = email.split("@")[0] || "anonymous";
+                        const senderUid = response.user.uid;
 
-                // Send invite to Firebase
-                BingerConnection.sendMessage({
-                    command: "sendInviteAndBroadcast",
-                    roomId,
-                    inviteData
-                }).then((res) => {
-                    if (res?.status === "success") {
-                        console.log("[Binger] Invite sent and stored");
-                        BingerConnection.sendMessageAsync({
-                            command: "subscribeToActiveInvite",
-                            roomId
+                        // Construct invite data
+                        const inviteData = {
+                            createdBy: senderUid,
+                            sender,
+                            movieUrl,
+                            timestamp: Date.now(),
+                            accepted: {}
+                        };
+
+                        // Send invite to Firebase
+                        return BingerConnection.sendMessage({
+                            command: "sendInviteAndBroadcast",
+                            roomId,
+                            inviteData
+                        }).then((res) => {
+                            if (res?.status === "success") {
+                                console.log("[Binger] Invite sent and stored");
+                                BingerConnection.sendMessageAsync({
+                                    command: "subscribeToActiveInvite",
+                                    roomId
+                                });
+                            } else {
+                                alert("Failed to send invite: " + (res?.error || "Unknown error"));
+                            }
                         });
-                    } else {
-                        alert("Failed to send invite: " + (res?.error || "Unknown error"));
-                    }
-                });
+                    });
+            })
+            .catch((err) => {
+                console.error("[Binger] Error sending invite:", err);
+                alert("Failed to send invite. Please try again.");
             });
-        });
     }
 
     // ========================================================================
@@ -71,40 +85,46 @@
      * Cancel the active invite (inviter action)
      */
     function cancelInvite() {
-        BingerConnection.getCurrentRoomId().then((roomId) => {
-            if (!roomId) return;
+        BingerConnection.getCurrentRoomId()
+            .then((roomId) => {
+                if (!roomId) return;
 
-            BingerConnection.sendMessage({
-                command: "cancelActiveInvite",
-                roomId
-            }).then((res) => {
-                if (res?.status === "success") {
-                    console.log("[Binger] Invite cancelled - now posting chat message");
+                return BingerConnection.sendMessage({
+                    command: "cancelActiveInvite",
+                    roomId
+                }).then((res) => {
+                    if (res?.status === "success") {
+                        console.log("[Binger] Invite cancelled - now posting chat message");
 
-                    // Post cancellation message to chat
-                    BingerConnection.sendMessage({ command: "checkAuth" }).then((authRes) => {
-                        if (!authRes?.user) return;
+                        // Post cancellation message to chat
+                        return BingerConnection.sendMessage({ command: "checkAuth" })
+                            .then((authRes) => {
+                                if (!authRes?.user) return;
 
-                        const sender = authRes.user.email.split("@")[0];
-                        const movieCode = BingerHelpers.extractMovieCode(window.location.href);
+                                const email = authRes.user.email || "";
+                                const sender = email.split("@")[0] || "anonymous";
+                                const movieCode = BingerHelpers.extractMovieCode(window.location.href);
 
-                        const msg = {
-                            sender: "Binger Bot",
-                            timestamp: Date.now(),
-                            text: `${sender} cancelled the invite for movie ${movieCode}`
-                        };
+                                const msg = {
+                                    sender: "Binger Bot",
+                                    timestamp: Date.now(),
+                                    text: `${sender} cancelled the invite for movie ${movieCode}`
+                                };
 
-                        BingerConnection.sendMessage({
-                            command: "post",
-                            path: `rooms/${roomId}/messages`,
-                            data: msg
-                        });
-                    });
-                } else {
-                    alert("Failed to cancel invite: " + res?.error);
-                }
+                                return BingerConnection.sendMessage({
+                                    command: "post",
+                                    path: `rooms/${roomId}/messages`,
+                                    data: msg
+                                });
+                            });
+                    } else {
+                        alert("Failed to cancel invite: " + (res?.error || "Unknown error"));
+                    }
+                });
+            })
+            .catch((err) => {
+                console.error("[Binger] Error cancelling invite:", err);
             });
-        });
     }
 
     // ========================================================================
@@ -123,38 +143,44 @@
             watchTogetherBtn.style.backgroundColor = "gray";
         }
 
-        BingerConnection.sendMessage({ command: "checkAuth" }).then((authRes) => {
-            if (!authRes?.user) return;
+        BingerConnection.sendMessage({ command: "checkAuth" })
+            .then((authRes) => {
+                if (!authRes?.user) return;
 
-            const sender = authRes.user.email.split("@")[0];
-            const uid = authRes.user.uid;
-            const movieUrl = invite.movieUrl || window.location.href;
-            const movieCode = BingerHelpers.extractMovieCode(movieUrl);
+                const email = authRes.user.email || "";
+                const sender = email.split("@")[0] || "anonymous";
+                const uid = authRes.user.uid;
+                const movieUrl = invite?.movieUrl || window.location.href;
+                const movieCode = BingerHelpers.extractMovieCode(movieUrl);
 
-            BingerConnection.getCurrentRoomId().then((roomId) => {
-                if (!roomId) return;
+                return BingerConnection.getCurrentRoomId()
+                    .then((roomId) => {
+                        if (!roomId) return;
 
-                // Post acceptance message
-                const msg = {
-                    sender: "Binger Bot",
-                    timestamp: Date.now(),
-                    text: `${sender} accepted the invite for movie ${movieCode}`
-                };
+                        // Post acceptance message
+                        const msg = {
+                            sender: "Binger Bot",
+                            timestamp: Date.now(),
+                            text: `${sender} accepted the invite for movie ${movieCode}`
+                        };
 
-                BingerConnection.sendMessageAsync({
-                    command: "post",
-                    path: `rooms/${roomId}/messages`,
-                    data: msg
-                });
+                        BingerConnection.sendMessageAsync({
+                            command: "post",
+                            path: `rooms/${roomId}/messages`,
+                            data: msg
+                        });
 
-                // Mark as accepted in Firebase
-                BingerConnection.sendMessageAsync({
-                    command: "post",
-                    path: `rooms/${roomId}/activeInvite/acceptedInvitees/${uid}`,
-                    data: true
-                });
+                        // Mark as accepted in Firebase
+                        BingerConnection.sendMessageAsync({
+                            command: "post",
+                            path: `rooms/${roomId}/activeInvite/acceptedInvitees/${uid}`,
+                            data: true
+                        });
+                    });
+            })
+            .catch((err) => {
+                console.error("[Binger] Error accepting invite:", err);
             });
-        });
     }
 
     // ========================================================================
@@ -165,44 +191,50 @@
      * Decline an invite (invitee action)
      */
     function declineInvite() {
-        BingerConnection.sendMessage({ command: "checkAuth" }).then((authRes) => {
-            if (!authRes?.user) return;
+        BingerConnection.sendMessage({ command: "checkAuth" })
+            .then((authRes) => {
+                if (!authRes?.user) return;
 
-            const sender = authRes.user.email.split("@")[0];
-            const movieCode = BingerHelpers.extractMovieCode(window.location.href);
+                const email = authRes.user.email || "";
+                const sender = email.split("@")[0] || "anonymous";
+                const movieCode = BingerHelpers.extractMovieCode(window.location.href);
 
-            BingerConnection.getCurrentRoomId().then((roomId) => {
-                if (!roomId) return;
+                return BingerConnection.getCurrentRoomId()
+                    .then((roomId) => {
+                        if (!roomId) return;
 
-                // Post decline message
-                const msg = {
-                    sender: "Binger Bot",
-                    timestamp: Date.now(),
-                    text: `${sender} declined the invite for movie ${movieCode}`
-                };
+                        // Post decline message
+                        const msg = {
+                            sender: "Binger Bot",
+                            timestamp: Date.now(),
+                            text: `${sender} declined the invite for movie ${movieCode}`
+                        };
 
-                BingerConnection.sendMessage({
-                    command: "post",
-                    path: `rooms/${roomId}/messages`,
-                    data: msg
-                }).then((postRes) => {
-                    if (postRes?.status !== "success") {
-                        console.error("[Binger] Failed to post decline message:", postRes?.error);
-                        return;
-                    }
+                        return BingerConnection.sendMessage({
+                            command: "post",
+                            path: `rooms/${roomId}/messages`,
+                            data: msg
+                        }).then((postRes) => {
+                            if (postRes?.status !== "success") {
+                                console.error("[Binger] Failed to post decline message:", postRes?.error);
+                                return;
+                            }
 
-                    // Cancel the invite in Firebase
-                    BingerConnection.sendMessage({
-                        command: "cancelActiveInvite",
-                        roomId
-                    }).then((cancelRes) => {
-                        if (cancelRes?.status !== "success") {
-                            console.error("[Binger] Failed to cancel invite:", cancelRes?.error);
-                        }
+                            // Cancel the invite in Firebase
+                            return BingerConnection.sendMessage({
+                                command: "cancelActiveInvite",
+                                roomId
+                            }).then((cancelRes) => {
+                                if (cancelRes?.status !== "success") {
+                                    console.error("[Binger] Failed to cancel invite:", cancelRes?.error);
+                                }
+                            });
+                        });
                     });
-                });
+            })
+            .catch((err) => {
+                console.error("[Binger] Error declining invite:", err);
             });
-        });
     }
 
     // ========================================================================
@@ -232,6 +264,7 @@
 
     /**
      * Setup the invitee UI (accept/decline with progress bar)
+     * Short press = Accept, Long press (800ms+) = Decline
      * @param {object} invite - The invite object
      */
     function setupInviteeUI(invite) {
@@ -251,7 +284,7 @@
         progressBar.style.height = "4px";
         progressBar.style.width = "0%";
         progressBar.style.backgroundColor = "yellow";
-        progressBar.style.transition = "width 0.8s linear";
+        progressBar.style.transition = `width ${LONG_PRESS_THRESHOLD_MS / 1000}s linear`;
         watchTogetherBtn.appendChild(progressBar);
 
         BingerState.setProgressBar(progressBar);
@@ -259,30 +292,54 @@
         // Track press time
         let pressStartTime = null;
 
-        watchTogetherBtn.onmousedown = () => {
+        // Handler for press start (mouse or touch)
+        function handlePressStart(e) {
+            // Prevent default to avoid double-firing on touch devices
+            if (e.type === "touchstart") {
+                e.preventDefault();
+            }
             pressStartTime = Date.now();
             progressBar.style.width = "100%";
-        };
+        }
 
-        watchTogetherBtn.onmouseup = () => {
+        // Handler for press end (mouse or touch)
+        function handlePressEnd(e) {
+            // Prevent default to avoid double-firing on touch devices
+            if (e.type === "touchend") {
+                e.preventDefault();
+            }
+
             progressBar.style.width = "0%";
+
+            if (pressStartTime === null) return;
 
             const duration = Date.now() - pressStartTime;
             pressStartTime = null;
 
-            if (duration >= 800) {
+            if (duration >= LONG_PRESS_THRESHOLD_MS) {
                 // Long press = Decline
                 declineInvite();
             } else {
                 // Short press = Accept
                 acceptInvite(invite);
             }
-        };
+        }
 
-        watchTogetherBtn.onmouseleave = () => {
+        // Handler for press cancel (mouse leave or touch cancel)
+        function handlePressCancel() {
             progressBar.style.width = "0%";
             pressStartTime = null;
-        };
+        }
+
+        // Mouse events
+        watchTogetherBtn.onmousedown = handlePressStart;
+        watchTogetherBtn.onmouseup = handlePressEnd;
+        watchTogetherBtn.onmouseleave = handlePressCancel;
+
+        // Touch events for mobile support
+        watchTogetherBtn.ontouchstart = handlePressStart;
+        watchTogetherBtn.ontouchend = handlePressEnd;
+        watchTogetherBtn.ontouchcancel = handlePressCancel;
     }
 
     /**
@@ -306,14 +363,22 @@
     // ========================================================================
 
     /**
-     * Clear all button handlers
+     * Clear all button handlers (mouse and touch)
      * @param {HTMLElement} button - The button element
      */
     function clearButtonHandlers(button) {
+        if (!button) return;
+
+        // Mouse events
         button.onclick = null;
         button.onmousedown = null;
         button.onmouseup = null;
         button.onmouseleave = null;
+
+        // Touch events
+        button.ontouchstart = null;
+        button.ontouchend = null;
+        button.ontouchcancel = null;
     }
 
     /**
@@ -362,7 +427,8 @@
     function handleInviteUpdate(invite) {
         const currentUser = BingerState.getCurrentUser();
 
-        if (invite) {
+        // Validate invite object has required fields
+        if (invite && typeof invite === "object" && invite.createdBy) {
             console.log("[Binger] Active invite received:", invite);
 
             const isSender = invite.createdBy === currentUser?.uid;
@@ -373,7 +439,7 @@
             } else {
                 // Invitee view
                 const uid = currentUser?.uid;
-                const hasAccepted = invite?.acceptedInvitees && invite.acceptedInvitees[uid];
+                const hasAccepted = invite.acceptedInvitees && invite.acceptedInvitees[uid];
 
                 if (hasAccepted) {
                     // Already accepted
@@ -384,7 +450,7 @@
                 }
             }
         } else {
-            // No active invite
+            // No active invite or invalid invite
             resetWatchTogetherButton();
         }
     }

@@ -7,43 +7,79 @@
     "use strict";
 
     // ========================================================================
+    // STATE
+    // ========================================================================
+
+    // Track if room buttons have been setup (prevents duplicate listeners)
+    let roomButtonsInitialized = false;
+
+    // ========================================================================
+    // UNSUBSCRIBE HELPERS
+    // ========================================================================
+
+    /**
+     * Unsubscribe from all room listeners
+     * Sends async unsubscribe commands - does not wait for responses
+     * @param {string} roomId - The room ID to unsubscribe from
+     */
+    function unsubscribeFromAllListeners(roomId) {
+        if (!roomId) return;
+
+        // Unsubscribe from all Firebase listeners
+        BingerConnection.sendMessageAsync({ command: "unsubscribeFromUsers", roomId });
+        BingerConnection.sendMessageAsync({ command: "unsubscribeFromMessages", roomId });
+        BingerConnection.sendMessageAsync({ command: "unsubscribeFromTyping", roomId });
+        BingerConnection.sendMessageAsync({ command: "unsubscribeFromTheme", roomId });
+        BingerConnection.sendMessageAsync({ command: "unsubscribeFromActiveInvite", roomId });
+        BingerConnection.sendMessageAsync({ command: "stopInSessionListener", roomId });
+
+        // Deactivate theme listener on content side
+        BingerTheme.deactivateThemeListener();
+    }
+
+    // ========================================================================
     // ROOM CLEANUP
     // ========================================================================
 
     /**
      * Leave room and clean up all listeners
+     * IMPORTANT: Always calls callback, even on error, to prevent hanging callers
      * @param {Function} callback - Optional callback after cleanup
      */
     function leaveRoomAndCleanup(callback = () => {}) {
-        BingerConnection.getCurrentRoomId().then((roomId) => {
-            console.log("[Binger] leaveRoomAndCleanup called - roomId =", roomId);
+        BingerConnection.getCurrentRoomId()
+            .then((roomId) => {
+                console.log("[Binger] leaveRoomAndCleanup called - roomId =", roomId);
 
-            if (!roomId) {
-                callback();
-                return;
-            }
-
-            // Leave room
-            BingerConnection.sendMessage({ command: "leaveRoom", roomId }).then(() => {
-                // Unsubscribe from all listeners
-                BingerConnection.sendMessageAsync({ command: "unsubscribeFromUsers", roomId });
-                BingerConnection.sendMessageAsync({ command: "unsubscribeFromMessages", roomId });
-                BingerConnection.sendMessageAsync({ command: "unsubscribeFromTyping", roomId });
-                BingerConnection.sendMessageAsync({ command: "unsubscribeFromTheme", roomId });
-
-                BingerTheme.deactivateThemeListener();
-
-                // Clear room ID from storage
-                BingerConnection.clearCurrentRoomId().then(() => {
-                    console.log("[Binger] Cleaned up room on exit.");
+                if (!roomId) {
                     callback();
-                });
+                    return;
+                }
+
+                // Leave room
+                return BingerConnection.sendMessage({ command: "leaveRoom", roomId })
+                    .then(() => {
+                        // Unsubscribe from all listeners
+                        unsubscribeFromAllListeners(roomId);
+
+                        // Clear room ID from storage
+                        return BingerConnection.clearCurrentRoomId();
+                    })
+                    .then(() => {
+                        console.log("[Binger] Cleaned up room on exit.");
+                        callback();
+                    });
+            })
+            .catch((err) => {
+                console.error("[Binger] leaveRoomAndCleanup error:", err);
+                // Always call callback to prevent hanging callers
+                callback();
             });
-        });
     }
 
     /**
      * Leave old room if exists (used before joining/creating new room)
+     * Always resolves - errors are logged but don't block the caller
      * @param {string} oldRoomId - The old room ID to leave
      * @returns {Promise<void>}
      */
@@ -52,15 +88,19 @@
             return Promise.resolve();
         }
 
-        return new Promise((resolve) => {
-            BingerConnection.sendMessage({ command: "leaveRoom", roomId: oldRoomId }).then(() => {
-                BingerConnection.sendMessageAsync({ command: "unsubscribeFromUsers", roomId: oldRoomId });
-                BingerConnection.sendMessageAsync({ command: "unsubscribeFromMessages", roomId: oldRoomId });
-                BingerConnection.sendMessageAsync({ command: "unsubscribeFromTyping", roomId: oldRoomId });
+        return BingerConnection.sendMessage({ command: "leaveRoom", roomId: oldRoomId })
+            .then(() => {
+                // Unsubscribe from all listeners
+                unsubscribeFromAllListeners(oldRoomId);
 
-                BingerConnection.clearCurrentRoomId().then(resolve);
+                // Clear room ID from storage
+                return BingerConnection.clearCurrentRoomId();
+            })
+            .catch((err) => {
+                console.warn("[Binger] Error leaving old room:", err);
+                // Resolve anyway so caller can continue
+                return BingerConnection.clearCurrentRoomId();
             });
-        });
     }
 
     // ========================================================================
@@ -71,28 +111,39 @@
      * Create a new room and join it
      */
     function createRoom() {
-        BingerConnection.getCurrentRoomId().then((oldRoomId) => {
-            // Leave old room first if exists
-            leaveOldRoom(oldRoomId).then(() => {
+        BingerConnection.getCurrentRoomId()
+            .then((oldRoomId) => {
+                // Leave old room first if exists
+                return leaveOldRoom(oldRoomId).then(() => oldRoomId);
+            })
+            .then((oldRoomId) => {
                 // Create new room
-                BingerConnection.sendMessage({ command: "createRoom" }).then((response) => {
-                    if (response?.status !== "success") {
-                        console.error("[Binger] Failed to create room:", response?.error);
-                        return;
-                    }
+                return BingerConnection.sendMessage({ command: "createRoom" })
+                    .then((response) => {
+                        if (response?.status !== "success") {
+                            console.error("[Binger] Failed to create room:", response?.error);
+                            alert("Failed to create room: " + (response?.error || "Unknown error"));
+                            return null;
+                        }
+                        return { roomId: response.roomId, oldRoomId };
+                    });
+            })
+            .then((data) => {
+                if (!data) return; // Creation failed
 
-                    const roomId = response.roomId;
-                    console.log(`[Binger] Room created: ${roomId}`);
+                const { roomId, oldRoomId } = data;
+                console.log(`[Binger] Room created: ${roomId}`);
 
-                    // Join the new room
-                    BingerConnection.sendMessage({ command: "joinRoom", roomId }).then((joinResponse) => {
+                // Join the new room
+                return BingerConnection.sendMessage({ command: "joinRoom", roomId })
+                    .then((joinResponse) => {
                         if (joinResponse?.status !== "success") {
                             alert("Failed to join new room: " + (joinResponse?.error || "Unknown error"));
                             return;
                         }
 
                         // Save room ID and reload
-                        Promise.all([
+                        return Promise.all([
                             BingerConnection.setCurrentRoomId(roomId),
                             BingerConnection.setLocal("bingerSwitchingFromRoom", oldRoomId)
                         ]).then(() => {
@@ -100,9 +151,11 @@
                             BingerNavigation.reloadWithFlag();
                         });
                     });
-                });
+            })
+            .catch((err) => {
+                console.error("[Binger] Error creating room:", err);
+                alert("Failed to create room. Please try again.");
             });
-        });
     }
 
     // ========================================================================
@@ -120,28 +173,34 @@
             return;
         }
 
-        BingerConnection.getCurrentRoomId().then((oldRoomId) => {
-            // Leave old room first if exists
-            leaveOldRoom(oldRoomId).then(() => {
+        BingerConnection.getCurrentRoomId()
+            .then((oldRoomId) => {
+                // Leave old room first if exists
+                return leaveOldRoom(oldRoomId).then(() => oldRoomId);
+            })
+            .then((oldRoomId) => {
                 // Join the new room
-                BingerConnection.sendMessage({ command: "joinRoom", roomId: newRoomId }).then((response) => {
-                    if (response?.status !== "success") {
-                        alert(`Failed to join room: ${response?.error}`);
-                        return;
-                    }
+                return BingerConnection.sendMessage({ command: "joinRoom", roomId: newRoomId })
+                    .then((response) => {
+                        if (response?.status !== "success") {
+                            alert(`Failed to join room: ${response?.error || "Unknown error"}`);
+                            return;
+                        }
 
-                    // Save room ID and reload
-                    Promise.all([
-                        BingerConnection.setLocal("bingerIsReloading", true),
-                        BingerConnection.setCurrentRoomId(newRoomId),
-                        BingerConnection.setLocal("bingerSwitchingFromRoom", oldRoomId)
-                    ]).then(() => {
-                        console.log(`[Binger] Joined room: ${newRoomId} - reloading`);
-                        BingerNavigation.reloadWithFlag();
+                        // Save room ID and reload
+                        return Promise.all([
+                            BingerConnection.setCurrentRoomId(newRoomId),
+                            BingerConnection.setLocal("bingerSwitchingFromRoom", oldRoomId)
+                        ]).then(() => {
+                            console.log(`[Binger] Joined room: ${newRoomId} - reloading`);
+                            BingerNavigation.reloadWithFlag();
+                        });
                     });
-                });
+            })
+            .catch((err) => {
+                console.error("[Binger] Error joining room:", err);
+                alert("Failed to join room. Please try again.");
             });
-        });
     }
 
     /**
@@ -150,10 +209,10 @@
     function promptAndJoinRoom() {
         const newRoomId = prompt("Enter 6-digit room code:");
 
-        // User hit Cancel
-        if (newRoomId === null) return;
+        // User hit Cancel or entered empty string
+        if (!newRoomId) return;
 
-        joinRoom(newRoomId);
+        joinRoom(newRoomId.trim());
     }
 
     // ========================================================================
@@ -164,31 +223,33 @@
      * Leave the current room
      */
     function leaveRoom() {
-        BingerConnection.getCurrentRoomId().then((roomId) => {
-            if (!roomId) return;
+        BingerConnection.getCurrentRoomId()
+            .then((roomId) => {
+                if (!roomId) return;
 
-            BingerConnection.sendMessage({ command: "leaveRoom", roomId }).then((response) => {
-                if (response?.status !== "success") {
-                    alert("Failed to leave room: " + (response?.error || "Unknown error"));
-                    return;
-                }
+                return BingerConnection.sendMessage({ command: "leaveRoom", roomId })
+                    .then((response) => {
+                        if (response?.status !== "success") {
+                            alert("Failed to leave room: " + (response?.error || "Unknown error"));
+                            return;
+                        }
 
-                // Unsubscribe from all listeners
-                BingerConnection.sendMessageAsync({ command: "unsubscribeFromUsers", roomId });
-                BingerConnection.sendMessageAsync({ command: "unsubscribeFromMessages", roomId });
-                BingerConnection.sendMessageAsync({ command: "unsubscribeFromTyping", roomId });
-                BingerConnection.sendMessageAsync({ command: "unsubscribeFromTheme", roomId });
+                        // Unsubscribe from all listeners
+                        unsubscribeFromAllListeners(roomId);
 
-                BingerTheme.deactivateThemeListener();
-
-                // Clear room ID and reload
-                BingerConnection.clearCurrentRoomId().then(() => {
-                    console.log(`[Binger] Left room: ${roomId}`);
-                    BingerChatbox.deactivateChatbox();
-                    BingerNavigation.reloadWithFlag();
-                });
+                        // Clear room ID and reload
+                        return BingerConnection.clearCurrentRoomId()
+                            .then(() => {
+                                console.log(`[Binger] Left room: ${roomId}`);
+                                BingerChatbox.deactivateChatbox();
+                                BingerNavigation.reloadWithFlag();
+                            });
+                    });
+            })
+            .catch((err) => {
+                console.error("[Binger] Error leaving room:", err);
+                alert("Failed to leave room. Please try again.");
             });
-        });
     }
 
     // ========================================================================
@@ -201,11 +262,17 @@
      * @returns {Promise<boolean>} True if rejoined successfully
      */
     function attemptRejoin(roomId) {
-        return new Promise((resolve) => {
-            BingerConnection.sendMessage({
-                command: "rejoinIfRecentlyKicked",
-                roomId
-            }).then((res) => {
+        // Validate roomId
+        if (!roomId || typeof roomId !== "string") {
+            console.log("[Binger] attemptRejoin called with invalid roomId");
+            return Promise.resolve(false);
+        }
+
+        return BingerConnection.sendMessage({
+            command: "rejoinIfRecentlyKicked",
+            roomId
+        })
+            .then((res) => {
                 if (res?.status === "rejoined") {
                     console.log("[Binger] Rejoined room successfully after reload");
 
@@ -230,16 +297,26 @@
                         roomId
                     });
 
-                    resolve(true);
+                    return true;
                 } else {
                     console.log("[Binger] Could not rejoin room. Cleaning up...");
-                    BingerConnection.clearCurrentRoomId().then(() => {
-                        BingerChatbox.deactivateChatbox();
-                        resolve(false);
-                    });
+                    return BingerConnection.clearCurrentRoomId()
+                        .then(() => {
+                            BingerChatbox.deactivateChatbox();
+                            return false;
+                        });
                 }
+            })
+            .catch((err) => {
+                console.error("[Binger] Error attempting rejoin:", err);
+                // Clean up and return false
+                return BingerConnection.clearCurrentRoomId()
+                    .then(() => {
+                        BingerChatbox.deactivateChatbox();
+                        return false;
+                    })
+                    .catch(() => false);
             });
-        });
     }
 
     // ========================================================================
@@ -269,21 +346,31 @@
 
     /**
      * Setup room button event listeners
+     * Only sets up once to prevent duplicate listeners
      */
     function setupRoomButtons() {
+        // Prevent duplicate listener attachment
+        if (roomButtonsInitialized) {
+            console.log("[Binger] Room buttons already initialized - skipping");
+            return;
+        }
+
         const elements = BingerOverlayDOM.getElements();
 
-        if (elements.createRoomBtn) {
+        if (elements?.createRoomBtn) {
             elements.createRoomBtn.addEventListener("click", createRoom);
         }
 
-        if (elements.joinRoomBtn) {
+        if (elements?.joinRoomBtn) {
             elements.joinRoomBtn.addEventListener("click", promptAndJoinRoom);
         }
 
-        if (elements.leaveRoomBtn) {
+        if (elements?.leaveRoomBtn) {
             elements.leaveRoomBtn.addEventListener("click", leaveRoom);
         }
+
+        roomButtonsInitialized = true;
+        console.log("[Binger] Room buttons initialized");
     }
 
     // ========================================================================

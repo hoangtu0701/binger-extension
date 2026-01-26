@@ -23,7 +23,7 @@
      * @returns {boolean} - True if all dependencies are available
      */
     function validateDependencies() {
-        const required = ["BingerBGFirebase", "BingerBGState", "BingerBGUtils"];
+        const required = ["BingerBGFirebase", "BingerBGState", "BingerBGHelpers"];
         const missing = required.filter(dep => typeof self[dep] === "undefined");
 
         if (missing.length > 0) {
@@ -45,13 +45,13 @@
     function handleStartInSessionListener(msg, sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
 
@@ -59,7 +59,7 @@
         const ref = BingerBGFirebase.ref(`rooms/${roomId}/inSession`);
 
         if (!ref) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
             return;
         }
 
@@ -76,7 +76,7 @@
             console.log(`[Binger] inSession changed: ${isInSession} for room ${roomId}`);
 
             // Broadcast update to all tabs
-            BingerBGUtils.broadcastToTabs({
+            BingerBGHelpers.broadcastToTabs({
                 command: "inSessionUpdated",
                 isInSession
             });
@@ -86,7 +86,7 @@
         listeners[roomId] = callback;
 
         console.log(`[Binger] Started inSession listener for room ${roomId}`);
-        BingerBGUtils.safeSendResponse(sendResponse, { status: "attached", roomId: roomId });
+        BingerBGHelpers.safeSendResponse(sendResponse, { status: "attached", roomId: roomId });
     }
 
     /**
@@ -97,13 +97,13 @@
     function handleStopInSessionListener(msg, sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
 
@@ -117,10 +117,10 @@
             }
             delete listeners[roomId];
             console.log(`[Binger] Stopped inSession listener for room ${roomId}`);
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "detached", roomId: roomId });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "detached", roomId: roomId });
         } else {
             console.log(`[Binger] No active inSession listener for room ${roomId}`);
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "no-listener", roomId: roomId });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "no-listener", roomId: roomId });
         }
     }
 
@@ -137,13 +137,13 @@
     function handleUserReady(msg, sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
 
@@ -151,7 +151,7 @@
         const user = BingerBGFirebase.getCurrentUser();
 
         if (!user || !user.uid) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Not signed in" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Not signed in" });
             return;
         }
 
@@ -161,7 +161,7 @@
         const readyRef = BingerBGFirebase.ref(`rooms/${roomId}/readyUsers/${userId}`);
 
         if (!readyRef) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Failed to create ready ref" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Failed to create ready ref" });
             return;
         }
 
@@ -199,11 +199,11 @@
                 }
             })
             .then(() => {
-                BingerBGUtils.safeSendResponse(sendResponse, { status: "ready acknowledged" });
+                BingerBGHelpers.safeSendResponse(sendResponse, { status: "ready acknowledged" });
             })
             .catch((err) => {
                 console.error("[Binger] Error in userReady:", err);
-                BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: err.message });
+                BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: err.message });
             });
     }
 
@@ -255,13 +255,13 @@
     function handleStartPlayerListener(msg, sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
 
@@ -277,7 +277,7 @@
         const ref = BingerBGFirebase.ref(`rooms/${roomId}/playerState`);
 
         if (!ref) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
             return;
         }
 
@@ -286,7 +286,7 @@
             if (!data) return;
 
             // Relay to all tabs in that room
-            BingerBGUtils.broadcastToTabs({
+            BingerBGHelpers.broadcastToTabs({
                 command: "playerStateUpdated",
                 roomId,
                 data
@@ -297,7 +297,7 @@
         listeners[roomId] = () => ref.off("value", onPlayerStateChange);
 
         console.log(`[Binger] Started player listener for room ${roomId}`);
-        BingerBGUtils.safeSendResponse(sendResponse, { status: "listening", roomId: roomId });
+        BingerBGHelpers.safeSendResponse(sendResponse, { status: "listening", roomId: roomId });
     }
 
     /**
@@ -308,13 +308,13 @@
     function handleStopPlayerListener(msg, sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
 
@@ -327,7 +327,7 @@
             console.log(`[Binger] Stopped player listener for room ${roomId}`);
         }
 
-        BingerBGUtils.safeSendResponse(sendResponse, { status: "playerState listener removed", roomId: roomId });
+        BingerBGHelpers.safeSendResponse(sendResponse, { status: "playerState listener removed", roomId: roomId });
     }
 
     // ========================================================================
@@ -378,13 +378,13 @@
     function handleStartBufferStatusListener(msg, sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
 
@@ -400,7 +400,7 @@
         const ref = BingerBGFirebase.ref(`rooms/${roomId}/bufferStatus`);
 
         if (!ref) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
             return;
         }
 
@@ -417,7 +417,7 @@
                 // Wait before sending resumePlay
                 if (!resumeTimeout) {
                     resumeTimeout = setTimeout(() => {
-                        BingerBGUtils.broadcastToTabs({
+                        BingerBGHelpers.broadcastToTabs({
                             command: "resumePlay",
                             roomId
                         });
@@ -431,7 +431,7 @@
                     resumeTimeout = null;
                 }
 
-                BingerBGUtils.broadcastToTabs({
+                BingerBGHelpers.broadcastToTabs({
                     command: "blockPlay",
                     roomId
                 });
@@ -449,7 +449,7 @@
         };
 
         console.log(`[Binger] Started buffer status listener for room ${roomId}`);
-        BingerBGUtils.safeSendResponse(sendResponse, { status: "bufferStatus listener attached", roomId: roomId });
+        BingerBGHelpers.safeSendResponse(sendResponse, { status: "bufferStatus listener attached", roomId: roomId });
     }
 
     /**
@@ -460,13 +460,13 @@
     function handleStopBufferStatusListener(msg, sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
 
@@ -479,7 +479,7 @@
             console.log(`[Binger] Stopped buffer status listener for room ${roomId}`);
         }
 
-        BingerBGUtils.safeSendResponse(sendResponse, { status: "bufferStatus listener removed", roomId: roomId });
+        BingerBGHelpers.safeSendResponse(sendResponse, { status: "bufferStatus listener removed", roomId: roomId });
     }
 
     // ========================================================================
@@ -538,13 +538,13 @@
     function handleStartResetIframeListener(msg, sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
 
@@ -552,7 +552,7 @@
         const user = BingerBGFirebase.getCurrentUser();
 
         if (!user) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Not signed in" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Not signed in" });
             return;
         }
 
@@ -567,7 +567,7 @@
         const ref = BingerBGFirebase.ref(`rooms/${roomId}/resetIframeFlag`);
 
         if (!ref) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
             return;
         }
 
@@ -584,7 +584,7 @@
             console.log("[Binger] Detected external resetIframeFlag - triggering local reset");
 
             // Dispatch to local content script
-            BingerBGUtils.broadcastToTabs({
+            BingerBGHelpers.broadcastToTabs({
                 command: "resetCallIframe",
                 roomId
             });
@@ -603,7 +603,7 @@
         listeners[roomId] = () => ref.off("value", cb);
 
         console.log(`[Binger] Started resetIframe listener for room ${roomId}`);
-        BingerBGUtils.safeSendResponse(sendResponse, { status: "attached", roomId: roomId });
+        BingerBGHelpers.safeSendResponse(sendResponse, { status: "attached", roomId: roomId });
     }
 
     /**
@@ -614,13 +614,13 @@
     function handleStopResetIframeListener(msg, sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
 
@@ -633,7 +633,7 @@
             console.log(`[Binger] Stopped resetIframe listener for room ${roomId}`);
         }
 
-        BingerBGUtils.safeSendResponse(sendResponse, { status: "detached", roomId: roomId });
+        BingerBGHelpers.safeSendResponse(sendResponse, { status: "detached", roomId: roomId });
     }
 
     // ========================================================================

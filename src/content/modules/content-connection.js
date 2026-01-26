@@ -6,8 +6,12 @@
 (function() {
     "use strict";
 
-    // Private variables
+    // ========================================================================
+    // PRIVATE STATE
+    // ========================================================================
+
     let port = null;
+    let keepAliveTimeoutId = null;
     const KEEP_ALIVE_INTERVAL = 15000; // 15 seconds
 
     // ========================================================================
@@ -18,6 +22,22 @@
      * Initialize connection to background script
      */
     function initConnection() {
+        // Clear any pending keep-alive timeout to prevent duplicate loops
+        if (keepAliveTimeoutId) {
+            clearTimeout(keepAliveTimeoutId);
+            keepAliveTimeoutId = null;
+        }
+
+        // Disconnect existing port if any
+        if (port) {
+            try {
+                port.disconnect();
+            } catch (e) {
+                // Already disconnected - ignore
+            }
+            port = null;
+        }
+
         try {
             port = chrome.runtime.connect({ name: "binger-connection" });
             startKeepAlive();
@@ -35,7 +55,7 @@
         function ping() {
             try {
                 port.postMessage({ type: "ping" });
-                setTimeout(ping, KEEP_ALIVE_INTERVAL);
+                keepAliveTimeoutId = setTimeout(ping, KEEP_ALIVE_INTERVAL);
             } catch (error) {
                 // Port disconnected, try to reconnect
                 console.warn("[Binger] Keep-alive failed, reconnecting...");
@@ -67,6 +87,12 @@
         return new Promise((resolve) => {
             try {
                 chrome.runtime.sendMessage(message, (response) => {
+                    // Check for errors (e.g., no receiver)
+                    if (chrome.runtime.lastError) {
+                        console.warn("[Binger] sendMessage error:", chrome.runtime.lastError.message);
+                        resolve(null);
+                        return;
+                    }
                     resolve(response);
                 });
             } catch (error) {
@@ -83,7 +109,10 @@
     function sendMessageAsync(message) {
         try {
             chrome.runtime.sendMessage(message, () => {
-                // No-op callback to prevent errors
+                // Must check lastError to suppress Chrome warnings
+                if (chrome.runtime.lastError) {
+                    // Silently ignore - expected if no receiver
+                }
             });
         } catch (error) {
             console.error("[Binger] sendMessageAsync failed:", error);
@@ -102,6 +131,11 @@
     function getLocal(key) {
         return new Promise((resolve) => {
             chrome.storage.local.get(key, (result) => {
+                if (chrome.runtime.lastError) {
+                    console.warn("[Binger] getLocal error:", chrome.runtime.lastError.message);
+                    resolve(null);
+                    return;
+                }
                 resolve(result[key] ?? null);
             });
         });
@@ -115,7 +149,12 @@
      */
     function setLocal(key, value) {
         return new Promise((resolve) => {
-            chrome.storage.local.set({ [key]: value }, resolve);
+            chrome.storage.local.set({ [key]: value }, () => {
+                if (chrome.runtime.lastError) {
+                    console.warn("[Binger] setLocal error:", chrome.runtime.lastError.message);
+                }
+                resolve();
+            });
         });
     }
 
@@ -126,7 +165,12 @@
      */
     function removeLocal(key) {
         return new Promise((resolve) => {
-            chrome.storage.local.remove(key, resolve);
+            chrome.storage.local.remove(key, () => {
+                if (chrome.runtime.lastError) {
+                    console.warn("[Binger] removeLocal error:", chrome.runtime.lastError.message);
+                }
+                resolve();
+            });
         });
     }
 
@@ -138,6 +182,11 @@
     function getSync(key) {
         return new Promise((resolve) => {
             chrome.storage.sync.get(key, (result) => {
+                if (chrome.runtime.lastError) {
+                    console.warn("[Binger] getSync error:", chrome.runtime.lastError.message);
+                    resolve(null);
+                    return;
+                }
                 resolve(result[key] ?? null);
             });
         });
@@ -151,7 +200,12 @@
      */
     function setSync(key, value) {
         return new Promise((resolve) => {
-            chrome.storage.sync.set({ [key]: value }, resolve);
+            chrome.storage.sync.set({ [key]: value }, () => {
+                if (chrome.runtime.lastError) {
+                    console.warn("[Binger] setSync error:", chrome.runtime.lastError.message);
+                }
+                resolve();
+            });
         });
     }
 

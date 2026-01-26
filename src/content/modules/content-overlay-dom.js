@@ -6,8 +6,15 @@
 (function() {
     "use strict";
 
+    // ========================================================================
+    // STATE
+    // ========================================================================
+
     // Cached element references
     let elements = null;
+
+    // Track if overlay has been initialized (prevents duplicate creation)
+    let overlayInitialized = false;
 
     // ========================================================================
     // DOM CREATION
@@ -163,14 +170,32 @@
     /**
      * Initialize the overlay DOM
      * Creates all elements and appends to body
+     * Only initializes once to prevent duplicate overlays
      */
     function initOverlayDOM() {
+        // Prevent duplicate initialization
+        if (overlayInitialized) {
+            console.log("[Binger] Overlay DOM already initialized - skipping");
+            return;
+        }
+
+        // Check if overlay already exists in DOM (from previous init)
+        if (document.getElementById("bingerOverlay")) {
+            console.log("[Binger] Overlay already exists in DOM - caching elements only");
+            cacheElements();
+            overlayInitialized = true;
+            return;
+        }
+
         // Create and append overlay
         const overlay = createOverlay();
         document.body.appendChild(overlay);
 
         // Cache element references
         cacheElements();
+
+        overlayInitialized = true;
+        console.log("[Binger] Overlay DOM initialized");
     }
 
     /**
@@ -263,7 +288,9 @@
      */
     function setUsername(username) {
         if (elements?.username) {
-            elements.username.textContent = `Signed in as: ${username}`;
+            // Handle null/undefined/empty username
+            const displayName = username || "Unknown";
+            elements.username.textContent = `Signed in as: ${displayName}`;
         }
     }
 
@@ -287,7 +314,8 @@
      */
     function setUserListDisplay(users) {
         if (elements?.userList) {
-            if (users && users.length > 0) {
+            // Validate users is an array with items
+            if (Array.isArray(users) && users.length > 0) {
                 elements.userList.textContent = `Users: ${users.join(", ")}`;
             } else {
                 elements.userList.textContent = "(Users: -)";
@@ -303,6 +331,7 @@
      * Show the multi-tab warning banner
      */
     function showMultiTabWarning() {
+        // Prevent duplicate warnings
         if (document.getElementById("bingerMultiTabWarning")) return;
 
         const warning = document.createElement("div");
@@ -338,6 +367,32 @@
     }
 
     // ========================================================================
+    // CLEANUP
+    // ========================================================================
+
+    /**
+     * Destroy the overlay and clean up all references
+     * Used for extension cleanup or sign out
+     */
+    function destroyOverlayDOM() {
+        // Remove overlay from DOM
+        if (elements?.overlay) {
+            elements.overlay.remove();
+        }
+
+        // Remove multi-tab warning if present
+        hideMultiTabWarning();
+
+        // Clear cached references
+        elements = null;
+
+        // Reset initialization flag
+        overlayInitialized = false;
+
+        console.log("[Binger] Overlay DOM destroyed");
+    }
+
+    // ========================================================================
     // EXPOSE TO WINDOW
     // ========================================================================
 
@@ -361,7 +416,10 @@
 
         // Multi-tab warning
         showMultiTabWarning,
-        hideMultiTabWarning
+        hideMultiTabWarning,
+
+        // Cleanup
+        destroyOverlayDOM
     };
 
 })();

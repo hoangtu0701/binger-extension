@@ -7,6 +7,13 @@
     "use strict";
 
     // ========================================================================
+    // STATE
+    // ========================================================================
+
+    // Track if message router is initialized (prevents duplicate listeners)
+    let messageRouterInitialized = false;
+
+    // ========================================================================
     // MESSAGE HANDLER
     // ========================================================================
 
@@ -18,6 +25,11 @@
      * @returns {boolean|undefined} Return true if sendResponse will be called async
      */
     function handleMessage(msg, sender, sendResponse) {
+        // Validate message object
+        if (!msg || typeof msg !== "object") {
+            return;
+        }
+
         switch (msg.command) {
             // ================================================================
             // OVERLAY COMMANDS
@@ -48,7 +60,9 @@
             // ================================================================
 
             case "newChatMessage":
-                BingerChatbox.renderMessage(msg.message);
+                if (msg.message) {
+                    BingerChatbox.renderMessage(msg.message);
+                }
                 break;
 
             // ================================================================
@@ -56,7 +70,9 @@
             // ================================================================
 
             case "userNotification":
-                BingerChatbox.renderSystemNotification(msg.notificationType, msg.username);
+                if (msg.notificationType && msg.username) {
+                    BingerChatbox.renderSystemNotification(msg.notificationType, msg.username);
+                }
                 break;
 
             // ================================================================
@@ -108,7 +124,10 @@
                 break;
 
             default:
-                // Unknown command - ignore
+                // Log unknown commands for debugging
+                if (msg.command) {
+                    console.log("[Binger] Unknown content message command:", msg.command);
+                }
                 break;
         }
     }
@@ -167,32 +186,46 @@
      * @param {object} msg - The message with movieUrl
      */
     function handleStartSession(msg) {
-        const movieUrl = msg.movieUrl;
+        const movieUrl = msg?.movieUrl;
+
+        // Validate movieUrl
+        if (!movieUrl || typeof movieUrl !== "string") {
+            console.error("[Binger] startSession missing valid movieUrl");
+            return;
+        }
 
         // Store pending URL and navigate
-        BingerConnection.setLocal("pendingMovieUrl", movieUrl).then(() => {
-            console.log("[Binger] Stored pendingMovieUrl, navigating...");
-            BingerNavigation.navigateWithFlag(movieUrl);
-        });
+        BingerConnection.setLocal("pendingMovieUrl", movieUrl)
+            .then(() => {
+                console.log("[Binger] Stored pendingMovieUrl, navigating...");
+                BingerNavigation.navigateWithFlag(movieUrl);
+            })
+            .catch((err) => {
+                console.error("[Binger] Failed to store pendingMovieUrl:", err);
+            });
 
         // Attach inSession listener
-        BingerConnection.getCurrentRoomId().then((roomId) => {
-            if (!roomId) {
-                console.error("[Binger] No room ID found, cannot attach inSession listener.");
-                return;
-            }
-
-            BingerConnection.sendMessage({
-                command: "startInSessionListener",
-                roomId
-            }).then((response) => {
-                if (response?.status === "attached") {
-                    console.log("[Binger] Listener attached successfully");
-                } else {
-                    console.warn("[Binger] Listener may not have attached correctly:", response);
+        BingerConnection.getCurrentRoomId()
+            .then((roomId) => {
+                if (!roomId) {
+                    console.error("[Binger] No room ID found, cannot attach inSession listener.");
+                    return;
                 }
+
+                return BingerConnection.sendMessage({
+                    command: "startInSessionListener",
+                    roomId
+                }).then((response) => {
+                    if (response?.status === "attached") {
+                        console.log("[Binger] Listener attached successfully");
+                    } else {
+                        console.warn("[Binger] Listener may not have attached correctly:", response);
+                    }
+                });
+            })
+            .catch((err) => {
+                console.error("[Binger] Failed to attach inSession listener:", err);
             });
-        });
     }
 
     /**
@@ -200,7 +233,7 @@
      * @param {object} msg - The message with isInSession boolean
      */
     function handleInSessionUpdated(msg) {
-        const { isInSession } = msg;
+        const isInSession = msg?.isInSession;
 
         // Build context object for session mode functions
         const context = {
@@ -215,15 +248,15 @@
 
         if (isInSession === true) {
             console.log("[Binger] Session started - activating session UI");
-            // Call external session mode function
-            if (typeof window.inSessionMode === "function") {
-                window.inSessionMode(context);
+            // Call session module directly
+            if (typeof BingerSession !== "undefined" && BingerSession.inSessionMode) {
+                BingerSession.inSessionMode(context);
             }
         } else {
             console.log("[Binger] Session ended - restoring normal UI");
-            // Call external out session mode function
-            if (typeof window.outSessionMode === "function") {
-                window.outSessionMode(context);
+            // Call session module directly
+            if (typeof BingerSession !== "undefined" && BingerSession.outSessionMode) {
+                BingerSession.outSessionMode(context);
             }
         }
     }
@@ -234,9 +267,17 @@
 
     /**
      * Initialize the message router
+     * Only attaches listener once to prevent duplicates
      */
     function initMessageRouter() {
+        if (messageRouterInitialized) {
+            console.log("[Binger] Message router already initialized - skipping");
+            return;
+        }
+
         chrome.runtime.onMessage.addListener(handleMessage);
+        messageRouterInitialized = true;
+        console.log("[Binger] Message router initialized");
     }
 
     // ========================================================================

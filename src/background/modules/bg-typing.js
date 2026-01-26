@@ -15,7 +15,7 @@
      * @returns {boolean} - True if all dependencies are available
      */
     function validateDependencies() {
-        const required = ["BingerBGFirebase", "BingerBGState", "BingerBGUtils"];
+        const required = ["BingerBGFirebase", "BingerBGState", "BingerBGHelpers"];
         const missing = required.filter(dep => typeof self[dep] === "undefined");
 
         if (missing.length > 0) {
@@ -112,13 +112,13 @@
     function handleSubscribeToTyping(msg, sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
 
@@ -126,7 +126,7 @@
         const typingRef = BingerBGFirebase.ref(`rooms/${roomId}/typing`);
 
         if (!typingRef) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
             return;
         }
 
@@ -161,7 +161,7 @@
                     }));
 
                     // Broadcast to all tabs
-                    BingerBGUtils.broadcastToTabs({
+                    BingerBGHelpers.broadcastToTabs({
                         command: "typingStatusUpdated",
                         users: typingUsers
                     });
@@ -176,7 +176,7 @@
         listeners[roomId] = callback;
 
         console.log(`[Binger] Subscribed to typing changes for room ${roomId}`);
-        BingerBGUtils.safeSendResponse(sendResponse, { status: "typing listener attached", roomId: roomId });
+        BingerBGHelpers.safeSendResponse(sendResponse, { status: "typing listener attached", roomId: roomId });
     }
 
     /**
@@ -187,13 +187,13 @@
     function handleUnsubscribeFromTyping(msg, sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
 
@@ -207,10 +207,10 @@
             }
             delete listeners[roomId];
             console.log(`[Binger] Unsubscribed from typing in room ${roomId}`);
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "unsubscribed from typing", roomId: roomId });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "unsubscribed from typing", roomId: roomId });
         } else {
             console.log(`[Binger] No active typing listener for room ${roomId}`);
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "no-listener", roomId: roomId });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "no-listener", roomId: roomId });
         }
     }
 

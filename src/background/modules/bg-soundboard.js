@@ -15,7 +15,7 @@
      * @returns {boolean} - True if all dependencies are available
      */
     function validateDependencies() {
-        const required = ["BingerBGFirebase", "BingerBGState", "BingerBGUtils"];
+        const required = ["BingerBGFirebase", "BingerBGState", "BingerBGHelpers"];
         const missing = required.filter(dep => typeof self[dep] === "undefined");
 
         if (missing.length > 0) {
@@ -61,7 +61,7 @@
             return;
         }
 
-        BingerBGUtils.broadcastToTabs({
+        BingerBGHelpers.broadcastToTabs({
             command: "toggleSoundboard",
             inSession: msg?.inSession
         });
@@ -119,13 +119,13 @@
     function handleStartSoundboardListener(msg, sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
 
@@ -141,7 +141,7 @@
         const ref = BingerBGFirebase.ref(`rooms/${roomId}/soundboard`);
 
         if (!ref) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
             return;
         }
 
@@ -149,7 +149,7 @@
             const soundId = snap.key;
             if (!soundId) return;
 
-            BingerBGUtils.broadcastToTabs({
+            BingerBGHelpers.broadcastToTabs({
                 command: "playSoundEffect",
                 soundId
             });
@@ -168,7 +168,7 @@
         };
 
         console.log(`[Binger] Started soundboard listener for room ${roomId}`);
-        BingerBGUtils.safeSendResponse(sendResponse, { status: "soundboard listener attached", roomId: roomId });
+        BingerBGHelpers.safeSendResponse(sendResponse, { status: "soundboard listener attached", roomId: roomId });
     }
 
     /**
@@ -179,13 +179,13 @@
     function handleStopSoundboardListener(msg, sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
 
@@ -196,9 +196,9 @@
             listeners[roomId]();
             delete listeners[roomId];
             console.log(`[Binger] Stopped soundboard listener for room ${roomId}`);
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "soundboard listener removed", roomId: roomId });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "soundboard listener removed", roomId: roomId });
         } else {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "no-listener", roomId: roomId });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "no-listener", roomId: roomId });
         }
     }
 
@@ -254,13 +254,13 @@
     function handleStartVisualboardListener(msg, sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
 
@@ -276,7 +276,7 @@
         const ref = BingerBGFirebase.ref(`rooms/${roomId}/visualboard`);
 
         if (!ref) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
             return;
         }
 
@@ -284,7 +284,7 @@
             const visualId = snap.key;
             if (!visualId) return;
 
-            BingerBGUtils.broadcastToTabs({
+            BingerBGHelpers.broadcastToTabs({
                 command: "playVisualEffect",
                 visualId
             });
@@ -301,7 +301,7 @@
         };
 
         console.log(`[Binger] Started visualboard listener for room ${roomId}`);
-        BingerBGUtils.safeSendResponse(sendResponse, { status: "visualboard listener attached", roomId: roomId });
+        BingerBGHelpers.safeSendResponse(sendResponse, { status: "visualboard listener attached", roomId: roomId });
     }
 
     /**
@@ -312,13 +312,13 @@
     function handleStopVisualboardListener(msg, sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
 
@@ -329,9 +329,9 @@
             listeners[roomId]();
             delete listeners[roomId];
             console.log(`[Binger] Stopped visualboard listener for room ${roomId}`);
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "visualboard listener removed", roomId: roomId });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "visualboard listener removed", roomId: roomId });
         } else {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "no-listener", roomId: roomId });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "no-listener", roomId: roomId });
         }
     }
 
@@ -395,13 +395,13 @@
     function handleStartPinListener(msg, sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
 
@@ -417,7 +417,7 @@
         const ref = BingerBGFirebase.ref(`rooms/${roomId}/activePins`);
 
         if (!ref) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
             return;
         }
 
@@ -426,7 +426,7 @@
             const data = snap.val();
             if (!visualId || !data) return;
 
-            BingerBGUtils.broadcastToTabs({
+            BingerBGHelpers.broadcastToTabs({
                 command: "updatePin",
                 visualId,
                 ...data
@@ -443,7 +443,7 @@
         };
 
         console.log(`[Binger] Started pin listener for room ${roomId}`);
-        BingerBGUtils.safeSendResponse(sendResponse, { status: "pin listener attached", roomId: roomId });
+        BingerBGHelpers.safeSendResponse(sendResponse, { status: "pin listener attached", roomId: roomId });
     }
 
     /**
@@ -454,13 +454,13 @@
     function handleStopPinListener(msg, sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
 
@@ -471,9 +471,9 @@
             listeners[roomId]();
             delete listeners[roomId];
             console.log(`[Binger] Stopped pin listener for room ${roomId}`);
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "pin listener removed", roomId: roomId });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "pin listener removed", roomId: roomId });
         } else {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "no-listener", roomId: roomId });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "no-listener", roomId: roomId });
         }
     }
 

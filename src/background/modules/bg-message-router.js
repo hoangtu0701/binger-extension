@@ -45,7 +45,7 @@
     function executeHandler(moduleName, methodName, args, sendResponse) {
         const handler = getHandler(moduleName, methodName);
         if (!handler) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: `Handler unavailable: ${moduleName}.${methodName}` });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: `Handler unavailable: ${moduleName}.${methodName}` });
             return false;
         }
 
@@ -54,7 +54,7 @@
             return true;
         } catch (err) {
             console.error(`[Binger] Handler error in ${moduleName}.${methodName}:`, err);
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: err.message || "Handler threw an exception" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: err.message || "Handler threw an exception" });
             return false;
         }
     }
@@ -71,7 +71,7 @@
             // Validate msg exists
             if (!msg || typeof msg !== "object") {
                 console.warn("[Binger] Invalid message received:", typeof msg);
-                BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid message format" });
+                BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Invalid message format" });
                 return false;
             }
 
@@ -277,7 +277,7 @@
             // ----------------------------------------------------------------
             default:
                 console.warn(`[Binger] Unknown command: ${msg.command}`);
-                BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: `Unknown command: ${msg.command}` });
+                BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: `Unknown command: ${msg.command}` });
                 return false;
         }
     }

@@ -1,6 +1,6 @@
 // ============================================================================
-// BACKGROUND UTILITIES
-// Shared utility functions for background service worker
+// BACKGROUND HELPERS
+// Shared helper functions for background service worker
 // ============================================================================
 
 (function() {
@@ -229,7 +229,7 @@
     // EXPOSE TO SERVICE WORKER
     // ========================================================================
 
-    self.BingerBGUtils = {
+    self.BingerBGHelpers = {
         safeSendResponse,
         unsubscribeFromTyping,
         broadcastToTabs,

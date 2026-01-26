@@ -29,7 +29,7 @@
      * @returns {boolean} - True if all dependencies are available
      */
     function validateDependencies() {
-        const required = ["BingerBGFirebase", "BingerBGUtils"];
+        const required = ["BingerBGFirebase", "BingerBGHelpers"];
         const missing = required.filter(dep => typeof self[dep] === "undefined");
 
         if (missing.length > 0) {
@@ -94,7 +94,7 @@
      * @param {string} username
      */
     function broadcastNotification(type, username) {
-        BingerBGUtils.broadcastToTabs({
+        BingerBGHelpers.broadcastToTabs({
             command: "userNotification",
             notificationType: type,
             username: username
@@ -136,7 +136,7 @@
         // Convert to display strings
         const finalDisplay = userList.map(u => u.isHost ? `${u.name} (host)` : u.name);
 
-        BingerBGUtils.broadcastToTabs({
+        BingerBGHelpers.broadcastToTabs({
             command: "updateUserList",
             users: finalDisplay
         });
@@ -154,13 +154,13 @@
     function handleSubscribeToUsers(msg, sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
 
@@ -168,7 +168,7 @@
         const roomUsersRef = BingerBGFirebase.ref(`rooms/${roomId}/users`);
 
         if (!roomUsersRef) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Failed to create Firebase ref" });
             return;
         }
 
@@ -267,7 +267,7 @@
         roomUsersRef.on("value", state.listener);
 
         console.log(`[Binger] Subscribed to users in room ${roomId}`);
-        BingerBGUtils.safeSendResponse(sendResponse, { status: "subscribed", roomId: roomId });
+        BingerBGHelpers.safeSendResponse(sendResponse, { status: "subscribed", roomId: roomId });
     }
 
     // ========================================================================
@@ -282,13 +282,13 @@
     function handleUnsubscribeFromUsers(msg, sendResponse) {
         // Validate dependencies
         if (!validateDependencies()) {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
-            BingerBGUtils.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
         }
 
@@ -305,7 +305,7 @@
         cleanupState(roomId);
 
         console.log(`[Binger] Unsubscribed from users in room ${roomId}`);
-        BingerBGUtils.safeSendResponse(sendResponse, { status: "unsubscribed", roomId: roomId });
+        BingerBGHelpers.safeSendResponse(sendResponse, { status: "unsubscribed", roomId: roomId });
     }
 
     // ========================================================================

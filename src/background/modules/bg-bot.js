@@ -23,7 +23,7 @@
      * @returns {boolean} - True if all dependencies are available
      */
     function validateDependencies() {
-        const required = ["BingerBGFirebase", "BingerBGSubtitles", "BingerBGUtils"];
+        const required = ["BingerBGFirebase", "BingerBGSubtitles", "BingerBGHelpers"];
         const missing = required.filter(dep => typeof self[dep] === "undefined");
 
         if (missing.length > 0) {
@@ -271,20 +271,20 @@
     async function handleBotQuery(msg, sendResponse) {
         // Validate dependencies first
         if (!validateDependencies()) {
-            BingerBGUtils.safeSendResponse(sendResponse, { error: "missing-dependencies" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { error: "missing-dependencies" });
             return;
         }
 
         // Validate input
         if (!msg || typeof msg.prompt !== "string" || msg.prompt.trim() === "") {
-            BingerBGUtils.safeSendResponse(sendResponse, { error: "invalid-prompt" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { error: "invalid-prompt" });
             return;
         }
 
         // Get current room ID
         let roomId = await getRoomIdFromStorage();
         if (!roomId) {
-            BingerBGUtils.safeSendResponse(sendResponse, { error: "no-room" });
+            BingerBGHelpers.safeSendResponse(sendResponse, { error: "no-room" });
             return;
         }
 
@@ -363,11 +363,11 @@
                 await handleSceneSeeking(sceneDesc, msg.movieContext, roomId, inSession);
             }
 
-            BingerBGUtils.safeSendResponse(sendResponse, { ok: true });
+            BingerBGHelpers.safeSendResponse(sendResponse, { ok: true });
 
         } catch (err) {
             console.error("[Binger] botQuery error:", err);
-            BingerBGUtils.safeSendResponse(sendResponse, { error: String(err?.message || err) });
+            BingerBGHelpers.safeSendResponse(sendResponse, { error: String(err?.message || err) });
         } finally {
             await clearBotTypingStatus(roomId);
         }
@@ -654,7 +654,7 @@
         // Score all candidates by cosine similarity
         const scored = searchChunks.map((chunk, localIdx) => ({
             idx: baseOffset + localIdx,
-            score: BingerBGUtils.cosineSimilarity(vector, chunk.vector)
+            score: BingerBGHelpers.cosineSimilarity(vector, chunk.vector)
         }));
 
         scored.sort((a, b) => b.score - a.score);
