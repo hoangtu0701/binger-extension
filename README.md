@@ -1,36 +1,161 @@
-# 🍿 Binger Extension
+# Binger
 
-Binger is a Chrome extension that turns **Phimbro** into the ultimate synced movie night experience.
-
-It lets you and your friends **watch movies together in perfect sync**, chat live, share reactions, and even start video calls — all inside the Phimbro player.
+A Chrome extension that turns [Phimbro](https://phimbro.com) into a synchronized movie-watching experience with friends.
 
 ---
 
-## 🎯 What It Does
+## Features
 
-- 🕐 **Perfectly synced playback** — pause, play, and seek together
-- 💬 **Real-time group chat** — share thoughts while you watch
-- 🔐 **Private room system** — create or join using 6-digit room codes
-- 🧠 **Auto-sync on page reload and fullscreen**
-- 📞 **Video call integration**
-- 🧪 **Experimental features** like soundboards, mood-based overlays, and more coming soon!
+- **Synced Playback** - Play, pause, and seek together in real-time
+- **Live Chat** - Group chat with an AI assistant (`@binger`) that can seek to scenes you describe
+- **Video Calls** - WebRTC-based video/audio calls while watching
+- **Private Rooms** - Create or join rooms with 6-digit codes
+- **Soundboard** - Sound effects and floating/pinned emoji reactions
+- **6 Themes** - Burgundy, Pink, Black & White, Ocean, Volcano, Forest
+- **Fullscreen Support** - Overlay adapts to fullscreen mode
+- **Join/Leave Notifications** - Real-time notifications when users join or leave rooms
+- **Smart Animation System** - Optimized message animations using IntersectionObserver
 
 ---
 
-## 📁 Project Structure
+## Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| Extension | Chrome Extension (Manifest V3) |
+| Real-time Sync | Firebase Realtime Database |
+| Video Calls | WebRTC with STUN/TURN servers |
+| AI Features | OpenAI Embeddings + GPT-4o-mini |
+| API Proxies | Vercel Serverless Functions |
+
+---
+
+## Project Structure
 
 ```
-binger-extension/
-├── manifest.json           # Chrome extension metadata
-├── background.js           # Handles auth, room logic, and sync backend
-├── main.js                 # Injected overlay UI and syncing logic
-├── popup.html              # Extension popup interface
-├── popup.js / popup.css    # Popup UI logic and styling
-├── sessionMode.js          # Handles session syncing, call iframe, etc.
-├── fullscreenMode.js       # Handles fullscreen repositioning
-├── soundboard.js           # Handles soundboard
-├── call.html               # Embedded video call app
-├── assets/                 # Icons, images, and emoji
+src/
+  background/          # Service worker modules
+    background.js      # Entry point - loads all modules
+    bg-firebase-init.js
+    bg-state.js
+    bg-auth.js
+    bg-rooms.js
+    bg-chat.js
+    bg-users.js
+    bg-invites.js
+    bg-session.js
+    bg-typing.js
+    bg-soundboard.js
+    bg-theme.js
+    bg-subtitles.js
+    bg-bot.js
+    bg-tab-monitor.js
+    bg-connection.js
+    bg-message-router.js
+
+  content/             # Content script modules
+    main.js            # Entry point - initializes all modules
+    content-helpers.js
+    content-state.js
+    content-connection.js
+    content-navigation.js
+    content-overlay-dom.js
+    content-theme.js
+    content-chatbox.js
+    content-room.js
+    content-invite.js
+    content-session.js
+    content-fullscreen.js
+    content-soundboard.js
+    content-message-router.js
+
+  popup/               # Extension popup UI
+    popup.html
+    popup.js
+    popup-auth.js
+    popup-navigation.js
+    popup-theme.js
+    popup-helpers.js
+
+  call_app/            # WebRTC video call application
+    call.html          # Call UI with local/remote video elements
+    index.js           # Bundled WebRTC logic (Vite build)
+    firebase/          # Local Firebase SDK copies (CSP-safe)
+
+styles/                # CSS organized by component
+  animations.css
+  buttons.css
+  chatbox.css
+  components.css
+  fullscreen.css
+  invite.css
+  overlay.css
+  popup.css
+  session.css
+  soundboard.css
+
+api/                   # Vercel serverless functions
+  openai.js            # OpenAI API proxy
+  openrouter.js        # OpenRouter API proxy
+  subdl.js             # SubDL subtitle API proxy
 ```
 
 ---
+
+## Recent Updates
+
+### v1.x.x (Latest)
+
+- **Join/Leave Notifications** - Users now see notifications when others join or leave the room
+- **Debounced User Events** - Prevents notification spam during rapid navigation or reconnections
+- **Optimized Message Animations** - Old messages no longer re-run entrance animations on page load; uses IntersectionObserver to only animate visible messages
+- **Cached Movie Keys** - Movie identification now cached using name + year for faster subtitle lookups
+- **Flexible Scene Extraction** - Improved scene description parsing from AI responses
+- **Seek Failure Feedback** - Users now receive clear feedback when scene seeking fails
+- **Fixed Soundboard First-Click Bug** - First clicks/drags on sound/visual/pin emojis now register correctly
+- **Codebase Reinforcement** - General stability improvements and error handling enhancements
+
+---
+
+## Architecture Highlights
+
+### Modular Design
+
+The extension follows a strict single-responsibility principle:
+
+- **Background modules** (`bg-*.js`) - Each handles one domain (auth, rooms, chat, etc.)
+- **Content modules** (`content-*.js`) - Separated by UI component or feature
+- **Message routers** - Central dispatch for 50+ command types
+
+### Data Flow
+
+```
+Popup <---> Background <---> Firebase
+              ^
+              |
+              v
+Content Scripts (via persistent ports)
+```
+
+### Performance Optimizations
+
+- Debounced user state updates
+- IntersectionObserver for animation control
+- Cached embeddings per movie
+- Preloaded audio for soundboard
+
+---
+
+## Installation (Development)
+
+1. Clone the repository
+2. Open `chrome://extensions/` in Chrome
+3. Enable "Developer mode"
+4. Click "Load unpacked" and select the project folder
+5. Navigate to [phimbro.com](https://phimbro.com) to use the extension
+
+---
+
+## License
+
+MIT
