@@ -104,7 +104,7 @@ api/                   # Vercel serverless functions
 
 ## Recent Updates
 
-### v1.x.x (Latest)
+### Latest
 
 - **Join/Leave Notifications** - Users now see notifications when others join or leave the room
 - **Debounced User Events** - Prevents notification spam during rapid navigation or reconnections
