@@ -153,30 +153,29 @@
     // ========================================================================
 
     /**
-     * Extract scene description from LLM response using flexible matching
-     * Handles variations like "Seeking to the scene where", "Seeking to scene where", etc.
+     * Extract scene description from LLM response
+     * Captures everything after "Seeking to [the] scene" until "..." or end of line
      * @param {string} text - The LLM response text
      * @returns {string|null} - The scene description or null if not found
      */
     function extractSceneDescription(text) {
         if (!text || typeof text !== "string") return null;
 
-        // Flexible patterns to handle LLM variations
-        // - "the" is optional
-        // - "scene" can be followed by "where", "when", "in which"
-        // - Ending can be "...", "..", or end of line
+        // Simple patterns: capture everything after "Seeking to [the] scene"
         const patterns = [
-            /Seeking to (?:the )?scene (?:where|when|in which)\s+(.+?)\.\.\./i,
-            /Seeking to (?:the )?scene (?:where|when|in which)\s+(.+?)\.{2,}/i,
-            /Seeking to (?:the )?scene (?:where|when|in which)\s+(.+?)$/im
+            /Seeking to (?:the )?scene\s+(.+?)\.\.\./i,   // Ends with ...
+            /Seeking to (?:the )?scene\s+(.+?)\.{2,}/i,   // Ends with 2+ dots
+            /Seeking to (?:the )?scene\s+(.+?)$/im        // Ends at line end
         ];
 
         for (const pattern of patterns) {
             const match = text.match(pattern);
             if (match && match[1]) {
                 let desc = match[1].trim();
-                // Remove trailing periods or ellipsis
+                // Remove trailing dots
                 desc = desc.replace(/\.+$/, "").trim();
+                // Remove leading connector words (where, with, when, etc.)
+                desc = desc.replace(/^(?:where|when|with|featuring|in which|that|of|showing|having|containing)\s+/i, "").trim();
                 if (desc.length > 0) {
                     return desc;
                 }

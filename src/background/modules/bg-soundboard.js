@@ -145,9 +145,20 @@
             return;
         }
 
+        // Record join timestamp to filter out old events
+        // Firebase child_added fires for ALL existing children on attach
+        const joinedAt = Date.now();
+
         const onSoundTrigger = (snap) => {
             const soundId = snap.key;
+            const timestamp = snap.val();
             if (!soundId) return;
+
+            // Only play sounds triggered AFTER we joined
+            // The stored value is a timestamp from Date.now()
+            if (typeof timestamp === "number" && timestamp <= joinedAt) {
+                return;
+            }
 
             BingerBGHelpers.broadcastToTabs({
                 command: "playSoundEffect",
@@ -280,9 +291,20 @@
             return;
         }
 
+        // Record join timestamp to filter out old events
+        // Firebase child_added fires for ALL existing children on attach
+        const joinedAt = Date.now();
+
         const onVisualTrigger = (snap) => {
             const visualId = snap.key;
+            const timestamp = snap.val();
             if (!visualId) return;
+
+            // Only play visuals triggered AFTER we joined
+            // The stored value is a timestamp from Date.now()
+            if (typeof timestamp === "number" && timestamp <= joinedAt) {
+                return;
+            }
 
             BingerBGHelpers.broadcastToTabs({
                 command: "playVisualEffect",
@@ -421,10 +443,20 @@
             return;
         }
 
+        // Record join timestamp to filter out old events
+        // Firebase child_added fires for ALL existing children on attach
+        const joinedAt = Date.now();
+
         const onPinTrigger = (snap) => {
             const visualId = snap.key;
             const data = snap.val();
             if (!visualId || !data) return;
+
+            // Only display pins triggered AFTER we joined
+            // Pin data includes a timestamp property
+            if (data.timestamp && data.timestamp <= joinedAt) {
+                return;
+            }
 
             BingerBGHelpers.broadcastToTabs({
                 command: "updatePin",

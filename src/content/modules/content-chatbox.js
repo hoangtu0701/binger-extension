@@ -254,18 +254,8 @@
         const trimmedText = messageText.trim();
         const chatInput = BingerOverlayDOM.getElement("chatInput");
 
-        // Intercept @binger queries
-        if (trimmedText.startsWith("@binger")) {
-            const question = trimmedText.replace("@binger", "").trim();
-            const movieContext = BingerHelpers.scrapeMovieContext();
-
-            // Fire-and-forget to background
-            BingerConnection.sendMessageAsync({
-                command: "botQuery",
-                prompt: question,
-                movieContext
-            });
-        }
+        // Check if this is a bot query (will trigger AFTER message posts)
+        const isBotQuery = trimmedText.startsWith("@binger");
 
         // Get current user and send message
         BingerConnection.sendMessage({ command: "checkAuth" })
@@ -295,6 +285,19 @@
                             console.log("[Binger] Message sent");
                             if (chatInput) chatInput.value = "";
                             hideMentionPill();
+
+                            // Trigger bot query AFTER message is posted
+                            // This ensures user message appears before typing indicator
+                            if (isBotQuery) {
+                                const question = trimmedText.replace("@binger", "").trim();
+                                const movieContext = BingerHelpers.scrapeMovieContext();
+
+                                BingerConnection.sendMessageAsync({
+                                    command: "botQuery",
+                                    prompt: question,
+                                    movieContext
+                                });
+                            }
                         } else {
                             console.error("[Binger] Failed to send message:", res?.error);
                         }
