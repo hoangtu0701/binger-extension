@@ -96,14 +96,17 @@
                         await sessionRef.set(false).catch(() => {});
                     }
 
-                    // Check if room is now empty
+                    // Check if room is now empty - if so, delete it entirely
                     const usersRef = BingerBGFirebase.ref(`rooms/${currentRoomId}/users`);
                     if (usersRef) {
                         const snap = await usersRef.once("value");
                         if (!snap.exists()) {
-                            const lastLeftRef = BingerBGFirebase.ref(`rooms/${currentRoomId}/lastUserLeftAt`);
-                            if (lastLeftRef) {
-                                await lastLeftRef.set(Date.now()).catch(() => {});
+                            const roomRef = BingerBGFirebase.ref(`rooms/${currentRoomId}`);
+                            if (roomRef) {
+                                await roomRef.remove().catch((err) => {
+                                    console.warn("[Binger] Failed to delete empty room:", err);
+                                });
+                                console.log(`[Binger] Deleted empty room: ${currentRoomId}`);
                             }
                         }
                     }
@@ -420,16 +423,17 @@
                         .catch((err) => console.error("[Binger] leave-write error:", err));
                 }
 
-                // Check if room is now empty
+                // Check if room is now empty - if so, delete it entirely
                 const usersRef = BingerBGFirebase.ref(`rooms/${roomId}/users`);
                 if (usersRef) {
                     usersRef.once("value")
                         .then((snap) => {
                             if (!snap.exists()) {
-                                const lastLeftRef = BingerBGFirebase.ref(`rooms/${roomId}/lastUserLeftAt`);
-                                if (lastLeftRef) {
-                                    lastLeftRef.set(Date.now())
-                                        .catch((err) => console.warn("[Binger] Failed to set lastUserLeftAt:", err));
+                                const roomRef = BingerBGFirebase.ref(`rooms/${roomId}`);
+                                if (roomRef) {
+                                    roomRef.remove()
+                                        .then(() => console.log(`[Binger] Deleted empty room: ${roomId}`))
+                                        .catch((err) => console.warn("[Binger] Failed to delete empty room:", err));
                                 }
                             }
                         })

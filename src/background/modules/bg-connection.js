@@ -256,12 +256,13 @@
                 console.error(`[Binger] Cleanup error ${errorType}:`, err);
             });
 
-        // Check if room is now empty and mark lastUserLeftAt
+        // Check if room is now empty - if so, delete it entirely
         BingerBGFirebase.ref(`rooms/${roomId}/users`).once("value")
             .then((snap) => {
                 if (!snap.exists()) {
-                    BingerBGFirebase.ref(`rooms/${roomId}/lastUserLeftAt`).set(Date.now())
-                        .catch((err) => console.warn("[Binger] Failed to set lastUserLeftAt:", err));
+                    BingerBGFirebase.ref(`rooms/${roomId}`).remove()
+                        .then(() => console.log(`[Binger] Deleted empty room: ${roomId}`))
+                        .catch((err) => console.warn("[Binger] Failed to delete empty room:", err));
                 }
             })
             .catch((err) => console.warn("[Binger] Failed to check room users:", err));
