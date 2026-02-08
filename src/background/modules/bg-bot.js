@@ -259,6 +259,60 @@
     }
 
     // ========================================================================
+    // DECISION: DOES THIS QUESTION NEED WEB SEARCH?
+    // ========================================================================
+
+    /**
+     * Ask a lightweight LLM whether the user's question needs web search.
+     * Only returns true if a movie/series is directly involved in answering.
+     * This call is invisible - never posted to chat.
+     * @param {string} userPrompt - The raw user message
+     * @returns {Promise<boolean>} - True if web search is needed
+     */
+    async function needsWebSearch(userPrompt, lastMsgs) {
+        try {
+            const response = await fetchWithTimeout(
+                "https://binger-extension.vercel.app/api/openrouter",
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        model: "meta-llama/llama-3.2-3b-instruct",
+                        temperature: 0,
+                        max_tokens: 3,
+                        messages: [
+                            {
+                                role: "system",
+                                content: [
+                                    "You are a classifier. Your ONLY job is to decide whether a question requires up-to-date web information about a movie or TV series to answer properly.",
+                                    "",
+                                    "Reply YES if the question directly involves knowledge of a movie or series and needs current/factual info.",
+                                    "",
+                                    "Reply NO for everything else: casual chat, greetings, jokes, personal questions, scene-seeking requests, general knowledge, or anything not about specific movies/series.",
+                                    "",
+                                    "Recent chat for context:",
+                                    lastMsgs && lastMsgs.length > 0 ? lastMsgs.join(" | ") : "No recent messages",
+                                    "",
+                                    "Reply with ONLY YES or NO. Nothing else."
+                                ].join("\n")
+                            },
+                            { role: "user", content: userPrompt }
+                        ]
+                    })
+                },
+                LLM_TIMEOUT_MS
+            );
+
+            const data = await response.json();
+            const reply = (data?.choices?.[0]?.message?.content || "").trim().toUpperCase();
+            return reply.startsWith("YES");
+        } catch (err) {
+            console.warn("[Binger] Web search decision failed, defaulting to offline:", err);
+            return false;
+        }
+    }
+
+    // ========================================================================
     // BOT QUERY HANDLER
     // ========================================================================
 
@@ -315,6 +369,12 @@
             // Build system message based on context
             const { systemMessage, temp } = buildSystemMessage(msg.movieContext, userNames, inSession, lastMsgs);
 
+            // Decide if web search is needed (invisible, not posted to chat)
+            const useOnline = await needsWebSearch(msg.prompt, lastMsgs);
+            const chatModel = useOnline
+                ? "openai/gpt-4o-mini:online"
+                : "openai/gpt-4o-mini";
+
             // Call LLM with timeout
             let answer = "(no reply)";
             try {
@@ -324,7 +384,7 @@
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
-                            model: "openai/gpt-4o-mini",
+                            model: chatModel,
                             temperature: temp,
                             max_tokens: 80,
                             messages: [
