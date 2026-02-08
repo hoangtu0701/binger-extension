@@ -328,16 +328,22 @@
      * Requires: signed in + on /watch/ page + 2+ users
      */
     function checkWatchTogetherEligibility() {
+        const watchTogetherBtn = BingerOverlayDOM.getElement("watchTogetherBtn");
+        if (!watchTogetherBtn) return;
+
+        // Do not override button state when invite system is controlling it
+        const isInviteActive = watchTogetherBtn.classList.contains("binge-inviter-active")
+            || watchTogetherBtn.classList.contains("binge-invitee-active")
+            || watchTogetherBtn.classList.contains("binge-invitee-accepted");
+
+        if (isInviteActive) return;
+
         const isSignedIn = BingerState.isSignedIn();
         const isInWatchPage = BingerHelpers.isOnWatchPage();
         const enoughPeople = BingerState.hasEnoughUsers();
 
         const shouldEnable = isSignedIn && isInWatchPage && enoughPeople;
-
-        const watchTogetherBtn = BingerOverlayDOM.getElement("watchTogetherBtn");
-        if (watchTogetherBtn) {
-            watchTogetherBtn.disabled = !shouldEnable;
-        }
+        watchTogetherBtn.disabled = !shouldEnable;
     }
 
     // ========================================================================
