@@ -793,26 +793,24 @@
                 });
                 return true;
             } else {
-                // Not in session - directly seek on active tab
+                // Not in session - find phimbro watch tab by URL (not active tab)
                 return new Promise((resolve) => {
-                    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-                        // Check for query errors
+                    chrome.tabs.query({ url: "*://phimbro.com/watch/*" }, (tabs) => {
                         if (chrome.runtime.lastError) {
                             console.warn("[Binger] Tab query error:", chrome.runtime.lastError.message);
                             resolve(false);
                             return;
                         }
 
+                        // Use the first matching phimbro watch tab
                         const tab = tabs && tabs[0];
 
-                        // Check if on phimbro watch page
-                        if (!tab || !tab.url || !/:\/\/phimbro\.com\/watch\//.test(tab.url)) {
-                            console.warn("[Binger] Not on phimbro watch page, cannot seek");
+                        if (!tab) {
+                            console.warn("[Binger] No phimbro watch tab found, cannot seek");
                             resolve(false);
                             return;
                         }
 
-                        // Check if scripting API is available
                         if (!chrome.scripting || !chrome.scripting.executeScript) {
                             console.warn("[Binger] chrome.scripting not available");
                             resolve(false);
@@ -831,7 +829,6 @@
                                 return false;
                             }
                         }, (results) => {
-                            // Check if script executed successfully
                             if (chrome.runtime.lastError) {
                                 console.warn("[Binger] executeScript error:", chrome.runtime.lastError.message);
                                 resolve(false);

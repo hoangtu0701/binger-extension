@@ -68,7 +68,11 @@
             return { success: false, error: "Invalid movie name" };
         }
 
-        // Clean up film name
+        // Extract year if present
+        const yearMatch = rawName.match(/\((\d{4})\)/);
+        const year = yearMatch ? yearMatch[1] : null;
+
+        // Clean up film name - remove colons and parenthesized text
         const filmName = rawName.replace(/[:]/g, "").replace(/\(.*?\)/g, "").trim();
         if (!filmName) {
             return { success: false, error: "Empty movie name after cleanup" };
@@ -77,7 +81,10 @@
         // Step 1: Search for subtitles
         let searchData;
         try {
-            const searchUrl = `${SUBDL_API_URL}?film_name=${encodeURIComponent(filmName)}`;
+            let searchUrl = `${SUBDL_API_URL}?film_name=${encodeURIComponent(filmName)}`;
+            if (year) {
+                searchUrl += `&year=${year}`;
+            }
             const res = await fetch(searchUrl);
 
             if (!res.ok) {

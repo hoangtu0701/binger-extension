@@ -8,17 +8,23 @@ export default async function handler(req, res) {
       return res.status(200).end();
     }
 
-    const { film_name } = req.query;
+    const { film_name, year } = req.query;
     if (!film_name) {
       return res.status(400).json({ error: "film_name is required" });
     }
 
-    const query = new URLSearchParams({
+    const params = {
       api_key: process.env.SUBDL_KEY,
       film_name,
       type: "movie",
       languages: "EN"
-    }).toString();
+    };
+
+    if (year) {
+      params.year = year;
+    }
+
+    const query = new URLSearchParams(params).toString();
 
     const r = await fetch(`https://api.subdl.com/api/v1/subtitles?${query}`);
     const data = await r.json();
