@@ -372,8 +372,8 @@
             // Decide if web search is needed (invisible, not posted to chat)
             const useOnline = await needsWebSearch(msg.prompt, lastMsgs);
             const chatModel = useOnline
-                ? "openai/gpt-4o-mini:online"
-                : "openai/gpt-4o-mini";
+                ? "x-ai/grok-4.1-fast:online"
+                : "google/gemini-2.5-flash-lite";
 
             // Call LLM with timeout
             let answer = "(no reply)";
@@ -387,6 +387,7 @@
                             model: chatModel,
                             temperature: temp,
                             max_tokens: 80,
+                            reasoning: { effort: "none" },
                             messages: [
                                 systemMessage,
                                 { role: "user", content: msg.prompt }
@@ -397,7 +398,10 @@
                 );
 
                 const data = await response.json();
-                answer = (data?.choices?.[0]?.message?.content || "(no reply)").trim();
+                answer = (data?.choices?.[0]?.message?.content || "(no reply)")
+                    .replace(/\[\[\d+\]\]\([^)]*\)/g, "")
+                    .replace(/\s{2,}/g, " ")
+                    .trim();
             } catch (err) {
                 console.error("[Binger] LLM request failed:", err);
                 answer = "Sorry, I couldn't process that request. Please try again.";

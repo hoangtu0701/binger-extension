@@ -20,7 +20,7 @@
     const CHUNK_DURATION_SECONDS = 60;
 
     // GPT rewrite settings
-    const REWRITE_MODEL = "openai/gpt-4o-mini";
+    const REWRITE_MODEL = "google/gemini-2.5-flash-lite";
     const REWRITE_TEMPERATURE = 0.2;
     const REWRITE_MAX_TOKENS = 50;
 
@@ -341,6 +341,7 @@
                     model: REWRITE_MODEL,
                     temperature: REWRITE_TEMPERATURE,
                     max_tokens: REWRITE_MAX_TOKENS,
+                    reasoning: { effort: "none" },
                     messages
                 })
             })
