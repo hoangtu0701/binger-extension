@@ -410,11 +410,11 @@
             const data = snap.val();
             if (!data) return;
 
-            const allReady = Object.values(data).every(status => status === "ready");
+            const statuses = Object.values(data);
+            const allReady = statuses.length > 0 && statuses.every(s => s === "ready");
             console.log("[Binger] Buffer status update:", data, "-> allReady =", allReady);
 
             if (allReady) {
-                // Wait before sending resumePlay
                 if (!resumeTimeout) {
                     resumeTimeout = setTimeout(() => {
                         BingerBGHelpers.broadcastToTabs({
@@ -425,7 +425,6 @@
                     }, RESUME_PLAY_DELAY_MS);
                 }
             } else {
-                // If even one person is not ready, cancel the pending resumePlay
                 if (resumeTimeout) {
                     clearTimeout(resumeTimeout);
                     resumeTimeout = null;
@@ -437,6 +436,15 @@
                 });
             }
         };
+
+        // Clear stale bufferStatus from any previous session before listening. Prevents deadlock from leftover "buffering" entries that no one will update.
+        ref.remove()
+            .then(() => {
+                console.log(`[Binger] Cleared stale bufferStatus for room ${roomId}`);
+            })
+            .catch((err) => {
+                console.warn("[Binger] Failed to clear stale bufferStatus:", err);
+            });
 
         ref.on("value", onValue);
 

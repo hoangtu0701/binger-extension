@@ -33,7 +33,8 @@
         playPauseDebounce: 300,
         bufferReportDelay: 200,
         videoWaitInterval: 500,
-        videoWaitMaxAttempts: 20
+        videoWaitMaxAttempts: 20,
+        deadlockEscapeMs: 8000
     };
 
     // ========================================================================
@@ -575,6 +576,13 @@
      * @param {string} userId
      */
     function startPlayerSync(roomId, userId) {
+        // Reset buffer tracking so the first "ready" report is never deduplicated
+        state.lastBufferStatus = null;
+        if (state.lastBufferTimeout) {
+            clearTimeout(state.lastBufferTimeout);
+            state.lastBufferTimeout = null;
+        }
+
         // Reset cam/mic state
         window.BINGER.camMicState.reset();
 
@@ -637,6 +645,15 @@
                 removeClickBlockers();
             }
 
+            // Safety-net: periodically check if we are stuck in a deadlock. If playback is locked but the video is paused and fully loaded, force re-report "ready" to break out. Uses setInterval so it keeps retrying until the lock resolves (or session ends).
+            const deadlockEscapeId = setInterval(() => {
+                if (!playLockActive) return;
+                if (video.paused && video.readyState >= 3) {
+                    state.lastBufferStatus = null;
+                    reportBufferStatus(roomId, userId, "ready");
+                }
+            }, CONFIG.deadlockEscapeMs);
+
             // Start Firebase listeners
             BingerConnection.sendMessageAsync({ command: "startPlayerListener", roomId });
             BingerConnection.sendMessageAsync({ command: "startBufferStatusListener", roomId });
@@ -672,15 +689,12 @@
             const onBuffering = () => reportBufferStatus(roomId, userId, "buffering");
             const onCanPlay = () => reportBufferStatus(roomId, userId, "ready");
             const onSeekedCheckReady = () => {
+                // After a seek completes, wait briefly then check if video has enough data. readyState >= 3 (HAVE_FUTURE_DATA) means playback can resume.
                 setTimeout(() => {
-                    if (!video.waiting) {
-                        setTimeout(() => {
-                            if (video.readyState >= 3) {
-                                reportBufferStatus(roomId, userId, "ready");
-                            }
-                        }, 200);
+                    if (video.readyState >= 3) {
+                        reportBufferStatus(roomId, userId, "ready");
                     }
-                }, 100);
+                }, CONFIG.bufferReportDelay);
             };
 
             // Attach video event listeners
@@ -747,6 +761,9 @@
             // Cleanup function
             state.stopPlayerSync = () => {
                 window.BINGER.camMicState.reset();
+
+                // Stop deadlock escape interval
+                clearInterval(deadlockEscapeId);
 
                 // Remove video listeners
                 video.removeEventListener("play", onPlay);
