@@ -193,9 +193,10 @@
      */
     function createCallIframe(options) {
         const { roomId, isFullscreen, wasHidden, originalStyles } = options;
+        const uid = BingerState.getCurrentUserUid();
 
         const iframe = document.createElement("iframe");
-        iframe.src = chrome.runtime.getURL(`call_app/call.html?roomId=${roomId}`);
+        iframe.src = chrome.runtime.getURL(`call_app/call.html?roomId=${roomId}&uid=${uid}`);
         iframe.className = "binger-call-iframe";
         iframe.allow = "camera; microphone; autoplay; fullscreen";
 
@@ -252,6 +253,14 @@
         if (!roomId) return;
 
         const wasHidden = state.iframe.classList.contains(CSS_CLASSES.callHidden);
+
+        // Tell old iframe to clean up Firebase entries before destroying it
+        try {
+            state.iframe.contentWindow.postMessage({ type: "cleanupCall" }, "*");
+        } catch (err) {
+            console.warn("[Binger] Could not send cleanup to old iframe:", err);
+        }
+
         state.iframe.remove();
 
         const newIframe = createCallIframe({
@@ -278,6 +287,14 @@
         if (!roomId) return;
 
         const wasHidden = state.iframe?.classList.contains(CSS_CLASSES.callHidden);
+
+        // Tell old iframe to clean up Firebase entries before destroying it
+        try {
+            state.iframe?.contentWindow?.postMessage({ type: "cleanupCall" }, "*");
+        } catch (err) {
+            console.warn("[Binger] Could not send cleanup to old iframe:", err);
+        }
+
         state.iframe?.remove();
 
         const newIframe = createCallIframe({

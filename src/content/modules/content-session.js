@@ -238,10 +238,11 @@
      * @returns {HTMLIFrameElement}
      */
     function createCallIframe(roomId) {
+        const uid = BingerState.getCurrentUserUid();
         const iframe = document.createElement("iframe");
         iframe.className = `${CSS_CLASSES.callIframe} ${CSS_CLASSES.callHidden}`;
         iframe.allow = "camera; microphone; autoplay; fullscreen";
-        iframe.src = chrome.runtime.getURL(`call_app/call.html?roomId=${roomId}`);
+        iframe.src = chrome.runtime.getURL(`call_app/call.html?roomId=${roomId}&uid=${uid}`);
         iframe.style.left = `${calculateIframeLeftPosition()}px`;
 
         restoreCamMicToIframe(iframe);
@@ -294,6 +295,8 @@
 
     /**
      * Reset call iframe (called when other user toggles fullscreen)
+     * Sends cleanup message to old iframe before destroying it, so it can
+     * remove its Firebase entries synchronously (no ghost users).
      * @param {Function} sendResponse - Response callback
      */
     function resetCallIframe(sendResponse) {
@@ -319,12 +322,23 @@
         const wasFullscreen = state.callIframe.classList.contains(CSS_CLASSES.fullscreen);
         const oldStyle = state.callIframe.getAttribute("style");
 
+        // Tell old iframe to clean up Firebase entries before we destroy it
+        try {
+            state.callIframe.contentWindow.postMessage({ type: "cleanupCall" }, "*");
+        } catch (err) {
+            console.warn("[Binger] Could not send cleanup to old iframe:", err);
+        }
+
         // Remove old iframe
         state.callIframe.remove();
 
+        // Build new URL with UID for stable identity
+        const uid = BingerState.getCurrentUserUid();
+        const callUrl = chrome.runtime.getURL(`call_app/call.html?roomId=${roomId}&uid=${uid}`);
+
         // Create fresh iframe
         const fresh = document.createElement("iframe");
-        fresh.src = chrome.runtime.getURL(`call_app/call.html?roomId=${roomId}`);
+        fresh.src = callUrl;
         fresh.className = CSS_CLASSES.callIframe;
         fresh.allow = "camera; microphone; autoplay; fullscreen";
 
