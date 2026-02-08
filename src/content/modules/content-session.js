@@ -58,7 +58,10 @@
         camMicMessageListener: null,
 
         // Click blockers
-        clickBlockers: []
+        clickBlockers: [],
+
+        // Resize handler for monitor switching
+        resizeHandler: null
     };
 
     // ========================================================================
@@ -176,6 +179,36 @@
 
         const overlayRect = overlay.getBoundingClientRect();
         return overlayRect.left - CONFIG.iframeWidth - CONFIG.iframeMargin;
+    }
+
+    /**
+     * Update iframe left position to stay aligned with overlay
+     * Called on window resize (e.g. moving tab between monitors)
+     */
+    function updateIframePosition() {
+        if (!state.callIframe) return;
+        if (state.callIframe.classList.contains(CSS_CLASSES.fullscreen)) return;
+
+        state.callIframe.style.left = `${calculateIframeLeftPosition()}px`;
+    }
+
+    /**
+     * Start listening for window resize to reposition iframe
+     */
+    function startResizeListener() {
+        stopResizeListener();
+        state.resizeHandler = () => updateIframePosition();
+        window.addEventListener("resize", state.resizeHandler);
+    }
+
+    /**
+     * Stop listening for window resize
+     */
+    function stopResizeListener() {
+        if (state.resizeHandler) {
+            window.removeEventListener("resize", state.resizeHandler);
+            state.resizeHandler = null;
+        }
     }
 
     /**
@@ -794,6 +827,9 @@
             // Initialize call iframe
             initializeCallIframe(bingerCurrentRoomId);
 
+            // Listen for monitor/window changes to keep iframe aligned
+            startResizeListener();
+
             // Setup camera button
             setupCameraButton(cameraToggleBtn);
 
@@ -833,6 +869,9 @@
 
         // Destroy call iframe
         destroyCallIframe();
+
+        // Stop listening for monitor/window changes
+        stopResizeListener();
 
         // Hide soundboard
         BingerConnection.sendMessageAsync({
