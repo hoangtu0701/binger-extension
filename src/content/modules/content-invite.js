@@ -283,7 +283,10 @@
         const progressBar = document.createElement("div");
         progressBar.style.height = "4px";
         progressBar.style.width = "0%";
-        progressBar.style.backgroundColor = "yellow";
+        progressBar.style.maxWidth = "80%";
+        progressBar.style.margin = "0 auto";
+        progressBar.style.backgroundColor = "white";
+        progressBar.style.borderRadius = "2px";
         progressBar.style.transition = `width ${LONG_PRESS_THRESHOLD_MS / 1000}s linear`;
         watchTogetherBtn.appendChild(progressBar);
 

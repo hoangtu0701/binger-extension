@@ -329,12 +329,12 @@
 }
 
 .theme-blackwhite #watchTogetherBtn:enabled {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .theme-blackwhite #watchTogetherBtn:enabled:hover {
-  background: rgba(255, 255, 255, 0.12);
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.08);
 }
 
 .theme-blackwhite #watchTogetherBtn:disabled { cursor: default; }

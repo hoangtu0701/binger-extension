@@ -159,7 +159,6 @@ export async function handleAuthSubmit() {
             : "Successfully logged in!";
         showStatus(successMessage, false);
         
-        // Show overlay on phimbro tab
         const tab = await getActiveTab();
         if (tab && isOnPhimbro(tab.url)) {
             await sendToTab(tab.id, {
@@ -168,11 +167,11 @@ export async function handleAuthSubmit() {
             });
         }
         
-        // Transition to signed-in UI after brief delay
         setTimeout(() => {
             resetAuthForm();
             showSignedInUI();
-        }, 1000);
+            setTimeout(() => window.close(), 1500);
+        }, 700);
     } else {
         const errorMessage = AUTH_ERROR_MESSAGES[response?.code] || "Something went wrong. Try again.";
         showStatus(errorMessage, true);
