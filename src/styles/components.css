@@ -1,19 +1,10 @@
-/* ============================================================================
-   COMPONENT STYLES
-   Call iframe, typing bubbles
-   ============================================================================ */
-
-/* ----------------------------------------------------------------------------
-   CALL IFRAME
-   ---------------------------------------------------------------------------- */
-
 .binger-call-iframe {
   position: fixed;
   width: 700px;
   height: 280px;
   z-index: 2147483646;
   border: none;
-  bottom: 20px; 
+  bottom: 20px;
   border-radius: 20px;
 }
 
@@ -27,78 +18,38 @@
   aspect-ratio: 5/2;
   height: 100%;
   border-radius: 20px;
-  flex: 0 1 auto;  
+  flex: 0 1 auto;
   align-self: center;
 }
-
-/* ----------------------------------------------------------------------------
-   TYPING BUBBLES - BASE
-   ---------------------------------------------------------------------------- */
 
 .bingerTypingBubble {
   font-style: italic;
   font-size: 14px;
-  color: #aaa;
   margin: 6px 0;
   padding-left: 10px;
   animation: fadeIn 0.3s ease;
   transition: opacity 0.3s ease;
   opacity: 1;
+  color: rgba(200, 140, 100, 0.5);
 }
 
 .bingerTypingBubble.session-mode {
   font-style: italic !important;
   font-size: 14px !important;
-  color: #aaa !important;
   margin: 6px 0 !important;
   padding-left: 10px !important;
   animation: fadeIn 0.3s ease !important;
   transition: opacity 0.3s ease !important;
   opacity: 1;
+  color: rgba(255, 255, 255, 0.4) !important;
 }
 
 .bingerTypingBubble.fade-out {
   opacity: 0 !important;
 }
 
-/* ----------------------------------------------------------------------------
-   TYPING BUBBLES - PINK THEME
-   ---------------------------------------------------------------------------- */
-
-.theme-pink .bingerTypingBubble {
-  color: #2c492e;
-}
-
-/* ----------------------------------------------------------------------------
-   TYPING BUBBLES - BLACK & WHITE THEME
-   ---------------------------------------------------------------------------- */
-
-.theme-blackwhite .bingerTypingBubble {
-  color: #ffffff;
-}
-
-/* ----------------------------------------------------------------------------
-   TYPING BUBBLES - OCEAN THEME
-   ---------------------------------------------------------------------------- */
-
-.theme-ocean .bingerTypingBubble {
-  color: #4d3415;
-}
-
-/* ----------------------------------------------------------------------------
-   TYPING BUBBLES - VOLCANO THEME
-   ---------------------------------------------------------------------------- */
-
-.theme-volcano .bingerTypingBubble {
-  color: #ff6a00;
-  text-shadow: 0 0 2px #ff4000, 0 0 12px #ff922b;
-}
-
-/* ----------------------------------------------------------------------------
-   TYPING BUBBLES - FOREST THEME
-   ---------------------------------------------------------------------------- */
-
-.theme-forest .bingerTypingBubble {
-  color: #9ad38a;
-  text-shadow: 0 0 2px #537845, 0 0 12px #a7d890;
-}
+.theme-pink .bingerTypingBubble { color: rgba(220, 160, 180, 0.5); }
+.theme-blackwhite .bingerTypingBubble { color: rgba(255, 255, 255, 0.3); }
+.theme-ocean .bingerTypingBubble { color: rgba(0, 200, 230, 0.5); }
+.theme-volcano .bingerTypingBubble { color: rgba(255, 120, 50, 0.5); }
+.theme-forest .bingerTypingBubble { color: rgba(160, 220, 120, 0.5); }

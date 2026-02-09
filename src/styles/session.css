@@ -1,20 +1,12 @@
-/* ============================================================================
-   SESSION MODE STYLES
-   In-session chat styling with all theme variations
-   ============================================================================ */
-
-/* ----------------------------------------------------------------------------
-   SESSION CHAT - BASE
-   ---------------------------------------------------------------------------- */
-
 #bingerOverlay.in-session #bingerChatWrapper {
-  background-color: #0a2540 !important;
+  background: rgba(10, 20, 40, 0.7) !important;
   color: white !important;
+  border-color: rgba(60, 100, 160, 0.15) !important;
 }
 
 #bingerOverlay.in-session #bingerChatLog {
-  background-color: #163d5c !important; 
-  scrollbar-color: #375a7f transparent;
+  background: rgba(5, 15, 30, 0.6) !important;
+  scrollbar-color: rgba(60, 100, 160, 0.4) transparent;
   scrollbar-width: thin;
 }
 
@@ -24,110 +16,104 @@
 }
 
 #bingerOverlay.in-session .bingerChatMsg {
-  background: #375a7f;
-  color: white;
+  background: rgba(40, 70, 120, 0.3) !important;
+  color: white !important;
+  border-left: 2px solid rgba(80, 140, 220, 0.3) !important;
+  border: none !important;
+  border-left: 2px solid rgba(80, 140, 220, 0.3) !important;
 }
 
 #bingerOverlay.in-session #bingerChatInput {
-  background-color: #0f2e4a !important;
+  background: rgba(10, 25, 50, 0.8) !important;
   color: white !important;
-  border-color: #375a7f !important;
+  border-color: rgba(60, 100, 160, 0.2) !important;
 }
 
 #bingerOverlay.in-session #bingerSendBtn {
-  background-color: #375a7f !important;
+  background: rgba(40, 70, 120, 0.5) !important;
   color: white !important;
 }
 
-/* ----------------------------------------------------------------------------
-   SESSION CHAT - PINK THEME
-   ---------------------------------------------------------------------------- */
-
 .theme-pink #bingerOverlay.in-session #bingerChatWrapper {
-  background-color: rgba(95, 139, 96, 0.9) !important;
+  background: rgba(50, 30, 40, 0.7) !important;
+  border-color: rgba(210, 110, 140, 0.12) !important;
 }
 
 .theme-pink #bingerOverlay.in-session #bingerChatLog {
-  background-color: rgba(95, 139, 96, 0.9) !important;
-  scrollbar-color: #EA9AB2 transparent;
-}
-
-.theme-pink #bingerOverlay.in-session .bingerChatMsg:nth-child(even) {
-  background: rgba(66, 102, 66, 0.9);
+  background: rgba(35, 18, 28, 0.6) !important;
+  scrollbar-color: rgba(210, 110, 140, 0.4) transparent;
 }
 
 .theme-pink #bingerOverlay.in-session .bingerChatMsg {
-  background: #ad667d;
-  color: #F4F3F1;
+  background: rgba(180, 80, 110, 0.25) !important;
+  color: #f5e8ed !important;
+}
+
+.theme-pink #bingerOverlay.in-session .bingerChatMsg:nth-child(even) {
+  background: rgba(70, 110, 70, 0.25) !important;
 }
 
 .theme-pink #bingerOverlay.in-session #bingerChatInput {
-  background-color: #FFDBE5 !important;
-  border-color: #E27396 !important;
-  color: black !important;
+  background: rgba(40, 20, 28, 0.8) !important;
+  border-color: rgba(210, 110, 140, 0.15) !important;
+  color: #f5e8ed !important;
 }
 
 .theme-pink #bingerOverlay.in-session #bingerSendBtn {
-  background-color: #337357 !important;
-  color: #F4F3F1 !important;
+  background: linear-gradient(135deg, #5a8c5e, #4a7c4e) !important;
+  color: #f5fff5 !important;
 }
 
 .theme-pink #bingerOverlay.in-session #bingerSendBtn:hover {
-  background-color: #1b4e38 !important;
+  box-shadow: 0 4px 14px rgba(90, 140, 94, 0.3) !important;
 }
 
-/* ----------------------------------------------------------------------------
-   SESSION CHAT - BLACK & WHITE THEME
-   ---------------------------------------------------------------------------- */
-
 .theme-blackwhite #bingerOverlay.in-session #bingerChatWrapper {
-  background-color: rgba(0, 0, 0, 0.9) !important;
+  background: rgba(0, 0, 0, 0.6) !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
 }
 
 .theme-blackwhite #bingerOverlay.in-session #bingerChatLog {
-  background-color: rgba(0, 0, 0, 0.9) !important;
-  scrollbar-color: #ffffff transparent;
+  background: rgba(0, 0, 0, 0.4) !important;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
 
 .theme-blackwhite #bingerOverlay.in-session .bingerChatMsg {
-  background: #1a1a1a;
-  color: #ffffff;
+  background: rgba(255, 255, 255, 0.04) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
 }
 
 .theme-blackwhite #bingerOverlay.in-session #bingerChatInput {
-  background-color: #111111 !important;
-  border-color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
   color: #ffffff !important;
 }
 
 .theme-blackwhite #bingerOverlay.in-session #bingerSendBtn {
-  background-color: #000000 !important;
+  background: rgba(255, 255, 255, 0.08) !important;
   color: #ffffff !important;
 }
 
 .theme-blackwhite #bingerOverlay.in-session #bingerSendBtn:hover {
-  background-color: #ffffff !important;
-  color: #000000 !important;
+  background: rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.1) !important;
 }
 
-/* ----------------------------------------------------------------------------
-   SESSION CHAT - OCEAN THEME
-   ---------------------------------------------------------------------------- */
-
 .theme-ocean #bingerOverlay.in-session #bingerChatWrapper {
-  background: rgba(0, 119, 182, 0.9) !important;
-  box-shadow: inset 0 0 16px rgba(0, 180, 216, 0.5) !important;
+  background: rgba(0, 25, 50, 0.7) !important;
+  border-color: rgba(0, 180, 220, 0.1) !important;
 }
 
 .theme-ocean #bingerOverlay.in-session #bingerChatLog {
-  background: rgba(0, 150, 199, 0.9) !important;
-  scrollbar-color: #00b4d8 transparent;
+  background: rgba(0, 18, 38, 0.6) !important;
+  scrollbar-color: rgba(0, 180, 220, 0.3) transparent;
 }
 
 .theme-ocean #bingerOverlay.in-session .bingerChatMsg {
-  background: rgba(0, 92, 110, 0.85) !important;
-  color: #e0fbfc !important;
-  box-shadow: 0 2px 6px rgba(0, 119, 182, 0.5) !important;
+  background: rgba(0, 60, 100, 0.3) !important;
+  color: #c0e8f0 !important;
+  border: 1px solid rgba(0, 180, 220, 0.08) !important;
   position: relative;
   overflow: hidden;
 }
@@ -136,50 +122,43 @@
   content: "";
   position: absolute;
   inset: 0;
-  background-image:
-    radial-gradient(circle, rgba(231, 200, 141, 0.719) 1px, transparent 1px),
-    radial-gradient(circle, rgba(228, 223, 185, 0.74) 1px, transparent 1px);
-  background-size: 28px 28px, 40px 40px;
-  opacity: 0.7;
-  mix-blend-mode: overlay;
+  background:
+    radial-gradient(circle at 20% 80%, rgba(0, 220, 255, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(0, 180, 200, 0.04) 0%, transparent 50%);
+  background-size: 200% 200%;
+  animation: biolumPulse 6s ease-in-out infinite;
   pointer-events: none;
-  animation: whiteSandDrift 60s linear infinite;
 }
 
 .theme-ocean #bingerOverlay.in-session #bingerChatInput {
-  background-color: #55afe0 !important;
-  color: #000000 !important;
+  background: rgba(0, 30, 60, 0.7) !important;
+  color: #c0e8f0 !important;
+  border-color: rgba(0, 180, 220, 0.12) !important;
 }
 
 .theme-ocean #bingerOverlay.in-session #bingerSendBtn {
-  background: linear-gradient(135deg, #0096c7, #00b4d8) !important;
-  color: #e0fbfc !important;
+  background: linear-gradient(135deg, rgba(0, 120, 180, 0.5), rgba(0, 160, 200, 0.5)) !important;
+  color: #c0e8f0 !important;
 }
 
 .theme-ocean #bingerOverlay.in-session #bingerSendBtn:hover {
-  background: linear-gradient(135deg, #00b4d8, #90e0ef) !important;
-  color: #023047 !important;
-  box-shadow: 0 4px 12px rgba(144, 224, 239, 0.6) !important;
+  box-shadow: 0 4px 16px rgba(0, 180, 220, 0.25) !important;
 }
 
-/* ----------------------------------------------------------------------------
-   SESSION CHAT - VOLCANO THEME
-   ---------------------------------------------------------------------------- */
-
 .theme-volcano #bingerOverlay.in-session #bingerChatWrapper {
-  background: rgba(109, 2, 8, 0.9) !important;
-  box-shadow: inset 0 0 16px rgba(232, 93, 4, 0.5) !important;
+  background: rgba(20, 8, 4, 0.7) !important;
+  border-color: rgba(255, 100, 30, 0.1) !important;
 }
 
 .theme-volcano #bingerOverlay.in-session #bingerChatLog {
-  background: rgba(55, 6, 23, 0.9) !important;
-  scrollbar-color: #e85d04 transparent;
+  background: rgba(12, 5, 2, 0.6) !important;
+  scrollbar-color: rgba(255, 80, 20, 0.3) transparent;
 }
 
 .theme-volcano #bingerOverlay.in-session .bingerChatMsg {
-  background: rgba(157, 2, 8, 0.85) !important;
-  color: #fff4e8 !important;
-  box-shadow: 0 2px 6px rgba(232, 93, 4, 0.5) !important;
+  background: rgba(80, 25, 10, 0.4) !important;
+  color: #e8c8a8 !important;
+  border: 1px solid rgba(255, 80, 20, 0.08) !important;
   position: relative;
   overflow: hidden;
 }
@@ -188,94 +167,65 @@
   content: "";
   position: absolute;
   inset: 0;
-  background-image:
-    radial-gradient(circle, rgba(255, 80, 20, 0.4) 2px, transparent 2px),
-    radial-gradient(circle, rgba(255, 140, 60, 0.3) 3px, transparent 3px);
-  background-size: 28px 28px, 40px 40px;
-  opacity: 0.6;
-  mix-blend-mode: overlay;
+  background: linear-gradient(135deg,
+    rgba(255, 80, 20, 0.05),
+    rgba(255, 140, 40, 0.08),
+    rgba(255, 60, 10, 0.05));
+  background-size: 200% 200%;
+  animation: emberGlow 5s ease-in-out infinite;
   pointer-events: none;
-  animation: emberDrift 45s linear infinite;
 }
 
 .theme-volcano #bingerOverlay.in-session #bingerChatInput {
-  background-color: #9d0208 !important;
-  color: #ffebe0 !important;
+  background: rgba(30, 12, 6, 0.8) !important;
+  color: #e8c8a8 !important;
+  border-color: rgba(255, 100, 30, 0.1) !important;
 }
 
 .theme-volcano #bingerOverlay.in-session #bingerSendBtn {
-  background: linear-gradient(135deg, #e85d04, #ff6a00) !important;
-  color: #fff4e8 !important;
+  background: linear-gradient(135deg, rgba(200, 60, 10, 0.5), rgba(255, 100, 30, 0.4)) !important;
+  color: #f0d0a0 !important;
 }
 
 .theme-volcano #bingerOverlay.in-session #bingerSendBtn:hover {
-  background: linear-gradient(135deg, #ff922b, #ffba08) !important;
-  color: #1a1a1a !important;
-  box-shadow: 0 4px 12px rgba(255, 100, 40, 0.6) !important;
+  box-shadow: 0 4px 16px rgba(255, 80, 20, 0.25) !important;
 }
 
-/* ----------------------------------------------------------------------------
-   SESSION CHAT - FOREST THEME
-   ---------------------------------------------------------------------------- */
-
 .theme-forest #bingerOverlay.in-session #bingerChatWrapper {
-  background: rgba(60, 90, 50, 0.9) !important;
-  box-shadow: inset 0 0 16px rgba(120, 200, 100, 0.4) !important;
-  position: relative;
-  overflow: hidden;
+  background: rgba(10, 22, 8, 0.7) !important;
+  border-color: rgba(100, 200, 100, 0.1) !important;
 }
 
 .theme-forest #bingerOverlay.in-session #bingerChatLog {
-  background: rgba(40, 60, 35, 0.9) !important;
-  scrollbar-color: #76a863 transparent;
+  background: rgba(6, 15, 4, 0.6) !important;
+  scrollbar-color: rgba(100, 200, 100, 0.25) transparent;
 }
 
 .theme-forest #bingerOverlay.in-session .bingerChatMsg {
-  background: rgba(100, 133, 80, 0.85) !important;
-  color: #f0ffe8 !important;
-  box-shadow: 0 2px 6px rgba(80, 160, 100, 0.5) !important;
+  background: rgba(40, 70, 30, 0.35) !important;
+  color: #d0ecc0 !important;
+  border: 1px solid rgba(100, 200, 100, 0.08) !important;
   position: relative;
   overflow: hidden;
 }
 
 .theme-forest #bingerOverlay.in-session #bingerChatInput {
-  background-color: #4c6b3d !important;
-  color: #f0ffe8 !important;
+  background: rgba(15, 30, 10, 0.8) !important;
+  color: #d0ecc0 !important;
+  border-color: rgba(100, 200, 100, 0.1) !important;
 }
 
 .theme-forest #bingerOverlay.in-session #bingerSendBtn {
-  background: linear-gradient(135deg, #537845, #669d56) !important;
-  color: #f0ffe8 !important;
+  background: linear-gradient(135deg, rgba(60, 120, 40, 0.5), rgba(80, 150, 50, 0.5)) !important;
+  color: #c0e8a0 !important;
 }
 
 .theme-forest #bingerOverlay.in-session #bingerSendBtn:hover {
-  background: linear-gradient(135deg, #a7d890, #c2f2b0) !important;
-  color: #1a1a1a !important;
-  box-shadow: 0 4px 12px rgba(120, 230, 150, 0.6) !important;
+  box-shadow: 0 4px 16px rgba(80, 180, 80, 0.2) !important;
 }
 
-/* ----------------------------------------------------------------------------
-   SESSION SCROLLBAR - BASE
-   ---------------------------------------------------------------------------- */
-
-#bingerOverlay.in-session #bingerChatLog::-webkit-scrollbar {
-  width: 8px;
-}
-
-#bingerOverlay.in-session #bingerChatLog::-webkit-scrollbar-track {
-  background: transparent; 
-}
-
-#bingerOverlay.in-session #bingerChatLog::-webkit-scrollbar-thumb {
-  background-color: #375a7f;
-  border-radius: 4px;
-}
-
-#bingerOverlay.in-session #bingerChatLog::-webkit-scrollbar-thumb:hover {
-  background-color: #4c77a8;
-}
-
-#bingerOverlay.in-session #bingerChatLog {
-  scrollbar-width: thin;
-  scrollbar-color: #375a7f transparent;
-}
+#bingerOverlay.in-session #bingerChatLog::-webkit-scrollbar { width: 5px; }
+#bingerOverlay.in-session #bingerChatLog::-webkit-scrollbar-track { background: transparent; }
+#bingerOverlay.in-session #bingerChatLog::-webkit-scrollbar-thumb { background: rgba(60, 100, 160, 0.4); border-radius: 3px; }
+#bingerOverlay.in-session #bingerChatLog::-webkit-scrollbar-thumb:hover { background: rgba(60, 100, 160, 0.6); }
+#bingerOverlay.in-session #bingerChatLog { scrollbar-width: thin; scrollbar-color: rgba(60, 100, 160, 0.4) transparent; }

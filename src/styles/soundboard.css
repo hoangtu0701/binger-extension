@@ -1,22 +1,15 @@
-/* ============================================================================
-   SOUNDBOARD STYLES
-   Soundboard layout and buttons with all theme variations
-   ============================================================================ */
-
-/* ----------------------------------------------------------------------------
-   SOUNDBOARD CONTAINER - BASE
-   ---------------------------------------------------------------------------- */
-
 #bingerSoundboard.binger-soundboard {
-  display: flex;          
+  display: flex;
   gap: 12px;
   padding: 10px;
-  background: rgba(0, 0, 0, 0.75);
   border-radius: 20px;
   z-index: 9999;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
   width: fit-content;
   height: fit-content;
+  background: rgba(15, 5, 10, 0.85);
+  border: 1px solid rgba(180, 80, 100, 0.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
 }
 
 #bingerSoundboard.binger-soundboard:not(.fullscreen) {
@@ -33,61 +26,39 @@
   gap: 6px;
 }
 
-/* ----------------------------------------------------------------------------
-   SOUNDBOARD CONTAINER - PINK THEME
-   ---------------------------------------------------------------------------- */
-
 .theme-pink #bingerSoundboard.binger-soundboard {
-  background: rgba(95, 139, 96, 0.9);
-  box-shadow: 0 4px 12px rgba(109, 159, 113, 0.45);
+  background: rgba(35, 18, 25, 0.85);
+  border: 1px solid rgba(220, 140, 170, 0.15);
+  box-shadow: 0 4px 16px rgba(210, 110, 140, 0.15);
 }
-
-/* ----------------------------------------------------------------------------
-   SOUNDBOARD CONTAINER - BLACK & WHITE THEME
-   ---------------------------------------------------------------------------- */
 
 .theme-blackwhite #bingerSoundboard.binger-soundboard {
-  background: rgba(0, 0, 0, 0.9);
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.45);
+  background: rgba(6, 6, 8, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
 }
-
-/* ----------------------------------------------------------------------------
-   SOUNDBOARD CONTAINER - OCEAN THEME
-   ---------------------------------------------------------------------------- */
 
 .theme-ocean #bingerSoundboard.binger-soundboard {
-  background: rgba(0, 98, 151, 0.9);
-  box-shadow: 0 4px 14px rgba(0, 180, 216, 0.55), 0 0 20px rgba(144, 224, 239, 0.35);
-  border: 1px solid rgba(144, 224, 239, 0.6);
+  background: rgba(4, 14, 24, 0.85);
+  border: 1px solid rgba(0, 180, 220, 0.12);
+  box-shadow: 0 4px 16px rgba(0, 100, 180, 0.2);
 }
-
-/* ----------------------------------------------------------------------------
-   SOUNDBOARD CONTAINER - VOLCANO THEME
-   ---------------------------------------------------------------------------- */
 
 .theme-volcano #bingerSoundboard.binger-soundboard {
-  background: rgba(109, 2, 8, 0.9);
-  box-shadow: 0 4px 14px rgba(232, 93, 4, 0.55), 0 0 20px rgba(255, 80, 20, 0.35);
-  border: 1px solid rgba(232, 93, 4, 0.6);
+  background: rgba(12, 6, 4, 0.85);
+  border: 1px solid rgba(255, 100, 30, 0.12);
+  box-shadow: 0 4px 16px rgba(200, 60, 10, 0.2);
 }
-
-/* ----------------------------------------------------------------------------
-   SOUNDBOARD CONTAINER - FOREST THEME
-   ---------------------------------------------------------------------------- */
 
 .theme-forest #bingerSoundboard.binger-soundboard {
-  background: rgba(40, 60, 35, 0.9);
-  box-shadow: 0 4px 14px rgba(120, 200, 100, 0.45), 0 0 20px rgba(150, 220, 130, 0.35);
-  border: 1px solid rgba(100, 180, 100, 0.6);
+  background: rgba(6, 14, 4, 0.85);
+  border: 1px solid rgba(100, 200, 100, 0.12);
+  box-shadow: 0 4px 16px rgba(60, 140, 60, 0.15);
 }
-
-/* ----------------------------------------------------------------------------
-   SOUNDBOARD SECTIONS
-   ---------------------------------------------------------------------------- */
 
 .binger-sound-section {
   display: grid;
-  grid-template-rows: repeat(5, 50px); 
+  grid-template-rows: repeat(5, 50px);
   grid-auto-flow: column;
   grid-auto-columns: 50px;
   gap: 12px;
@@ -95,7 +66,7 @@
 
 .binger-visual-section {
   display: grid;
-  grid-template-rows: repeat(5, 50px); 
+  grid-template-rows: repeat(5, 50px);
   grid-auto-flow: column;
   grid-auto-columns: 50px;
   gap: 12px;
@@ -103,66 +74,21 @@
 
 #bingerSoundboard.fullscreen .binger-sound-section,
 #bingerSoundboard.fullscreen .binger-visual-section {
-  grid-template-rows: repeat(5, 1fr); 
+  grid-template-rows: repeat(5, 1fr);
   height: 100%;
 }
 
-/* ----------------------------------------------------------------------------
-   SOUNDBOARD DIVIDER - BASE
-   ---------------------------------------------------------------------------- */
-
 .binger-divider {
-  width: 2px;
-  background: rgba(255, 255, 255, 0.575);
+  width: 1px;
   margin: 25px 8px;
+  background: rgba(255, 255, 255, 0.1);
 }
 
-/* ----------------------------------------------------------------------------
-   SOUNDBOARD DIVIDER - PINK THEME
-   ---------------------------------------------------------------------------- */
-
-.theme-pink .binger-divider {
-  background: #e4a6b9;
-}
-
-/* ----------------------------------------------------------------------------
-   SOUNDBOARD DIVIDER - BLACK & WHITE THEME
-   ---------------------------------------------------------------------------- */
-
-.theme-blackwhite .binger-divider {
-  background: #ffffff;
-}
-
-/* ----------------------------------------------------------------------------
-   SOUNDBOARD DIVIDER - OCEAN THEME
-   ---------------------------------------------------------------------------- */
-
-.theme-ocean .binger-divider {
-  background: linear-gradient(180deg, #00b4d8, #90e0ef);
-  box-shadow: 0 0 8px rgba(0, 180, 216, 0.6);
-}
-
-/* ----------------------------------------------------------------------------
-   SOUNDBOARD DIVIDER - VOLCANO THEME
-   ---------------------------------------------------------------------------- */
-
-.theme-volcano .binger-divider {
-  background: #e85b049c;
-  box-shadow: 0 0 8px rgba(232, 93, 4, 0.6);
-}
-
-/* ----------------------------------------------------------------------------
-   SOUNDBOARD DIVIDER - FOREST THEME
-   ---------------------------------------------------------------------------- */
-
-.theme-forest .binger-divider {
-  background: #76a8639c;
-  box-shadow: 0 0 8px rgba(120, 200, 100, 0.6);
-}
-
-/* ----------------------------------------------------------------------------
-   SOUNDBOARD BUTTONS
-   ---------------------------------------------------------------------------- */
+.theme-pink .binger-divider { background: rgba(220, 140, 170, 0.2); }
+.theme-blackwhite .binger-divider { background: rgba(255, 255, 255, 0.08); }
+.theme-ocean .binger-divider { background: rgba(0, 180, 220, 0.15); }
+.theme-volcano .binger-divider { background: rgba(255, 100, 30, 0.15); }
+.theme-forest .binger-divider { background: rgba(100, 200, 100, 0.15); }
 
 .binger-sound-btn,
 .binger-visual-btn {
@@ -177,16 +103,18 @@
   align-items: center;
   justify-content: center;
   transition: transform 0.15s ease;
+  border-radius: 10px;
 }
 
 .binger-sound-btn:hover,
 .binger-visual-btn:hover {
   transform: scale(1.15);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 #bingerSoundboard.fullscreen .binger-sound-btn,
 #bingerSoundboard.fullscreen .binger-visual-btn {
-  width: 100%;   
+  width: 100%;
   height: 100%;
   font-size: 20px;
   padding: 0;

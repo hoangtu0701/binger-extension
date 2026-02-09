@@ -1,24 +1,15 @@
-/* ============================================================================
-   BUTTON STYLES
-   Room buttons, bottom buttons (Watch Together, Camera Toggle)
-   ============================================================================ */
-
-/* ----------------------------------------------------------------------------
-   ROOM BUTTONS - BASE
-   ---------------------------------------------------------------------------- */
-
 #bingerCreateRoom,
 #bingerJoinRoom,
 #bingerLeaveRoom {
-  background-color: white;
-  color: #800020;
-  border: none;
-  border-radius: 6px;
+  background: rgba(200, 140, 80, 0.12);
+  color: #d4a574;
+  border: 1px solid rgba(200, 140, 80, 0.2);
+  border-radius: 10px;
   padding: 8px 12px;
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
+  transition: all 0.25s ease;
   width: 100px;
   height: 50px;
   display: flex;
@@ -28,366 +19,243 @@
 
 #bingerCreateRoom:hover,
 #bingerJoinRoom:hover {
-  background-color: #254861;
-  color: white;
+  background: rgba(200, 140, 80, 0.25);
+  border-color: rgba(200, 140, 80, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(200, 140, 80, 0.15);
+  color: #e8c8a0;
+}
+
+#bingerLeaveRoom {
+  color: #c87070;
+  border-color: rgba(200, 100, 100, 0.2);
+  background: rgba(200, 100, 100, 0.08);
 }
 
 #bingerLeaveRoom:hover {
-  background-color: #990000;
-  color: white;
+  background: rgba(200, 80, 80, 0.25);
+  border-color: rgba(200, 80, 80, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(200, 80, 80, 0.15);
+  color: #e09090;
 }
 
 #bingerLeaveRoom:disabled {
-  background-color: #eee;
-  color: #aaa;
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.05);
   cursor: default;
 }
 
 #bingerLeaveRoom:disabled:hover {
-  background-color: #eee !important;
-  color: #aaa !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  color: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
   cursor: default !important;
-}
-
-/* ----------------------------------------------------------------------------
-   ROOM BUTTONS - PINK THEME
-   ---------------------------------------------------------------------------- */
-
-.theme-pink #bingerCreateRoom,
-.theme-pink #bingerJoinRoom {
-  background-color: #6D9F71;
-  color: #ffffff;
-}
-
-.theme-pink #bingerCreateRoom:hover,
-.theme-pink #bingerJoinRoom:hover {
-  background-color: #337357;
-  color: #F4F3F1;
-}
-
-.theme-pink #bingerLeaveRoom {
-  background-color: #EA9AB2;
-  color: #ffffff;
-}
-
-.theme-pink #bingerLeaveRoom:hover {
-  background-color: #E27396;
-  color: #F4F3F1;
-}
-
-.theme-pink #bingerLeaveRoom:disabled {
-  background-color: #eee;
-  color: #aaa;
-  cursor: default;
-}
-
-.theme-pink #bingerLeaveRoom:disabled:hover {
-  background-color: #eee !important;
-  color: #aaa !important;
-  cursor: default !important;
-}
-
-/* ----------------------------------------------------------------------------
-   ROOM BUTTONS - BLACK & WHITE THEME
-   ---------------------------------------------------------------------------- */
-
-.theme-blackwhite #bingerCreateRoom,
-.theme-blackwhite #bingerJoinRoom {
-  background-color: #000000;
-  color: #ffffff;
-}
-
-.theme-blackwhite #bingerCreateRoom:hover,
-.theme-blackwhite #bingerJoinRoom:hover {
-  background-color: #ffffff;
-  color: #000000;
-}
-
-.theme-blackwhite #bingerLeaveRoom {
-  background-color: #242424;
-  color: #ffffff;
-}
-
-.theme-blackwhite #bingerLeaveRoom:hover {
-  background-color: #ffffff;
-  color: #000000;
-}
-
-.theme-blackwhite #bingerLeaveRoom:disabled {
-  background-color: #eeeeee;
-  color: #aaaaaa;
-  cursor: default;
-}
-
-.theme-blackwhite #bingerLeaveRoom:disabled:hover {
-  background-color: #eeeeee !important;
-  color: #aaaaaa !important;
-  cursor: default !important;
-}
-
-/* ----------------------------------------------------------------------------
-   ROOM BUTTONS - OCEAN THEME
-   ---------------------------------------------------------------------------- */
-
-.theme-ocean #bingerCreateRoom,
-.theme-ocean #bingerJoinRoom {
-  background: linear-gradient(135deg, #f7deba, #dfb590);
-  color: #3a2a1d;
-  border-radius: 12px;
-  transition: background 0.8s ease, color 0.2s ease;
-}
-
-.theme-ocean #bingerCreateRoom:hover,
-.theme-ocean #bingerJoinRoom:hover {
-  background: linear-gradient(135deg, #f7deba, #0077b6, #0096c7);
-  color: #ffffff;
-  animation: waveMotion 1.2s ease-in-out infinite, blueShift 6s ease-in-out infinite alternate;
-}
-
-.theme-ocean #bingerLeaveRoom {
-  background: linear-gradient(135deg, #9ccecb, #6dcaa7);
-  color: #3a2a1d;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  border-radius: 12px;
-  transition: background 0.4s ease, color 0.4s ease, transform 0.3s ease;
-}
-
-.theme-ocean #bingerLeaveRoom:hover:enabled {
-  background: linear-gradient(135deg, #9c765a, #7f5b42);
-  color: #fffdf9;
-  transform: scale(1.02);
-}
-
-.theme-ocean #bingerLeaveRoom:disabled {
-  background-color: #e0e0e0;
-  color: #3a2a1d;
-  cursor: default;
-  box-shadow: none;
-  opacity: 0.6;
-}
-
-.theme-ocean #bingerLeaveRoom:disabled:hover {
-  background-color: #e0e0e0 !important;
-  color: #3a2a1d !important;
-  cursor: default !important;
-  transform: none !important;
-}
-
-/* ----------------------------------------------------------------------------
-   ROOM BUTTONS - VOLCANO THEME
-   ---------------------------------------------------------------------------- */
-
-.theme-volcano #bingerCreateRoom,
-.theme-volcano #bingerJoinRoom {
-  background-color: #6A040F;
-  color: #ffefe0;
-  border-radius: 25px;
-  position: relative;
-  overflow: hidden;
-  transition: background-color 0.4s ease, color 0.3s ease, transform 0.3s ease;
-}
-
-.theme-volcano #bingerCreateRoom::before,
-.theme-volcano #bingerJoinRoom::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 25px;
-  background: #111;
-  clip-path: polygon(
-    0% 100%, 0% 68%, 12% 72%, 22% 67%, 33% 74%, 
-    44% 69%, 55% 73%, 65% 70%, 76% 75%, 87% 71%, 
-    100% 76%, 100% 100%
-  );
-  transform: translateY(100%);
-  opacity: 0;
-  transition: transform 0.3s ease, opacity 0.3s ease;
-  z-index: 1;
-}
-
-.theme-volcano #bingerCreateRoom:hover,
-.theme-volcano #bingerJoinRoom:hover {
-  background-color: #d6421f;
-  color: #ffffff;
-  transform: scale(1.05);
-  box-shadow: 0 0 10px rgba(255, 90, 30, 0.6), 0 0 5px rgba(255, 140, 60, 0.4);
-}
-
-.theme-volcano #bingerCreateRoom:hover::before,
-.theme-volcano #bingerJoinRoom:hover::before {
-  transform: translateY(7%);
-  opacity: 1;
-}
-
-.theme-volcano #bingerLeaveRoom {
-  background-color: #ac452d;
-  color: #ffefe0;
-  border-radius: 25px;
-  position: relative;
-  overflow: hidden;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  transition: background-color 0.4s ease, color 0.3s ease, transform 0.3s ease;
-}
-
-.theme-volcano #bingerLeaveRoom::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 25px;
-  background: #111;
-  clip-path: polygon(
-    0% 100%, 0% 68%, 12% 72%, 22% 67%, 33% 74%, 
-    44% 69%, 55% 73%, 65% 70%, 76% 75%, 87% 71%, 
-    100% 76%, 100% 100%
-  );
-  transform: translateY(100%);
-  opacity: 0;
-  transition: transform 0.3s ease, opacity 0.3s ease;
-  z-index: 1;
-}
-
-.theme-volcano #bingerLeaveRoom:hover:enabled {
-  color: #ffffff;
-}
-
-.theme-volcano #bingerLeaveRoom:hover:enabled::before {
-  transform: translateY(7%);
-  opacity: 1;
-}
-
-.theme-volcano #bingerLeaveRoom:disabled {
-  background-color: #df744aa8;
-  color: #b3b2b2;
-  cursor: default;
-  box-shadow: none;
-  opacity: 0.6;
-}
-
-.theme-volcano #bingerLeaveRoom:disabled:hover {
-  background-color: #df744aa8 !important;
-  cursor: default !important;
-  transform: none !important;
-}
-
-/* ----------------------------------------------------------------------------
-   ROOM BUTTONS - FOREST THEME
-   ---------------------------------------------------------------------------- */
-
-.theme-forest #bingerCreateRoom,
-.theme-forest #bingerJoinRoom,
-.theme-forest #bingerLeaveRoom {
-  background-color: #2e5d1a;
-  color: #f0ffe6;
-  border-radius: 18px;
-  position: relative;
-  overflow: hidden;
-  font-weight: 600;
-  letter-spacing: 0.4px;
-  padding: 10px 18px;
-  transition: background-color 0.4s ease, color 0.3s ease, transform 0.35s ease;
-}
-
-.theme-forest #bingerCreateRoom::before,
-.theme-forest #bingerJoinRoom::before,
-.theme-forest #bingerLeaveRoom::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 18px;
-  background: radial-gradient(circle at 20% 80%, rgba(0, 80, 0, 0.6), transparent 70%),
-              radial-gradient(circle at 70% 20%, rgba(0, 120, 0, 0.4), transparent 60%),
-              radial-gradient(circle at 90% 90%, rgba(0, 50, 0, 0.5), transparent 65%),
-              repeating-linear-gradient(
-                -45deg,
-                rgba(0, 0, 0, 0.35) 0px,
-                rgba(0, 0, 0, 0.35) 8px,
-                transparent 8px,
-                transparent 16px
-              );
-  clip-path: polygon(
-    0% 100%,
-    4% 65%,
-    8% 82%,
-    12% 52%,
-    18% 88%,
-    22% 60%,
-    28% 85%,
-    34% 58%,
-    40% 90%,
-    46% 55%,
-    52% 86%,
-    58% 62%,
-    64% 92%,
-    70% 54%,
-    76% 84%,
-    82% 59%,
-    88% 87%,
-    94% 61%,
-    100% 100%
-  );
-  transform: translateY(120%) scale(1.2) rotate(-2deg);
-  opacity: 0;
-  transition: transform 0.7s cubic-bezier(0.19, 1, 0.22, 1),
-              opacity 0.6s ease;
-  z-index: 1;
-  mix-blend-mode: overlay;
-}
-
-.theme-forest #bingerCreateRoom:hover::before,
-.theme-forest #bingerJoinRoom:hover::before,
-.theme-forest #bingerLeaveRoom:hover::before {
-  transform: translateY(0%) scale(1) rotate(0deg);
-  opacity: 1;
-}
-
-.theme-forest #bingerCreateRoom:hover,
-.theme-forest #bingerJoinRoom:hover,
-.theme-forest #bingerLeaveRoom:hover {
-  background-color: #3f7d28;
-  color: #ffffff;
-  transform: scale(1.08) rotate(-1deg);
-  box-shadow: 0 0 15px rgba(50, 255, 120, 0.4), 0 0 6px rgba(100, 200, 120, 0.3);
-}
-
-.theme-forest #bingerCreateRoom:hover::before,
-.theme-forest #bingerJoinRoom:hover::before,
-.theme-forest #bingerLeaveRoom:hover::before {
-  transform: translateY(5%);
-  opacity: 1;
-}
-
-.theme-forest #bingerLeaveRoom {
-  background-color: #6c2d1a;
-  color: #ffefef;
-}
-
-.theme-forest #bingerLeaveRoom:hover {
-  background-color: #912f1d;
-  box-shadow: 0 0 15px rgba(255, 90, 60, 0.5), 0 0 6px rgba(200, 80, 50, 0.4);
-}
-
-.theme-forest #bingerLeaveRoom:disabled {
-  background-color: #4e1f13;
-  color: #aaaaaa;
-  cursor: not-allowed;
-  opacity: 0.55;
   transform: none !important;
   box-shadow: none !important;
 }
 
-.theme-forest #bingerLeaveRoom:disabled:hover {
-  background-color: #4e1f13 !important;
-  color: #aaaaaa !important;
-  transform: none !important;
-  opacity: 0.55 !important;
-  filter: brightness(0.8);
+.theme-pink #bingerCreateRoom,
+.theme-pink #bingerJoinRoom {
+  background: rgba(100, 150, 100, 0.15);
+  color: #a5c8a0;
+  border: 1px solid rgba(120, 170, 120, 0.2);
 }
 
-/* ----------------------------------------------------------------------------
-   BOTTOM BUTTONS - BASE
-   ---------------------------------------------------------------------------- */
+.theme-pink #bingerCreateRoom:hover,
+.theme-pink #bingerJoinRoom:hover {
+  background: rgba(120, 170, 120, 0.3);
+  border-color: rgba(140, 190, 140, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(100, 160, 100, 0.15);
+}
+
+.theme-pink #bingerLeaveRoom {
+  color: #e8a0b5;
+  background: rgba(220, 130, 160, 0.12);
+  border-color: rgba(220, 130, 160, 0.2);
+}
+
+.theme-pink #bingerLeaveRoom:hover {
+  background: rgba(220, 130, 160, 0.25);
+  border-color: rgba(220, 130, 160, 0.4);
+}
+
+.theme-pink #bingerLeaveRoom:disabled {
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.05);
+  cursor: default;
+}
+
+.theme-pink #bingerLeaveRoom:disabled:hover {
+  background: rgba(255, 255, 255, 0.03) !important;
+  color: rgba(255, 255, 255, 0.2) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.theme-blackwhite #bingerCreateRoom,
+.theme-blackwhite #bingerJoinRoom {
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(4px);
+}
+
+.theme-blackwhite #bingerCreateRoom:hover,
+.theme-blackwhite #bingerJoinRoom:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.08);
+  transform: translateY(-1px);
+}
+
+.theme-blackwhite #bingerLeaveRoom {
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.theme-blackwhite #bingerLeaveRoom:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.theme-blackwhite #bingerLeaveRoom:disabled {
+  background: rgba(255, 255, 255, 0.02);
+  color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.04);
+  cursor: default;
+}
+
+.theme-blackwhite #bingerLeaveRoom:disabled:hover {
+  background: rgba(255, 255, 255, 0.02) !important;
+  color: rgba(255, 255, 255, 0.15) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.theme-ocean #bingerCreateRoom,
+.theme-ocean #bingerJoinRoom {
+  background: rgba(0, 180, 220, 0.08);
+  color: #80d0e0;
+  border: 1px solid rgba(0, 180, 220, 0.15);
+}
+
+.theme-ocean #bingerCreateRoom:hover,
+.theme-ocean #bingerJoinRoom:hover {
+  background: rgba(0, 180, 220, 0.2);
+  border-color: rgba(0, 200, 240, 0.35);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 180, 220, 0.15);
+}
+
+.theme-ocean #bingerLeaveRoom {
+  color: rgba(0, 200, 200, 0.6);
+  border-color: rgba(0, 180, 180, 0.1);
+  background: rgba(0, 160, 180, 0.06);
+}
+
+.theme-ocean #bingerLeaveRoom:hover:enabled {
+  background: rgba(0, 180, 200, 0.18);
+  border-color: rgba(0, 200, 220, 0.3);
+}
+
+.theme-ocean #bingerLeaveRoom:disabled {
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.04);
+  cursor: default;
+}
+
+.theme-ocean #bingerLeaveRoom:disabled:hover {
+  background: rgba(255, 255, 255, 0.03) !important;
+  color: rgba(255, 255, 255, 0.15) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.theme-volcano #bingerCreateRoom,
+.theme-volcano #bingerJoinRoom {
+  background: rgba(255, 80, 20, 0.08);
+  color: #d08050;
+  border: 1px solid rgba(255, 100, 30, 0.12);
+}
+
+.theme-volcano #bingerCreateRoom:hover,
+.theme-volcano #bingerJoinRoom:hover {
+  background: rgba(255, 80, 20, 0.2);
+  border-color: rgba(255, 100, 30, 0.35);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(255, 80, 20, 0.15);
+}
+
+.theme-volcano #bingerLeaveRoom {
+  color: #c06040;
+  border-color: rgba(200, 60, 30, 0.12);
+  background: rgba(200, 60, 30, 0.06);
+}
+
+.theme-volcano #bingerLeaveRoom:hover:enabled {
+  background: rgba(200, 60, 30, 0.18);
+  border-color: rgba(200, 60, 30, 0.3);
+}
+
+.theme-volcano #bingerLeaveRoom:disabled {
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.04);
+  cursor: default;
+}
+
+.theme-volcano #bingerLeaveRoom:disabled:hover {
+  background: rgba(255, 255, 255, 0.03) !important;
+  color: rgba(255, 255, 255, 0.15) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.theme-forest #bingerCreateRoom,
+.theme-forest #bingerJoinRoom {
+  background: rgba(80, 160, 60, 0.1);
+  color: #90c870;
+  border: 1px solid rgba(100, 200, 100, 0.15);
+}
+
+.theme-forest #bingerCreateRoom:hover,
+.theme-forest #bingerJoinRoom:hover {
+  background: rgba(80, 160, 60, 0.22);
+  border-color: rgba(120, 220, 120, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(80, 180, 80, 0.12);
+}
+
+.theme-forest #bingerLeaveRoom {
+  color: #c09060;
+  border-color: rgba(180, 120, 60, 0.15);
+  background: rgba(160, 100, 40, 0.08);
+}
+
+.theme-forest #bingerLeaveRoom:hover:enabled {
+  background: rgba(160, 100, 40, 0.2);
+  border-color: rgba(180, 120, 60, 0.3);
+}
+
+.theme-forest #bingerLeaveRoom:disabled {
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.04);
+  cursor: default;
+}
+
+.theme-forest #bingerLeaveRoom:disabled:hover {
+  background: rgba(255, 255, 255, 0.03) !important;
+  color: rgba(255, 255, 255, 0.15) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
 
 #bingerBottomButtons {
   margin-top: 12px;
@@ -403,32 +271,26 @@
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: all 0.25s ease;
   height: 40px;
   padding-top: 5px;
   padding-bottom: 3px;
-}
-
-#watchTogetherBtn {
-  background-color: #eee;
+  background: rgba(200, 140, 80, 0.1);
+  border: 1px solid rgba(200, 140, 80, 0.15);
 }
 
 #watchTogetherBtn:enabled {
-  background: linear-gradient(135deg, #ffb347, #ffcc70);
-  transition: all 0.1s ease-in-out;
+  background: linear-gradient(135deg, rgba(200, 140, 80, 0.2), rgba(180, 120, 60, 0.25));
 }
 
 #watchTogetherBtn:enabled:hover {
-  background: linear-gradient(135deg, #ffc16f, #ffe27a);
-  box-shadow: 0 6px 16px rgba(255, 204, 112, 0.6);
-}
-
-#cameraToggleBtn {
-  background-color: #eee;
+  background: linear-gradient(135deg, rgba(200, 140, 80, 0.35), rgba(180, 120, 60, 0.4));
+  box-shadow: 0 4px 16px rgba(200, 140, 80, 0.2);
+  transform: translateY(-1px);
 }
 
 #cameraToggleBtn:enabled {
-  background-color: #ffffff;
+  background: rgba(255, 255, 255, 0.06);
 }
 
 #watchTogetherBtn:disabled,
@@ -444,118 +306,92 @@
 }
 
 #bingerBottomButtons button:disabled img {
-  opacity: 0.4;
+  opacity: 0.3;
   filter: grayscale(100%);
 }
 
-/* ----------------------------------------------------------------------------
-   BOTTOM BUTTONS - PINK THEME
-   ---------------------------------------------------------------------------- */
-
 .theme-pink #watchTogetherBtn:enabled {
-  background: linear-gradient(135deg, #EA9AB2, #E27396);
-  transition: all 0.1s ease-in-out;
+  background: linear-gradient(135deg, rgba(210, 110, 140, 0.25), rgba(190, 90, 120, 0.3));
+  border-color: rgba(220, 130, 160, 0.2);
 }
 
 .theme-pink #watchTogetherBtn:enabled:hover {
-  background: linear-gradient(135deg, #E27396, #EA9AB2);
-  box-shadow: 0 6px 18px rgba(226, 115, 150, 0.65);
+  background: linear-gradient(135deg, rgba(210, 110, 140, 0.4), rgba(190, 90, 120, 0.45));
+  box-shadow: 0 4px 16px rgba(210, 110, 140, 0.2);
 }
 
-.theme-pink #watchTogetherBtn:disabled {
-  cursor: default;
-}
+.theme-pink #watchTogetherBtn:disabled { cursor: default; }
 
-/* ----------------------------------------------------------------------------
-   BOTTOM BUTTONS - BLACK & WHITE THEME
-   ---------------------------------------------------------------------------- */
+.theme-blackwhite #watchTogetherBtn,
+.theme-blackwhite #cameraToggleBtn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
 
 .theme-blackwhite #watchTogetherBtn:enabled {
-  background: linear-gradient(135deg, #000000, #444444);
-  transition: all 0.1s ease-in-out;
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .theme-blackwhite #watchTogetherBtn:enabled:hover {
-  background: linear-gradient(135deg, #ffffff, #cccccc);
-  box-shadow: 0 6px 18px rgba(255, 255, 255, 0.65);
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.06);
 }
 
-.theme-blackwhite #watchTogetherBtn:disabled {
-  cursor: default;
-}
+.theme-blackwhite #watchTogetherBtn:disabled { cursor: default; }
 
-/* ----------------------------------------------------------------------------
-   BOTTOM BUTTONS - OCEAN THEME
-   ---------------------------------------------------------------------------- */
+.theme-ocean #watchTogetherBtn,
+.theme-ocean #cameraToggleBtn {
+  background: rgba(0, 180, 220, 0.06);
+  border: 1px solid rgba(0, 180, 220, 0.1);
+}
 
 .theme-ocean #watchTogetherBtn:enabled {
-  background: linear-gradient(135deg, #7cdaca, #4cc2a8, #188f71);
-  color: #e0fbfc;
-  transition: all 0.15s ease-in-out;
+  background: linear-gradient(135deg, rgba(0, 160, 200, 0.15), rgba(0, 120, 180, 0.2));
 }
 
 .theme-ocean #watchTogetherBtn:enabled:hover {
-  background: linear-gradient(135deg, #00b4d8, #48cae4, #90e0ef);
-  color: #023047;
-  box-shadow: 0 6px 20px rgba(144, 224, 239, 0.7);
-  transform: translateY(-2px) scale(1.03);
+  background: linear-gradient(135deg, rgba(0, 180, 220, 0.3), rgba(0, 140, 200, 0.35));
+  box-shadow: 0 4px 16px rgba(0, 180, 220, 0.15);
+  transform: translateY(-1px);
 }
 
-.theme-ocean #watchTogetherBtn:disabled {
-  background-color: #a9d6e5;
-  color: #5e6472;
-  cursor: default;
-}
+.theme-ocean #watchTogetherBtn:disabled { cursor: default; }
 
-/* ----------------------------------------------------------------------------
-   BOTTOM BUTTONS - VOLCANO THEME
-   ---------------------------------------------------------------------------- */
+.theme-volcano #watchTogetherBtn,
+.theme-volcano #cameraToggleBtn {
+  background: rgba(255, 80, 20, 0.06);
+  border: 1px solid rgba(255, 100, 30, 0.1);
+}
 
 .theme-volcano #watchTogetherBtn:enabled {
-  background: linear-gradient(135deg, #9d0208, #d00000, #e85d04);
-  color: #fff4e8;
-  transition: all 0.15s ease-in-out;
+  background: linear-gradient(135deg, rgba(200, 60, 10, 0.15), rgba(255, 100, 30, 0.2));
 }
 
 .theme-volcano #watchTogetherBtn:enabled:hover {
-  background: linear-gradient(135deg, #ff6a00, #ff922b, #ffba08);
-  color: #1a1a1a;
-  box-shadow: 0 6px 20px rgba(255, 90, 30, 0.6);
-  transform: translateY(-2px) scale(1.05);
+  background: linear-gradient(135deg, rgba(255, 80, 20, 0.3), rgba(255, 120, 40, 0.35));
+  box-shadow: 0 4px 16px rgba(255, 80, 20, 0.2);
+  transform: translateY(-1px);
 }
 
-.theme-volcano #watchTogetherBtn:disabled {
-  background-color: #5c1409;
-  color: #999999;
-  cursor: default;
-}
+.theme-volcano #watchTogetherBtn:disabled { cursor: default; }
 
-/* ----------------------------------------------------------------------------
-   BOTTOM BUTTONS - FOREST THEME
-   ---------------------------------------------------------------------------- */
+.theme-forest #watchTogetherBtn,
+.theme-forest #cameraToggleBtn {
+  background: rgba(80, 160, 60, 0.06);
+  border: 1px solid rgba(100, 200, 100, 0.1);
+}
 
 .theme-forest #watchTogetherBtn:enabled {
-  background: linear-gradient(135deg, #4c6b3d, #648550, #86b97d);
-  color: #f0ffe8;
-  transition: all 0.15s ease-in-out;
+  background: linear-gradient(135deg, rgba(60, 120, 40, 0.15), rgba(80, 150, 50, 0.2));
 }
 
 .theme-forest #watchTogetherBtn:enabled:hover {
-  background: linear-gradient(135deg, #76a863, #9ad38a, #c2f2b0);
-  color: #1a1a1a;
-  box-shadow: 0 6px 20px rgba(90, 200, 120, 0.6);
-  transform: translateY(-2px) scale(1.02);
+  background: linear-gradient(135deg, rgba(80, 160, 60, 0.3), rgba(100, 180, 70, 0.35));
+  box-shadow: 0 4px 16px rgba(80, 180, 80, 0.15);
+  transform: translateY(-1px);
 }
 
-.theme-forest #watchTogetherBtn:disabled {
-  background-color: #2f4e24;
-  color: #888888;
-  cursor: default;
-}
-
-/* ----------------------------------------------------------------------------
-   CAMERA TOGGLE ACTIVE STATE
-   ---------------------------------------------------------------------------- */
+.theme-forest #watchTogetherBtn:disabled { cursor: default; }
 
 .binger-cam-active {
   opacity: 0.75;
@@ -564,10 +400,6 @@
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
   transition: all 0.2s ease;
 }
-
-/* ----------------------------------------------------------------------------
-   HIDE BUTTONS IN SESSION
-   ---------------------------------------------------------------------------- */
 
 #bingerOverlay.in-session #bingerCreateRoom,
 #bingerOverlay.in-session #bingerJoinRoom,

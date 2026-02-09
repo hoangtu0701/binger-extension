@@ -1,26 +1,13 @@
-/* ============================================================================
-   FULLSCREEN MODE STYLES
-   Layout adjustments for fullscreen viewing
-   ============================================================================ */
-
-/* ----------------------------------------------------------------------------
-   FULLSCREEN OVERLAY
-   ---------------------------------------------------------------------------- */
-
 #bingerOverlay.fullscreen {
   position: relative;
   bottom: 0;
   right: 0;
   height: 100%;
-  width: auto; 
+  width: auto;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
-
-/* ----------------------------------------------------------------------------
-   FULLSCREEN LAYOUT CONTAINER
-   ---------------------------------------------------------------------------- */
 
 #bingerOverlay.fullscreen #bingerLayoutContainer {
   display: flex;
@@ -31,10 +18,6 @@
   padding: 5px 20px 15px 20px;
   box-sizing: border-box;
 }
-
-/* ----------------------------------------------------------------------------
-   FULLSCREEN LEFT PANE
-   ---------------------------------------------------------------------------- */
 
 #bingerOverlay.fullscreen #bingerLeftPane {
   display: flex;
@@ -54,28 +37,20 @@
   width: 200px;
 }
 
-/* ----------------------------------------------------------------------------
-   FULLSCREEN BOTTOM BUTTONS
-   ---------------------------------------------------------------------------- */
-
 #bingerOverlay.fullscreen #bingerBottomButtons {
   position: absolute;
   left: 2.5%;
   bottom: 15px;
-  width: 44%; 
+  width: 44%;
   display: flex;
   justify-content: center;
   gap: 12px;
 }
 
 #bingerOverlay.fullscreen.in-session #bingerBottomButtons {
-  width: 200px;  
+  width: 200px;
   left: 3.5%;
 }
-
-/* ----------------------------------------------------------------------------
-   FULLSCREEN RIGHT PANE
-   ---------------------------------------------------------------------------- */
 
 #bingerOverlay.fullscreen #bingerRightPane {
   flex: 1;
@@ -85,10 +60,6 @@
   min-height: 0;
   overflow: hidden;
 }
-
-/* ----------------------------------------------------------------------------
-   FULLSCREEN CHAT WRAPPER
-   ---------------------------------------------------------------------------- */
 
 #bingerOverlay.fullscreen #bingerChatWrapper {
   height: 100%;
