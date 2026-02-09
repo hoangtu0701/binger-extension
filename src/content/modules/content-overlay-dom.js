@@ -347,30 +347,21 @@
      * Show the multi-tab warning banner
      */
     function showMultiTabWarning() {
-        // Prevent duplicate warnings
         if (document.getElementById("bingerMultiTabWarning")) return;
 
         const warning = document.createElement("div");
         warning.id = "bingerMultiTabWarning";
-        warning.textContent = "Multiple Phimbro tabs open - please close the others to avoid sync issues.";
-        Object.assign(warning.style, {
-            position: "fixed",
-            top: "0px",
-            left: "50%",
-            transform: "translateX(-50%)",
-            backgroundColor: "#fff3cd",
-            color: "#856404",
-            padding: "12px 20px",
-            fontSize: "16px",
-            fontWeight: "600",
-            border: "1px solid #ffeeba",
-            borderRadius: "0 0 12px 12px",
-            zIndex: "9999999",
-            fontFamily: "Figtree",
-            boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-            pointerEvents: "none"
-        });
 
+        const icon = document.createElement("span");
+        icon.className = "multi-tab-icon";
+        icon.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
+
+        const text = document.createElement("span");
+        text.className = "multi-tab-text";
+        text.textContent = "Multiple Phimbro tabs detected - close extras to avoid sync issues";
+
+        warning.appendChild(icon);
+        warning.appendChild(text);
         document.body.appendChild(warning);
     }
 

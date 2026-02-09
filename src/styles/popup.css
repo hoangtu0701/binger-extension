@@ -136,6 +136,8 @@ body {
 
 .view-not-on-site {
   justify-content: center;
+  top: -20px;
+  bottom: 20px;
 }
 
 .not-on-site-icon {
