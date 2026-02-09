@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Binger",
-  "version": "5.5.1",
+  "version": "5.5.2",
   "description": "Watch movies together with real-time synced chat and playback.",
   "icons": {
     "128": "binger_assets/images/icon.png"
