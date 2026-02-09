@@ -203,16 +203,68 @@
             });
     }
 
-    /**
-     * Prompt user for room code and join
-     */
-    function promptAndJoinRoom() {
-        const newRoomId = prompt("Enter 6-digit room code:");
+    function toggleJoinBubble() {
+        const bubble = BingerOverlayDOM.getElement("joinBubble");
+        if (!bubble) return;
 
-        // User hit Cancel or entered empty string
-        if (!newRoomId) return;
+        const isVisible = bubble.style.display === "block";
+        if (isVisible) {
+            closeJoinBubble();
+        } else {
+            openJoinBubble();
+        }
+    }
 
-        joinRoom(newRoomId.trim());
+    function openJoinBubble() {
+        const bubble = BingerOverlayDOM.getElement("joinBubble");
+        const input = BingerOverlayDOM.getElement("joinBubbleInput");
+        if (!bubble || !input) return;
+
+        input.value = "";
+        bubble.style.display = "block";
+
+        requestAnimationFrame(() => input.focus());
+
+        document.addEventListener("mousedown", handleBubbleOutsideClick, true);
+    }
+
+    function closeJoinBubble() {
+        const bubble = BingerOverlayDOM.getElement("joinBubble");
+        const input = BingerOverlayDOM.getElement("joinBubbleInput");
+        if (!bubble) return;
+
+        bubble.style.display = "none";
+        if (input) input.value = "";
+
+        document.removeEventListener("mousedown", handleBubbleOutsideClick, true);
+    }
+
+    function handleBubbleOutsideClick(e) {
+        const bubble = BingerOverlayDOM.getElement("joinBubble");
+        const joinBtn = BingerOverlayDOM.getElement("joinRoomBtn");
+
+        if (!bubble) return;
+
+        if (!bubble.contains(e.target) && e.target !== joinBtn) {
+            closeJoinBubble();
+        }
+    }
+
+    function handleBubbleKeydown(e) {
+        if (e.key === "Enter") {
+            const input = BingerOverlayDOM.getElement("joinBubbleInput");
+            if (!input) return;
+
+            const code = input.value.trim();
+            if (!code) return;
+
+            closeJoinBubble();
+            joinRoom(code);
+        }
+
+        if (e.key === "Escape") {
+            closeJoinBubble();
+        }
     }
 
     // ========================================================================
@@ -368,7 +420,11 @@
         }
 
         if (elements?.joinRoomBtn) {
-            elements.joinRoomBtn.addEventListener("click", promptAndJoinRoom);
+            elements.joinRoomBtn.addEventListener("click", toggleJoinBubble);
+        }
+
+        if (elements?.joinBubbleInput) {
+            elements.joinBubbleInput.addEventListener("keydown", handleBubbleKeydown);
         }
 
         if (elements?.leaveRoomBtn) {
@@ -387,7 +443,8 @@
         // Room operations
         createRoom,
         joinRoom,
-        promptAndJoinRoom,
+        toggleJoinBubble,
+        closeJoinBubble,
         leaveRoom,
 
         // Cleanup

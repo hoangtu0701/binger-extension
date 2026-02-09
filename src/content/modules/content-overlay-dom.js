@@ -63,6 +63,19 @@
         buttonWrapper.appendChild(createRoomBtn);
         buttonWrapper.appendChild(joinRoomBtn);
         buttonWrapper.appendChild(leaveRoomBtn);
+
+        const joinBubble = document.createElement("div");
+        joinBubble.id = "bingerJoinBubble";
+
+        const joinInput = document.createElement("input");
+        joinInput.id = "bingerJoinBubbleInput";
+        joinInput.type = "text";
+        joinInput.maxLength = 6;
+        joinInput.inputMode = "numeric";
+
+        joinBubble.appendChild(joinInput);
+        buttonWrapper.appendChild(joinBubble);
+
         leftPane.appendChild(buttonWrapper);
 
         return leftPane;
@@ -227,7 +240,10 @@
             // Bottom buttons
             bottomButtons: document.getElementById("bingerBottomButtons"),
             watchTogetherBtn: document.getElementById("watchTogetherBtn"),
-            cameraToggleBtn: document.getElementById("cameraToggleBtn")
+            cameraToggleBtn: document.getElementById("cameraToggleBtn"),
+
+            joinBubble: document.getElementById("bingerJoinBubble"),
+            joinBubbleInput: document.getElementById("bingerJoinBubbleInput")
         };
     }
 

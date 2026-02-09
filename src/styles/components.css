@@ -53,3 +53,183 @@
 .theme-ocean .bingerTypingBubble { color: rgba(0, 200, 230, 0.5); }
 .theme-volcano .bingerTypingBubble { color: rgba(255, 120, 50, 0.5); }
 .theme-forest .bingerTypingBubble { color: rgba(160, 220, 120, 0.5); }
+
+#bingerJoinBubble {
+  display: none;
+  position: absolute;
+  top: calc(100% + 15px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 99;
+  background: rgba(20, 8, 14, 0.95);
+  border: 1px solid rgba(200, 140, 80, 0.25);
+  border-radius: 12px;
+  padding: 10px 14px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  animation: bingerBubbleFadeIn 0.15s ease-out;
+}
+
+#bingerJoinBubble::before {
+  content: "";
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  background: rgba(20, 8, 14, 0.95);
+  border-left: 1px solid rgba(200, 140, 80, 0.25);
+  border-top: 1px solid rgba(200, 140, 80, 0.25);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+#bingerJoinBubbleInput {
+  width: 120px;
+  padding: 8px 12px;
+  font-size: 15px;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-align: center;
+  color: #f5e6d0;
+  background: rgba(200, 140, 80, 0.1);
+  border: 1px solid rgba(200, 140, 80, 0.25);
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+#bingerJoinBubbleInput:focus {
+  border-color: rgba(200, 140, 80, 0.5);
+}
+
+#bingerJoinBubbleInput::placeholder {
+  color: rgba(200, 140, 80, 0.35);
+  font-weight: 400;
+  letter-spacing: 1px;
+}
+
+.theme-pink #bingerJoinBubble {
+  background: rgba(30, 15, 22, 0.95);
+  border-color: rgba(210, 110, 140, 0.2);
+}
+
+.theme-pink #bingerJoinBubble::before {
+  background: rgba(30, 15, 22, 0.95);
+  border-left-color: rgba(210, 110, 140, 0.2);
+  border-top-color: rgba(210, 110, 140, 0.2);
+}
+
+.theme-pink #bingerJoinBubbleInput {
+  color: #f5e8ed;
+  background: rgba(210, 110, 140, 0.1);
+  border-color: rgba(210, 110, 140, 0.25);
+}
+
+.theme-pink #bingerJoinBubbleInput:focus {
+  border-color: rgba(210, 110, 140, 0.5);
+}
+
+.theme-pink #bingerJoinBubbleInput::placeholder {
+  color: rgba(210, 110, 140, 0.35);
+}
+
+.theme-blackwhite #bingerJoinBubble {
+  background: rgba(10, 10, 10, 0.95);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.theme-blackwhite #bingerJoinBubble::before {
+  background: rgba(10, 10, 10, 0.95);
+  border-left-color: rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(255, 255, 255, 0.12);
+}
+
+.theme-blackwhite #bingerJoinBubbleInput {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.theme-blackwhite #bingerJoinBubbleInput:focus {
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.theme-blackwhite #bingerJoinBubbleInput::placeholder {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.theme-ocean #bingerJoinBubble {
+  background: rgba(5, 20, 40, 0.95);
+  border-color: rgba(0, 180, 220, 0.15);
+}
+
+.theme-ocean #bingerJoinBubble::before {
+  background: rgba(5, 20, 40, 0.95);
+  border-left-color: rgba(0, 180, 220, 0.15);
+  border-top-color: rgba(0, 180, 220, 0.15);
+}
+
+.theme-ocean #bingerJoinBubbleInput {
+  color: #c0e8f0;
+  background: rgba(0, 180, 220, 0.08);
+  border-color: rgba(0, 180, 220, 0.2);
+}
+
+.theme-ocean #bingerJoinBubbleInput:focus {
+  border-color: rgba(0, 180, 220, 0.45);
+}
+
+.theme-ocean #bingerJoinBubbleInput::placeholder {
+  color: rgba(0, 180, 220, 0.3);
+}
+
+.theme-volcano #bingerJoinBubble {
+  background: rgba(20, 8, 4, 0.95);
+  border-color: rgba(255, 100, 30, 0.15);
+}
+
+.theme-volcano #bingerJoinBubble::before {
+  background: rgba(20, 8, 4, 0.95);
+  border-left-color: rgba(255, 100, 30, 0.15);
+  border-top-color: rgba(255, 100, 30, 0.15);
+}
+
+.theme-volcano #bingerJoinBubbleInput {
+  color: #f0d0a0;
+  background: rgba(255, 100, 30, 0.08);
+  border-color: rgba(255, 100, 30, 0.2);
+}
+
+.theme-volcano #bingerJoinBubbleInput:focus {
+  border-color: rgba(255, 100, 30, 0.45);
+}
+
+.theme-volcano #bingerJoinBubbleInput::placeholder {
+  color: rgba(255, 100, 30, 0.3);
+}
+
+.theme-forest #bingerJoinBubble {
+  background: rgba(8, 18, 8, 0.95);
+  border-color: rgba(100, 200, 100, 0.15);
+}
+
+.theme-forest #bingerJoinBubble::before {
+  background: rgba(8, 18, 8, 0.95);
+  border-left-color: rgba(100, 200, 100, 0.15);
+  border-top-color: rgba(100, 200, 100, 0.15);
+}
+
+.theme-forest #bingerJoinBubbleInput {
+  color: #c0e8a0;
+  background: rgba(100, 200, 100, 0.08);
+  border-color: rgba(100, 200, 100, 0.2);
+}
+
+.theme-forest #bingerJoinBubbleInput:focus {
+  border-color: rgba(100, 200, 100, 0.45);
+}
+
+.theme-forest #bingerJoinBubbleInput::placeholder {
+  color: rgba(100, 200, 100, 0.3);
+}
