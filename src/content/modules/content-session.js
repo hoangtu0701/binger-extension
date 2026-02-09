@@ -34,7 +34,7 @@
         bufferReportDelay: 200,
         videoWaitInterval: 500,
         videoWaitMaxAttempts: 20,
-        deadlockEscapeMs: 8000
+        deadlockEscapeMs: 5000
     };
 
     // ========================================================================
