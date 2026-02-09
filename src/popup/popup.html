@@ -3,73 +3,89 @@
 <head>
   <meta charset="UTF-8" />
   <title>Binger Popup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../styles/popup.css" />
 </head>
 <body>
 
-  <!-- On phimbro Intro View -->
-  <div id="mainUI" class="popup-container" style="display: none;">
-    <h1>Hey Binger!</h1>
-    <img src="../../binger_assets/images/popcorn.png" alt="Popcorn Icon" class="icon" />
-    <div class="button-group">
-      <button id="signupBtn">Sign up</button>
-      <button id="signinBtn">Sign in</button>
-    </div>
-    <p class="phimbro-reminder">Also remember to sign into your <strong>phimbro</strong> account!</p>
-    <p class="versionText">
-      Version: loading...
-    </p>
+  <!-- Ambient background layers -->
+  <div class="popup-bg"></div>
+  <div class="popup-grain"></div>
+
+  <!-- View 1: Not on phimbro -->
+  <div id="notOnSite" class="popup-view view-not-on-site">
+    <div class="not-on-site-icon">&#127871;</div>
+    <p class="not-on-site-heading">You're not on Phimbro</p>
+    <p class="not-on-site-sub">Binger only works on <strong>phimbro.com</strong></p>
+    <button class="btn-go-phimbro" id="goToPhimbro">Go to phimbro.com</button>
+    <p class="versionText"></p>
   </div>
 
-  <!-- Not on phimbro Intro View -->
-  <div id="notOnSite" class="popup-container" style="display: none;">
-    <div class="not-site-inner">
-        <button class="go-site-btn" id="goToPhimbro">Go to phimbro.com</button>
-        <p class="not-on-site-text">Binger🍿 only works on <strong>phimbro.com</strong>!</p>
+  <!-- View 2: Main UI (logged out) -->
+  <div id="mainUI" class="popup-view view-main">
+    <p class="main-greeting">Hey, Binger!</p>
+    <p class="main-subtext">Ready for movie night?</p>
+    <div class="main-popcorn">&#127871;</div>
+    <div class="main-btn-group">
+      <button class="btn-auth btn-signup" id="signupBtn">Sign up</button>
+      <button class="btn-auth btn-signin" id="signinBtn">Sign in</button>
     </div>
-    <p class="versionText">
-      Version: loading...
-    </p>
+    <p class="main-reminder">Also remember to sign into your <strong>phimbro</strong> account!</p>
+    <p class="versionText"></p>
   </div>
 
-  <!-- Auth View (Sign Up / Sign In) -->
-  <div id="authUI" class="popup-container" style="display: none;">
-    <div class="auth-header">
-        <img src="../../binger_assets/images/back_arrow.png" alt="Back" id="backBtn" class="back-arrow" />
-        <h2 id="authTitle">Let’s get you on board!</h2>
+  <!-- View 3: Auth form (sign up / sign in) -->
+  <div id="authUI" class="popup-view view-auth">
+    <div class="auth-top-bar">
+      <button class="btn-back" id="backBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5" />
+          <path d="m12 19-7-7 7-7" />
+        </svg>
+      </button>
+      <span class="auth-title" id="authTitle">Let's get you on board!</span>
     </div>
 
-    <div class="auth-form">
-        <input type="text" id="usernameInput" placeholder="Username" />
-        <input type="password" id="passwordInput" placeholder="Password (at least 6 characters)" />
-        <button id="authSubmitBtn">Submit</button>
+    <div class="auth-form-group">
+      <div class="input-wrapper">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+        <input type="text" class="auth-input" id="usernameInput" placeholder="Username" autocomplete="off" />
+      </div>
+      <div class="input-wrapper">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+        </svg>
+        <input type="password" class="auth-input" id="passwordInput" placeholder="Password (min 6 characters)" />
+      </div>
+      <button class="btn-submit" id="authSubmitBtn">Submit</button>
     </div>
 
-    <p id="authStatus" class="auth-status"></p>
-    <p class="versionText">
-      Version: loading...
-    </p>
+    <p class="auth-status-msg" id="authStatus"></p>
+    <p class="versionText"></p>
   </div>
 
-  <!-- Signed In View -->
-  <div id="signedInUI" class="popup-container" style="display: none;">
-    <p class="signed-in-text">Enjoy your movie time!🍿</p>
-    <button id="signOutBtn" class="signout-btn">Sign out</button>
-    <p class="phimbro-reminder">Make sure you're signed into <strong>phimbro</strong> too!</p>
-    <p class="versionText">
-      Version: loading...
-    </p>
-
-    <!-- Theme Selector at Bottom -->
-    <div class="theme-bar">
-      <button id="burgundyThemeBtn" class="theme-btn burgundy"></button>
-      <button id="pinkThemeBtn" class="theme-btn pink"></button>
-      <button id="blackwhiteThemeBtn" class="theme-btn blackwhite"></button>
-      <button id="oceanThemeBtn" class="theme-btn ocean"></button> 
-      <button id="volcanoThemeBtn" class="theme-btn volcano"></button>
-      <button id="forestThemeBtn" class="theme-btn forest"></button>
-      <!----------------------------------------------------------------------------------------------------- Add new theme here ------>
+  <!-- View 4: Signed in -->
+  <div id="signedInUI" class="popup-view view-signed-in">
+    <div class="signed-in-avatar">&#127871;</div>
+    <p class="signed-in-greeting">Enjoy the show!</p>
+    <p class="signed-in-sub">You're all set for movie night</p>
+    <button class="btn-signout" id="signOutBtn">Sign out</button>
+    <p class="signed-in-reminder">Make sure you're signed into <strong>phimbro</strong> too!</p>
+    <div class="theme-selector">
+      <button id="burgundyThemeBtn" class="theme-dot burgundy" title="Burgundy"></button>
+      <button id="pinkThemeBtn" class="theme-dot pink" title="Pink"></button>
+      <button id="blackwhiteThemeBtn" class="theme-dot blackwhite" title="Black &amp; White"></button>
+      <button id="oceanThemeBtn" class="theme-dot ocean" title="Ocean"></button>
+      <button id="volcanoThemeBtn" class="theme-dot volcano" title="Volcano"></button>
+      <button id="forestThemeBtn" class="theme-dot forest" title="Forest"></button>
     </div>
+    <p class="versionText"></p>
   </div>
 
   <script type="module" src="popup.js"></script>

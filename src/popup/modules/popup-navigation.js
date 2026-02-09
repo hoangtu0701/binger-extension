@@ -1,6 +1,6 @@
 // ============================================================================
 // NAVIGATION MODULE
-// Handles switching between popup views
+// Handles switching between popup views via CSS class toggling
 // ============================================================================
 
 // DOM element references (cached for performance)
@@ -25,13 +25,13 @@ export function initNavigation() {
 }
 
 /**
- * Hide all views
+ * Hide all views by removing the active class
  */
 function hideAllViews() {
-    elements.mainUI.style.display = "none";
-    elements.notOnSite.style.display = "none";
-    elements.authUI.style.display = "none";
-    elements.signedInUI.style.display = "none";
+    elements.mainUI.classList.remove("active");
+    elements.notOnSite.classList.remove("active");
+    elements.authUI.classList.remove("active");
+    elements.signedInUI.classList.remove("active");
 }
 
 /**
@@ -39,7 +39,7 @@ function hideAllViews() {
  */
 export function showNotOnSite() {
     hideAllViews();
-    elements.notOnSite.style.display = "block";
+    elements.notOnSite.classList.add("active");
 }
 
 /**
@@ -47,7 +47,7 @@ export function showNotOnSite() {
  */
 export function showMainUI() {
     hideAllViews();
-    elements.mainUI.style.display = "block";
+    elements.mainUI.classList.add("active");
 }
 
 /**
@@ -55,7 +55,7 @@ export function showMainUI() {
  */
 export function showSignedInUI() {
     hideAllViews();
-    elements.signedInUI.style.display = "block";
+    elements.signedInUI.classList.add("active");
 }
 
 /**
@@ -65,13 +65,13 @@ export function showSignedInUI() {
  */
 export function showAuthUI(mode) {
     hideAllViews();
-    elements.authUI.style.display = "block";
-    
+    elements.authUI.classList.add("active");
+
     if (mode === "signup") {
         elements.authTitle.textContent = "Let's get you on board!";
     } else {
         elements.authTitle.textContent = "Welcome back!";
     }
-    
+
     return mode;
 }

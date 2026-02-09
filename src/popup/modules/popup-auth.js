@@ -83,7 +83,7 @@ export function resetAuthForm() {
     elements.usernameInput.value = "";
     elements.passwordInput.value = "";
     elements.authStatus.textContent = "";
-    elements.authStatus.className = "auth-status";
+    elements.authStatus.className = "auth-status-msg";
 }
 
 /**
@@ -93,7 +93,7 @@ export function resetAuthForm() {
  */
 function showStatus(message, isError = false) {
     elements.authStatus.textContent = message;
-    elements.authStatus.className = isError ? "auth-status error" : "auth-status success";
+    elements.authStatus.className = isError ? "auth-status-msg error" : "auth-status-msg success";
 }
 
 /**
