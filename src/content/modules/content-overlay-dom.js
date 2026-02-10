@@ -293,25 +293,17 @@
 
         const warning = document.createElement("div");
         warning.id = "bingerMultiTabWarning";
-        warning.textContent = "Multiple Phimbro tabs open - please close the others to avoid sync issues.";
-        Object.assign(warning.style, {
-            position: "fixed",
-            top: "0px",
-            left: "50%",
-            transform: "translateX(-50%)",
-            backgroundColor: "#fff3cd",
-            color: "#856404",
-            padding: "12px 20px",
-            fontSize: "16px",
-            fontWeight: "600",
-            border: "1px solid #ffeeba",
-            borderRadius: "0 0 12px 12px",
-            zIndex: "9999999",
-            fontFamily: "Figtree",
-            boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-            pointerEvents: "none"
-        });
 
+        const icon = document.createElement("div");
+        icon.className = "multi-tab-icon";
+        icon.textContent = "!";
+
+        const text = document.createElement("span");
+        text.className = "multi-tab-text";
+        text.textContent = "Multiple Phimbro tabs open - please close the others to avoid sync issues.";
+
+        warning.appendChild(icon);
+        warning.appendChild(text);
         document.body.appendChild(warning);
     }
 
