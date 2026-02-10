@@ -975,7 +975,8 @@
    ======================================================================== */
 
 .bingerChatMsg.bot-query {
-  overflow: visible;
+  overflow: clip;
+  overflow-clip-margin: 10px;
 }
 
 .bingerChatMsg.bot-reply {
