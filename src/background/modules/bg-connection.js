@@ -71,11 +71,8 @@
                 }
 
                 const roomId = result.bingerCurrentRoomId;
-                const remainingPorts = BingerBGState.getActivePorts();
 
-                if (remainingPorts === 0) {
-                    BingerBGHelpers.unsubscribeFromTyping(roomId);
-                }
+                BingerBGHelpers.unsubscribeFromTyping(roomId);
 
                 if (result.bingerIsReloading) {
                     chrome.storage.local.remove("bingerIsReloading", () => {
