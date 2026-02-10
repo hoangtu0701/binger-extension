@@ -356,7 +356,7 @@ Bot mode is activated via a toggle button ("B") in the chat input bar. When acti
 - The button glows with theme-matched colors
 - The input placeholder changes to "Ask Binger..."
 - All messages sent are routed to the bot
-- Bot query messages display a glowing "B" circle badge on the top-right corner of the message bubble
+- Bot query messages display a glowing "B" circle badge at the top-right corner of the message bubble
 - Bot replies display with italic styling
 
 Bot mode state persists across page navigation via `chrome.storage.local` and resets when leaving a room.
