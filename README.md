@@ -9,7 +9,7 @@ A Chrome extension that turns [Phimbro](https://phimbro.com) into a synchronized
 - **Synced Playback** - Play, pause, and seek together in real-time
 - **Live Chat** - Real-time messaging with a toggleable AI assistant that can seek to scenes you describe
 - **Video Calls** - WebRTC-based video/audio calls while watching
-- **Private Rooms** - Create or join rooms with 6-digit codes (max 2 users)
+- **Private Rooms** - Create or join rooms with 6-digit codes (max 2 users per room)
 - **Soundboard** - Sound effects and floating/pinned emoji reactions
 - **6 Themes** - Burgundy, Pink, Black & White, Ocean, Volcano, Forest (applied to all components including call iframe)
 - **Fullscreen Support** - Connected panel layout with smooth slide animations
