@@ -149,6 +149,28 @@ Content scripts follow a similar ordered initialization through `main.js`.
 - Persists across page reloads and SPA navigation
 - Displays current user info and room status
 - All 6 themes apply to every overlay element
+- `overscroll-behavior: contain` prevents scroll chaining to the host page
+
+### Username Display
+
+Compact pill badge centered below the header showing a status dot and the username. Styled per theme with matching dot and text colors.
+
+### Info Strip
+
+The chat header uses a horizontal info strip layout:
+
+| Element | Description |
+|---------|-------------|
+| Room Badge | Monospace 6-digit room code (JetBrains Mono), shows `------` when not in a room |
+| Divider | 1px vertical separator between badge and avatars |
+| Host Tag | Uppercase "HOST" pill badge, rounded left corners, positioned to the left of the host avatar and tucked under the circle via negative margin |
+| Avatar Circles | 24px opaque circles with single-letter uppercase initials, fully solid backgrounds (no transparency), `font-size: 10px !important` for fullscreen safety |
+| User Count | Right-aligned `n/2` counter |
+| Empty State | Dashed `?` placeholder circles, reduced right padding to push them flush right |
+
+Background scripts broadcast structured `{ name, isHost }` objects instead of pre-formatted strings, enabling content-side rendering of avatars with proper host badge placement.
+
+Avatar hover tooltips fade in smoothly (0.2s opacity + 4px upward slide) with a CSS triangle arrow pointing down toward the circle.
 
 ### Room System
 
@@ -165,8 +187,13 @@ Content scripts follow a similar ordered initialization through `main.js`.
 - Typing indicators with 1.2-second timeout and cached UID for performance
 - Messages persist in the room node
 - Disabled until user joins a room
+- Default "Chat log will appear here" text centered in the chatlog when disabled
 - Bot mode toggle for AI queries (see Binger Bot section)
-- Messages tagged as bot queries or bot replies display visual indicators
+- Send button disabled when input is empty, re-enabled on typing, re-disabled after successful send
+
+### Bot Query Indicator
+
+Bot query messages display a 16px glowing "B" circle badge on the top-right corner of the message bubble. Uses `overflow: visible` on the message with `position: absolute` on the badge. No border-left accent on bot messages - the badge is the sole indicator. Themed per all 6 color schemes with gradient backgrounds and matching border/glow colors. Font-size locked with `!important` for fullscreen safety.
 
 ### Message Animation System
 
@@ -309,8 +336,8 @@ Bot mode is activated via a toggle button ("B") in the chat input bar. When acti
 - The button glows with theme-matched colors
 - The input placeholder changes to "Ask Binger..."
 - All messages sent are routed to the bot
-- Messages display a visual indicator (colored left border + "@B" badge) so both users can distinguish bot queries from normal chat
-- Bot replies also display the "@B" badge with italic styling
+- Bot query messages display a glowing "B" circle badge on the top-right corner of the message bubble
+- Bot replies display with italic styling
 
 Bot mode state persists across page navigation via `chrome.storage.local` and resets when leaving a room.
 
@@ -481,6 +508,7 @@ Triggered when the bot reply contains `Seeking to the scene where...`
 | Typing UID cache | UID cached after first auth check to skip repeated lookups |
 | Async parallelization | Promise.all for batch subtitle/embedding operations |
 | Bot mode persistence | chrome.storage.local preserves toggle across navigation |
+| Scroll containment | `overscroll-behavior: contain` on overlay and chatlog prevents scroll bleed to host page |
 
 ---
 
@@ -497,3 +525,4 @@ Triggered when the bot reply contains `Seeking to the scene where...`
 | Iframe reset | Pre-cleanup prevents ghost users and stale signals |
 | Monitor switch | Resize listener repositions call iframe |
 | Bot mode across navigation | Persisted to chrome.storage.local, restored on rejoin |
+| Empty message send | Send button disabled when input is empty, re-enabled on typing |
