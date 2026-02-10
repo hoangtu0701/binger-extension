@@ -198,6 +198,10 @@
                     timestamp: Date.now()
                 };
 
+                if (isBotQuery) {
+                    msgData.type = "botQuery";
+                }
+
                 BingerConnection.sendMessage({
                     command: "post",
                     path: `rooms/${roomId}/messages`,
@@ -264,6 +268,12 @@
 
         const messageEl = document.createElement("div");
         messageEl.className = "bingerChatMsg";
+
+        if (type === "botQuery") {
+            messageEl.classList.add("bot-query");
+        } else if (type === "bot") {
+            messageEl.classList.add("bot-reply");
+        }
 
         if (isInitialLoad) {
             messageEl.classList.add("no-entrance");

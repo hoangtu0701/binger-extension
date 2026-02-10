@@ -586,3 +586,98 @@
 .theme-forest .bingerChatMsg.no-entrance:not(.paused)::before {
   animation: dappledLight 7s ease-in-out infinite;
 }
+
+/* ========================================================================
+   BOT MESSAGE INDICATORS
+   ======================================================================== */
+
+.bingerChatMsg.bot-query {
+  border-left: 2px solid rgba(255, 180, 50, 0.5) !important;
+  padding-right: 30px;
+}
+
+.bingerChatMsg.bot-reply {
+  border-left: 2px solid rgba(255, 180, 50, 0.5) !important;
+  font-style: italic;
+}
+
+.bingerChatMsg.bot-query::after {
+  content: "@B";
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: 9px;
+  font-weight: 700;
+  font-style: normal;
+  line-height: 1;
+  padding: 1px 4px;
+  border-radius: 4px;
+  pointer-events: none;
+  background: rgba(255, 180, 50, 0.2);
+  color: rgba(255, 200, 100, 0.7);
+}
+
+.theme-pink .bingerChatMsg.bot-query {
+  border-left: 2px solid rgba(220, 140, 170, 0.5) !important;
+}
+
+.theme-pink .bingerChatMsg.bot-reply {
+  border-left: 2px solid rgba(220, 140, 170, 0.5) !important;
+}
+
+.theme-pink .bingerChatMsg.bot-query::after {
+  background: rgba(220, 140, 170, 0.2);
+  color: rgba(240, 170, 200, 0.7);
+}
+
+.theme-blackwhite .bingerChatMsg.bot-query {
+  border-left: 2px solid rgba(255, 255, 255, 0.25) !important;
+}
+
+.theme-blackwhite .bingerChatMsg.bot-reply {
+  border-left: 2px solid rgba(255, 255, 255, 0.25) !important;
+}
+
+.theme-blackwhite .bingerChatMsg.bot-query::after {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.theme-ocean .bingerChatMsg.bot-query {
+  border-left: 2px solid rgba(0, 180, 220, 0.4) !important;
+}
+
+.theme-ocean .bingerChatMsg.bot-reply {
+  border-left: 2px solid rgba(0, 180, 220, 0.4) !important;
+}
+
+.theme-ocean .bingerChatMsg.bot-query::after {
+  background: rgba(0, 180, 220, 0.15);
+  color: rgba(0, 200, 240, 0.6);
+}
+
+.theme-volcano .bingerChatMsg.bot-query {
+  border-left: 2px solid rgba(255, 120, 40, 0.4) !important;
+}
+
+.theme-volcano .bingerChatMsg.bot-reply {
+  border-left: 2px solid rgba(255, 120, 40, 0.4) !important;
+}
+
+.theme-volcano .bingerChatMsg.bot-query::after {
+  background: rgba(255, 120, 40, 0.15);
+  color: rgba(255, 150, 70, 0.6);
+}
+
+.theme-forest .bingerChatMsg.bot-query {
+  border-left: 2px solid rgba(140, 200, 100, 0.4) !important;
+}
+
+.theme-forest .bingerChatMsg.bot-reply {
+  border-left: 2px solid rgba(140, 200, 100, 0.4) !important;
+}
+
+.theme-forest .bingerChatMsg.bot-query::after {
+  background: rgba(140, 200, 100, 0.15);
+  color: rgba(160, 220, 120, 0.6);
+}
