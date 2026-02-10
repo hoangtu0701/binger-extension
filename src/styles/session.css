@@ -47,6 +47,7 @@
 .theme-pink #bingerOverlay.in-session .bingerChatMsg {
   background: rgba(180, 80, 110, 0.25) !important;
   color: #f5e8ed !important;
+  border-left: none !important;
 }
 
 .theme-pink #bingerOverlay.in-session .bingerChatMsg:nth-child(even) {
