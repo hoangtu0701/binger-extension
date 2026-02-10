@@ -976,8 +976,7 @@
 
 .bingerChatMsg.bot-query {
   overflow: hidden;
-  padding-top: 14px;
-  padding-right: 18px;
+  padding-right: 24px;
 }
 
 .bingerChatMsg.bot-reply {
@@ -987,8 +986,8 @@
 .bingerChatMsg.bot-query::after {
   content: "B";
   position: absolute;
-  top: 4px;
-  right: 4px;
+  top: 5px;
+  right: 5px;
   width: 16px;
   height: 16px;
   font-size: 8px !important;
