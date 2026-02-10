@@ -14,6 +14,7 @@
   transition: opacity 0.3s ease, transform 0.3s ease;
   opacity: 0.97;
   height: 580px;
+  overscroll-behavior: contain;
 }
 
 .theme-pink #bingerOverlay {

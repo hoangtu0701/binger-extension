@@ -444,6 +444,7 @@
   height: 100%;
   font-family: 'Segoe UI', sans-serif;
   background: rgba(10, 4, 8, 0.5);
+  overscroll-behavior: contain;
 }
 
 #bingerChatWrapper.disabled #bingerChatLog {

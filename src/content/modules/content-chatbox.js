@@ -198,6 +198,7 @@
                     .then((res) => {
                         if (res?.status === "success") {
                             if (chatInput) chatInput.value = "";
+                            updateSendBtnState();
 
                             if (isBotQuery) {
                                 const movieContext = BingerHelpers.scrapeMovieContext();
@@ -349,6 +350,13 @@
     let boundClickHandler = null;
     let boundBotToggleHandler = null;
 
+    function updateSendBtnState() {
+        const chatInput = BingerOverlayDOM.getElement("chatInput");
+        const sendBtn = BingerOverlayDOM.getElement("sendBtn");
+        if (!chatInput || !sendBtn) return;
+        sendBtn.disabled = !chatInput.value.trim();
+    }
+
     function setupChatInputListeners(roomId) {
         const chatInput = BingerOverlayDOM.getElement("chatInput");
         const sendBtn = BingerOverlayDOM.getElement("sendBtn");
@@ -356,6 +364,8 @@
         if (!chatInput || !sendBtn) return;
 
         removeInputListeners();
+
+        sendBtn.disabled = true;
 
         boundKeydownHandler = (e) => {
             if (e.key === "Enter") {
@@ -366,6 +376,7 @@
 
         boundInputHandler = () => {
             handleTypingInput(roomId);
+            updateSendBtnState();
         };
 
         boundClickHandler = () => {
