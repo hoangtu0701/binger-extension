@@ -3,385 +3,1102 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Binger – Watch Together</title>
+    <title>Binger - Watch Together</title>
+    <link rel="icon" href="icon.png" type="image/png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
     <style>
-      body {
+      *, *::before, *::after {
         margin: 0;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: #0d1117;
-        color: #f0f6fc;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --bg-deep: #0a0408;
+        --bg-surface: #1a0a10;
+        --bg-elevated: #2d0f1a;
+        --accent-burgundy: #a83242;
+        --accent-burgundy-deep: #8b1e32;
+        --accent-warm: #d4a574;
+        --accent-gold: #f5e6d0;
+        --text-primary: #f5e6d0;
+        --text-secondary: rgba(245, 230, 208, 0.55);
+        --text-muted: rgba(245, 230, 208, 0.3);
+        --border-subtle: rgba(180, 80, 100, 0.15);
+        --border-warm: rgba(200, 140, 80, 0.2);
+        --glow-burgundy: rgba(168, 50, 66, 0.3);
+        --glow-warm: rgba(200, 140, 80, 0.15);
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: var(--bg-deep);
+        color: var(--text-primary);
+        overflow-x: hidden;
+        line-height: 1.6;
+      }
+      .page-bg {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+      }
+
+      .page-bg::before {
+        content: "";
+        position: absolute;
+        top: -30%;
+        left: -15%;
+        width: 130%;
+        height: 130%;
+        background: radial-gradient(
+          ellipse at 25% 15%,
+          rgba(139, 30, 50, 0.25) 0%,
+          rgba(90, 15, 30, 0.12) 30%,
+          transparent 60%
+        );
+        animation: ambientDrift 16s ease-in-out infinite alternate;
+      }
+
+      .page-bg::after {
+        content: "";
+        position: absolute;
+        bottom: -25%;
+        right: -15%;
+        width: 110%;
+        height: 110%;
+        background: radial-gradient(
+          ellipse at 75% 80%,
+          rgba(180, 100, 50, 0.12) 0%,
+          rgba(100, 40, 20, 0.08) 35%,
+          transparent 55%
+        );
+        animation: ambientDrift 12s ease-in-out infinite alternate-reverse;
+      }
+
+      @keyframes ambientDrift {
+        0% { transform: translate(0, 0) scale(1); }
+        100% { transform: translate(20px, -15px) scale(1.04); }
+      }
+
+      .grain-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 1;
+        opacity: 0.025;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        pointer-events: none;
+      }
+
+      .content-wrapper {
+        position: relative;
+        z-index: 2;
+      }
+      .hero {
+        min-height: 100vh;
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: flex-start;
-        min-height: 100vh;
-        padding: 2rem 1rem;
-      }
-
-      header {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 2rem;
-        animation: fadeIn 1s ease;
-      }
-
-      header img {
-        width: 64px;
-        height: 64px;
-      }
-
-      header h1 {
-        font-size: 3rem;
-        margin: 0;
-      }
-
-      h2.tagline {
-        color: #8b949e;
-        font-weight: 400;
-        margin-bottom: 4rem;
-        animation: fadeIn 1.5s ease;
-      }
-
-      .features {
-        display: flex;
-        flex-wrap: wrap;
         justify-content: center;
-        gap: 2rem;
-        max-width: 1000px;
-        margin-bottom: 5rem;
-        animation: slideUp 1s ease forwards;
+        padding: 3rem 1.5rem;
+        text-align: center;
+        position: relative;
       }
 
-      .feature {
-        background: linear-gradient(145deg, #1f242d, #0c1015);
-        border: 1px solid #30363d;
-        border-radius: 20px;
-        padding: 2rem;
-        width: 300px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
-        transition: transform 0.4s ease, box-shadow 0.4s ease;
+      .hero-glow {
+        position: absolute;
+        width: 500px;
+        height: 500px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(168, 50, 66, 0.15) 0%, transparent 70%);
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -55%);
+        pointer-events: none;
+        animation: heroGlowPulse 6s ease-in-out infinite;
+      }
+
+      @keyframes heroGlowPulse {
+        0%, 100% { opacity: 0.6; transform: translate(-50%, -55%) scale(1); }
+        50% { opacity: 1; transform: translate(-50%, -55%) scale(1.08); }
+      }
+
+      .hero-logo {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 1.5rem;
+        filter: drop-shadow(0 4px 20px rgba(168, 50, 66, 0.4));
+        animation: heroEntrance 0.8s ease-out both;
+      }
+
+      .hero-title {
+        font-family: "Playfair Display", serif;
+        font-size: clamp(3rem, 8vw, 5.5rem);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        background: linear-gradient(135deg, var(--text-primary), var(--accent-warm));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 1rem;
+        animation: heroEntrance 0.8s ease-out 0.1s both;
+      }
+
+      .hero-tagline {
+        font-size: clamp(1rem, 2.5vw, 1.25rem);
+        color: var(--text-secondary);
+        max-width: 500px;
+        margin-bottom: 3rem;
+        animation: heroEntrance 0.8s ease-out 0.2s both;
+      }
+
+      .hero-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 16px 40px;
+        font-family: "DM Sans", sans-serif;
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        background: linear-gradient(135deg, var(--accent-burgundy), var(--accent-burgundy-deep));
+        border: 1px solid rgba(200, 100, 120, 0.3);
+        border-radius: 14px;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.35s ease;
+        position: relative;
+        overflow: hidden;
+        animation: heroEntrance 0.8s ease-out 0.3s both;
+      }
+
+      .hero-cta::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), transparent);
+        opacity: 0;
+        transition: opacity 0.35s ease;
+      }
+
+      .hero-cta:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 40px var(--glow-burgundy), 0 0 60px rgba(168, 50, 66, 0.15);
+      }
+
+      .hero-cta:hover::before {
+        opacity: 1;
+      }
+
+      .hero-cta svg {
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+      }
+
+      .hero-version {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin-top: 1rem;
+        font-family: "JetBrains Mono", monospace;
+        animation: heroEntrance 0.8s ease-out 0.4s both;
+      }
+
+      .hero-scroll-hint {
+        position: absolute;
+        bottom: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        color: var(--text-muted);
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        animation: scrollBounce 2s ease-in-out infinite;
+      }
+
+      .hero-scroll-hint svg {
+        width: 16px;
+        height: 16px;
+        opacity: 0.4;
+      }
+
+      @keyframes heroEntrance {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      @keyframes scrollBounce {
+        0%, 100% { transform: translateY(0); opacity: 0.4; }
+        50% { transform: translateY(6px); opacity: 0.7; }
+      }
+      section {
+        padding: 6rem 1.5rem;
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+
+      .section-label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 2.5px;
+        text-transform: uppercase;
+        color: var(--accent-burgundy);
+        margin-bottom: 1rem;
         text-align: center;
       }
 
-      .feature:hover {
-        transform: scale(1.05);
-        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.8);
+      .section-title {
+        font-family: "Playfair Display", serif;
+        font-size: clamp(1.8rem, 4vw, 2.6rem);
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 1rem;
+        color: var(--text-primary);
       }
 
-      .feature h3 {
-        color: #79c0ff;
-        margin-bottom: 0.75rem;
+      .section-subtitle {
+        text-align: center;
+        color: var(--text-secondary);
+        max-width: 600px;
+        margin: 0 auto 4rem;
+        font-size: 1rem;
+      }
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
       }
 
-      .cta {
-        background: #238636;
-        color: white;
-        padding: 1.2rem 3rem;
+      .feature-card {
+        padding: 2rem;
+        border-radius: 16px;
+        background:
+          radial-gradient(ellipse at 20% 0%, rgba(160, 50, 70, 0.06) 0%, transparent 60%),
+          linear-gradient(160deg, rgba(26, 10, 16, 0.8), rgba(45, 15, 26, 0.4));
+        border: 1px solid var(--border-subtle);
+        transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .feature-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(168, 50, 66, 0.05), transparent);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+      }
+
+      .feature-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(180, 80, 100, 0.3);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(168, 50, 66, 0.06);
+      }
+
+      .feature-card:hover::before {
+        opacity: 1;
+      }
+
+      .feature-icon {
+        width: 48px;
+        height: 48px;
         border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.25rem;
         font-size: 1.3rem;
-        text-decoration: none;
-        transition: background 0.3s ease, transform 0.3s ease;
-        margin: 2rem 0 5rem;
-        box-shadow: 0 5px 15px rgba(0, 255, 100, 0.2);
-        animation: pulse 2.5s infinite;
+        background: rgba(200, 140, 80, 0.1);
+        border: 1px solid rgba(200, 140, 80, 0.15);
+        color: var(--accent-warm);
+        position: relative;
+        z-index: 1;
       }
 
-      .cta:hover {
-        background: #2ea043;
+      .feature-card h3 {
+        font-family: "DM Sans", sans-serif;
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 0.6rem;
+        color: var(--text-primary);
+        position: relative;
+        z-index: 1;
+      }
+
+      .feature-card p {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        position: relative;
+        z-index: 1;
+      }
+      .themes-row {
+        display: flex;
+        justify-content: center;
+        gap: 1.25rem;
+        flex-wrap: wrap;
+        margin-top: 2rem;
+      }
+
+      .theme-pill {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 20px 10px 14px;
+        border-radius: 40px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        transition: all 0.3s ease;
+        cursor: default;
+      }
+
+      .theme-pill:hover {
+        background: rgba(255, 255, 255, 0.06);
         transform: translateY(-2px);
       }
 
-      .guide-section {
-        background: #161b22;
-        border: 1px solid #30363d;
+      .theme-swatch {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .theme-swatch.sw-burgundy { background: #8b1e32; }
+      .theme-swatch.sw-pink { background: linear-gradient(135deg, #f8c8dc, #e8a4be); }
+      .theme-swatch.sw-bw {
+        background: #111;
+        position: relative;
+        overflow: hidden;
+      }
+      .theme-swatch.sw-bw::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background:
+          radial-gradient(1px 1px at 30% 25%, #fff, transparent),
+          radial-gradient(1px 1px at 60% 60%, #fff, transparent),
+          radial-gradient(1px 1px at 75% 35%, #fff, transparent);
+      }
+      .theme-swatch.sw-ocean { background: linear-gradient(135deg, #0077b6, #00b4d8); }
+      .theme-swatch.sw-volcano { background: linear-gradient(135deg, #b93821, #e85d2a); }
+      .theme-swatch.sw-forest { background: linear-gradient(135deg, #2d6a1e, #4a9e35); }
+
+      .theme-pill span {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+      }
+      .bot-showcase {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        align-items: start;
+        margin-top: 3rem;
+      }
+
+      .bot-info {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .bot-detail {
+        padding: 1.5rem;
+        border-radius: 14px;
+        background: rgba(26, 10, 16, 0.6);
+        border: 1px solid var(--border-subtle);
+      }
+
+      .bot-detail h4 {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.7rem;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: var(--accent-burgundy);
+        margin-bottom: 0.75rem;
+      }
+
+      .bot-detail p {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        line-height: 1.6;
+      }
+
+      .bot-chat-demo {
+        padding: 1.5rem;
         border-radius: 16px;
-        max-width: 1000px;
-        width: 100%;
-        padding: 2rem;
-        margin-bottom: 4rem;
-        animation: fadeIn 2s ease;
+        background: rgba(15, 5, 10, 0.7);
+        border: 1px solid rgba(180, 80, 100, 0.12);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
       }
 
-      .guide-section h2 {
-        font-size: 2rem;
-        color: #58a6ff;
-        margin-bottom: 2.5rem;
-        text-align: center;
+      .demo-msg {
+        max-width: 85%;
+        padding: 10px 14px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        line-height: 1.5;
+        animation: demoMsgIn 0.5s ease both;
       }
 
-      .step {
+      .demo-msg.user {
+        align-self: flex-end;
+        background: linear-gradient(135deg, rgba(140, 40, 55, 0.6), rgba(100, 25, 40, 0.7));
+        color: var(--text-primary);
+        border: 1px solid rgba(180, 80, 100, 0.2);
+        position: relative;
+      }
+
+      .demo-msg.user .bot-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        width: 16px;
+        height: 16px;
+        font-size: 8px;
+        font-weight: 700;
         display: flex;
         align-items: center;
-        gap: 1.5rem;
-        margin-bottom: 1.5rem;
-        background: #0d1117;
-        border: 1px solid #30363d;
-        border-radius: 14px;
-        padding: 0.8rem 1rem;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+        justify-content: center;
+        border-radius: 50%;
+        background: linear-gradient(135deg, rgba(255, 180, 50, 0.4), rgba(255, 140, 30, 0.5));
+        color: #fff8e0;
+        border: 1.5px solid rgba(10, 4, 8, 0.8);
+        box-shadow: 0 0 6px rgba(255, 160, 40, 0.25);
       }
 
-      .step:nth-child(even) {
+      .demo-msg.bot {
+        align-self: flex-start;
+        background: rgba(200, 140, 80, 0.08);
+        color: var(--text-secondary);
+        border: 1px solid rgba(200, 140, 80, 0.1);
+        font-style: italic;
+      }
+
+      .demo-input {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 4px;
+      }
+
+      .demo-input-field {
+        flex: 1;
+        padding: 8px 12px;
+        border-radius: 8px;
+        background: rgba(30, 12, 20, 0.8);
+        border: 1px solid rgba(180, 80, 100, 0.15);
+        color: var(--text-muted);
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.8rem;
+        pointer-events: none;
+      }
+
+      .demo-bot-toggle {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, rgba(255, 180, 50, 0.2), rgba(255, 140, 30, 0.3));
+        border: 1px solid rgba(255, 160, 40, 0.4);
+        color: #fff8e0;
+        box-shadow: 0 0 10px rgba(255, 160, 40, 0.15);
+      }
+
+      .demo-send-btn {
+        padding: 7px 14px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, rgba(160, 60, 70, 0.7), rgba(140, 45, 55, 0.8));
+        color: var(--text-primary);
+        font-size: 0.8rem;
+        font-weight: 600;
+        border: none;
+        pointer-events: none;
+      }
+
+      @keyframes demoMsgIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .soundboard-preview {
+        display: flex;
+        justify-content: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        margin-top: 2rem;
+      }
+
+      .sb-chip {
+        padding: 8px 16px;
+        border-radius: 10px;
+        background: rgba(200, 140, 80, 0.08);
+        border: 1px solid rgba(200, 140, 80, 0.12);
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: var(--accent-warm);
+        transition: all 0.25s ease;
+        cursor: default;
+      }
+
+      .sb-chip:hover {
+        background: rgba(200, 140, 80, 0.18);
+        transform: translateY(-2px);
+      }
+      .install-steps {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .install-step {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        padding: 1.25rem 1.5rem;
+        border-radius: 16px;
+        background: rgba(26, 10, 16, 0.5);
+        border: 1px solid var(--border-subtle);
+        transition: all 0.35s ease;
+      }
+
+      .install-step:nth-child(even) {
         flex-direction: row-reverse;
       }
 
-      .step:hover img {
-        transform: scale(1.06);
+      .install-step:hover {
+        border-color: rgba(180, 80, 100, 0.25);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
       }
 
-      .step img {
+      .install-step:hover img {
+        transform: scale(1.03);
+      }
+
+      .install-step img {
         width: 30vw;
-        max-width: 350px;
+        max-width: 340px;
         border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
         object-fit: cover;
-        border: 1px solid #30363d;
-        transition: transform 0.3s ease;
+        transition: transform 0.35s ease;
+        flex-shrink: 0;
       }
 
-      .step .text {
+      .step-content {
         flex: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;     
-        max-width: 70%;         
-        margin: 0 auto;          
-        text-align: center;     
-        color: #c9d1d9;
-        font-size: 1.2rem;
-        line-height: 1.5;
-      }
-
-      .step .text strong {
-        display: block;
-        font-size: 1.3rem;
-        margin-bottom: 0.3rem;
-        color: #58a6ff;
-      }
-
-      footer {
-        font-size: 0.9rem;
-        color: #8b949e;
-        margin-top: auto;
-        padding: 2rem 0;
-      }
-
-      .faq-section {
-        max-width: 800px;
-        margin: 0 auto 4rem;
-        padding: 2rem;
-        background: #161b22;
-        border: 1px solid #30363d;
-        border-radius: 16px;
-        animation: fadeIn 2s ease;
-      }
-
-      .faq-section h2 {
-        color: #58a6ff;
-        font-size: 2rem;
-        margin-bottom: 2rem;
         text-align: center;
       }
 
+      .step-number {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.65rem;
+        font-weight: 600;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--accent-burgundy);
+        margin-bottom: 0.5rem;
+      }
+
+      .step-content p {
+        font-size: 1rem;
+        color: var(--text-secondary);
+        line-height: 1.6;
+      }
+
+      .step-content strong {
+        color: var(--text-primary);
+      }
+
+      .step-content code {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.85rem;
+        padding: 2px 8px;
+        border-radius: 6px;
+        background: rgba(200, 140, 80, 0.1);
+        color: var(--accent-warm);
+      }
+      .faq-list {
+        max-width: 700px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
       .faq-item {
-        margin-bottom: 1rem;
+        border-radius: 12px;
+        overflow: hidden;
       }
 
       .faq-question {
         width: 100%;
-        background: #0d1117;
-        color: #f0f6fc;
-        border: 1px solid #30363d;
-        border-radius: 8px;
-        padding: 1rem;
-        font-size: 1.1rem;
+        padding: 1rem 1.25rem;
+        background: rgba(26, 10, 16, 0.6);
+        border: 1px solid var(--border-subtle);
+        border-radius: 12px;
+        color: var(--text-primary);
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.95rem;
+        font-weight: 600;
         text-align: left;
         cursor: pointer;
-        transition: background 0.3s ease;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
       }
 
       .faq-question:hover {
-        background: #1a1f25;
+        background: rgba(26, 10, 16, 0.8);
+        border-color: rgba(180, 80, 100, 0.25);
+      }
+
+      .faq-question svg {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+        color: var(--text-muted);
+        transition: transform 0.3s ease;
+      }
+
+      .faq-item.open .faq-question svg {
+        transform: rotate(45deg);
       }
 
       .faq-answer {
         max-height: 0;
         overflow: hidden;
         transition: max-height 0.4s ease, padding 0.3s ease;
-        background: #0d1117;
-        padding: 0 1rem;
-        border-left: 3px solid #58a6ff;
-        margin-top: 0.5rem;
-        border-radius: 0 0 8px 8px;
+        padding: 0 1.25rem;
+        border-left: 2px solid var(--accent-burgundy);
+        margin-top: 0.4rem;
+        margin-left: 0.5rem;
       }
 
-      @keyframes pulse {
-        0% { transform: scale(1); box-shadow: 0 0 0 rgba(0, 255, 100, 0.3); }
-        50% { transform: scale(1.03); box-shadow: 0 0 12px rgba(0, 255, 100, 0.5); }
-        100% { transform: scale(1); box-shadow: 0 0 0 rgba(0, 255, 100, 0.3); }
+      .faq-answer p {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        line-height: 1.7;
+        padding: 0.75rem 0;
+      }
+      .final-cta {
+        text-align: center;
+        padding: 5rem 1.5rem 4rem;
+        position: relative;
       }
 
-      @keyframes fadeIn {
-        0% { opacity: 0; }
-        100% { opacity: 1; }
+      .final-cta-glow {
+        position: absolute;
+        width: 400px;
+        height: 400px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(168, 50, 66, 0.1) 0%, transparent 70%);
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
       }
 
-      @keyframes slideUp {
-        0% { transform: translateY(20px); opacity: 0; }
-        100% { transform: translateY(0); opacity: 1; }
+      .final-cta .hero-cta {
+        animation: none;
+        opacity: 1;
+      }
+      footer {
+        text-align: center;
+        padding: 2rem 1.5rem;
+        border-top: 1px solid rgba(180, 80, 100, 0.08);
       }
 
-      @media (max-width: 800px) {
-        .step {
+      footer p {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+      }
+      .reveal {
+        opacity: 0;
+        transform: translateY(24px);
+        transition: opacity 0.7s ease, transform 0.7s ease;
+      }
+
+      .reveal.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .reveal-delay-1 { transition-delay: 0.1s; }
+      .reveal-delay-2 { transition-delay: 0.2s; }
+      .reveal-delay-3 { transition-delay: 0.3s; }
+      .reveal-delay-4 { transition-delay: 0.4s; }
+      .reveal-delay-5 { transition-delay: 0.5s; }
+      @media (max-width: 768px) {
+        .install-step,
+        .install-step:nth-child(even) {
           flex-direction: column !important;
-          align-items: flex-start;
         }
 
-        .step img {
+        .install-step img {
           width: 100%;
+          max-width: 100%;
         }
 
-        .step .text {
-          max-width: 100%;
+        .bot-showcase {
+          grid-template-columns: 1fr;
+        }
+
+        .features-grid {
+          grid-template-columns: 1fr;
+        }
+
+        section {
+          padding: 4rem 1.25rem;
+        }
+
+        .hero {
+          min-height: 90vh;
         }
       }
     </style>
   </head>
   <body>
-    <header>
-      <img src="icon.png" alt="Binger logo" />
-      <h1>Binger</h1>
-    </header>
+    <div class="page-bg"></div>
+    <div class="grain-overlay"></div>
 
-    <h2 class="tagline">Watch together. Chat. Call. All in sync.</h2>
+    <div class="content-wrapper">
 
-    <div class="features">
-      <div class="feature">
-        <h3>🕒 Real-Time Sync</h3>
-        <p>Watch shows perfectly in sync across friends, devices, and tabs.</p>
+<section class="hero">
+        <div class="hero-glow"></div>
+        <img src="icon.png" alt="Binger" class="hero-logo" />
+        <h1 class="hero-title">Binger</h1>
+        <p class="hero-tagline">Watch together. Chat. Call. All in sync.</p>
+        <a href="Binger v6.2.0.zip" download class="hero-cta">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download Binger
+        </a>
+        <p id="version-text" class="hero-version">version v6.2.0</p>
+        <div class="hero-scroll-hint">
+          <span>Scroll</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </section>
+
+<section id="features">
+        <p class="section-label reveal">What you get</p>
+        <h2 class="section-title reveal">Everything you need for movie night</h2>
+        <p class="section-subtitle reveal">A Chrome Extension that turns <strong>phimbro.com</strong> into a synchronized cinema for you and a friend.</p>
+
+        <div class="features-grid">
+          <div class="feature-card reveal reveal-delay-1">
+            <div class="feature-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <h3>Real-Time Sync</h3>
+            <p>Play, pause, and seek together. Buffering pauses everyone until all users are ready. No one misses a scene.</p>
+          </div>
+
+          <div class="feature-card reveal reveal-delay-2">
+            <div class="feature-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <h3>Live Chat</h3>
+            <p>Real-time messaging with typing indicators, themed message bubbles, and an AI bot that can seek to any scene you describe.</p>
+          </div>
+
+          <div class="feature-card reveal reveal-delay-3">
+            <div class="feature-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+            </div>
+            <h3>Video Calls</h3>
+            <p>Peer-to-peer WebRTC calls with STUN/TURN fallback. See your friend's reactions right inside the overlay.</p>
+          </div>
+
+          <div class="feature-card reveal reveal-delay-1">
+            <div class="feature-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <h3>Private Rooms</h3>
+            <p>Create or join rooms with 6-digit codes. Max 2 users per room with atomic join transactions so nothing breaks.</p>
+          </div>
+
+          <div class="feature-card reveal reveal-delay-2">
+            <div class="feature-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            </div>
+            <h3>Soundboard</h3>
+            <p>5 synced sound effects, 10 floating visual reactions, and pin mode to drop emojis at exact spots on the video.</p>
+          </div>
+
+          <div class="feature-card reveal reveal-delay-3">
+            <div class="feature-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            </div>
+            <h3>Fullscreen Mode</h3>
+            <p>Connected panel layout with video call, chat overlay, and soundboard snapped together. Zero-gap, smooth slide animations.</p>
+          </div>
+        </div>
+      </section>
+
+<section id="themes">
+        <p class="section-label reveal">Personalize</p>
+        <h2 class="section-title reveal">6 cinematic themes</h2>
+        <p class="section-subtitle reveal">Every element of Binger transforms - the overlay, chat bubbles, buttons, video call frame, and soundboard. Themes sync between room members in real-time.</p>
+
+        <div class="themes-row reveal">
+          <div class="theme-pill"><div class="theme-swatch sw-burgundy"></div><span>Burgundy</span></div>
+          <div class="theme-pill"><div class="theme-swatch sw-pink"></div><span>Pink</span></div>
+          <div class="theme-pill"><div class="theme-swatch sw-bw"></div><span>Black & White</span></div>
+          <div class="theme-pill"><div class="theme-swatch sw-ocean"></div><span>Ocean</span></div>
+          <div class="theme-pill"><div class="theme-swatch sw-volcano"></div><span>Volcano</span></div>
+          <div class="theme-pill"><div class="theme-swatch sw-forest"></div><span>Forest</span></div>
+        </div>
+      </section>
+
+<section id="bot">
+        <p class="section-label reveal">AI-Powered</p>
+        <h2 class="section-title reveal">Meet Binger Bot</h2>
+        <p class="section-subtitle reveal">Toggle bot mode in chat to ask questions, get movie trivia with live web search, or describe a scene and Binger will seek to it using AI-generated subtitle embeddings.</p>
+
+        <div class="bot-showcase">
+          <div class="bot-info reveal">
+            <div class="bot-detail">
+              <h4>Smart Routing</h4>
+              <p>Every query is classified by a fast decision model. If it needs live data (cast, ratings, reviews), Binger routes to Grok with native web search. Otherwise, Gemini handles it instantly.</p>
+            </div>
+            <div class="bot-detail">
+              <h4>Scene Seeking</h4>
+              <p>Describe any scene and Binger fetches subtitles, rewrites them into descriptions, generates embeddings, and finds the closest match using cosine similarity. Then it seeks the video for you.</p>
+            </div>
+            <div class="bot-detail">
+              <h4>Context Aware</h4>
+              <p>Binger Bot knows what movie you're watching, the current timestamp, and your recent chat history. It keeps responses short (2-3 sentences) and conversational.</p>
+            </div>
+          </div>
+
+          <div class="bot-chat-demo reveal reveal-delay-2">
+            <div class="demo-msg user" style="animation-delay: 0.1s">
+              <span class="bot-badge">B</span>
+              what scene does the main character first cry?
+            </div>
+            <div class="demo-msg bot" style="animation-delay: 0.3s">
+              Seeking to the scene where the main character breaks down crying for the first time...
+            </div>
+            <div class="demo-msg user" style="animation-delay: 0.5s">
+              <span class="bot-badge">B</span>
+              who directed this movie?
+            </div>
+            <div class="demo-msg bot" style="animation-delay: 0.7s">
+              This film was directed by Park Chan-wook, released in 2003. It's considered one of the greatest Korean films ever made.
+            </div>
+            <div class="demo-input">
+              <div class="demo-bot-toggle">B</div>
+              <div class="demo-input-field">Ask Binger...</div>
+              <div class="demo-send-btn">Send</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+<section id="soundboard">
+        <p class="section-label reveal">React together</p>
+        <h2 class="section-title reveal">Sounds, visuals, and pins</h2>
+        <p class="section-subtitle reveal">All effects are synced to both users in real-time. Floating emojis last 2 seconds. Pins stick to exact video coordinates for 5 seconds with unique animations per emoji.</p>
+
+        <div class="soundboard-preview reveal">
+          <div class="sb-chip">aergh</div>
+          <div class="sb-chip">flute</div>
+          <div class="sb-chip">hmm</div>
+          <div class="sb-chip">pipe</div>
+          <div class="sb-chip">rose</div>
+        </div>
+        <div class="soundboard-preview reveal" style="margin-top: 0.75rem">
+          <div class="sb-chip">mad</div>
+          <div class="sb-chip">poop</div>
+          <div class="sb-chip">sadtears</div>
+          <div class="sb-chip">laugh</div>
+          <div class="sb-chip">hammer</div>
+          <div class="sb-chip">hearts</div>
+          <div class="sb-chip">smile</div>
+          <div class="sb-chip">disguise</div>
+          <div class="sb-chip">pleading</div>
+          <div class="sb-chip">shock</div>
+        </div>
+      </section>
+
+<section id="install">
+        <p class="section-label reveal">Get started</p>
+        <h2 class="section-title reveal">Install in under a minute</h2>
+        <p class="section-subtitle reveal">No accounts needed beyond a username and password. No emails, no fees. Just install and go.</p>
+
+        <div class="install-steps">
+          <div class="install-step reveal">
+            <img src="steps/step1.png" alt="Download the zip file" />
+            <div class="step-content">
+              <p class="step-number">Step 01</p>
+              <p>Click the download button above to grab <code>Binger.zip</code></p>
+            </div>
+          </div>
+
+          <div class="install-step reveal">
+            <img src="steps/step2.png" alt="Extract the zip" />
+            <div class="step-content">
+              <p class="step-number">Step 02</p>
+              <p>Right-click the ZIP file, select <strong>Extract All</strong>, and open the folder</p>
+            </div>
+          </div>
+
+          <div class="install-step reveal">
+            <img src="steps/step3.png" alt="Chrome extensions page" />
+            <div class="step-content">
+              <p class="step-number">Step 03</p>
+              <p>Open <code>chrome://extensions</code> and enable <strong>Developer mode</strong></p>
+            </div>
+          </div>
+
+          <div class="install-step reveal">
+            <img src="steps/step4.png" alt="Load unpacked extension" />
+            <div class="step-content">
+              <p class="step-number">Step 04</p>
+              <p>Click <strong>Load unpacked</strong> and select the extracted Binger folder</p>
+            </div>
+          </div>
+
+          <div class="install-step reveal">
+            <img src="steps/step5.png" alt="Binger installed" />
+            <div class="step-content">
+              <p class="step-number">Step 05</p>
+              <p>That's it. Binger is in your browser, ready to go.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+<section id="faq">
+        <p class="section-label reveal">Questions</p>
+        <h2 class="section-title reveal">FAQ</h2>
+
+        <div class="faq-list reveal">
+          <div class="faq-item">
+            <button class="faq-question">
+              Do all users need to install Binger?
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <div class="faq-answer"><p>Yes. Each person watching together needs the extension installed to sync playback, chat, and video calls.</p></div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              Do I need to create an account?
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <div class="faq-answer"><p>Sort of. You pick a username and a password when you first open Binger. No email required. Clean and instant.</p></div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              Does this work in fullscreen?
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <div class="faq-answer"><p>Absolutely. The overlay, chat, video call, and soundboard all snap into a connected panel layout in fullscreen with smooth animations.</p></div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              Why do some features seem slightly out of sync?
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <div class="faq-answer"><p>Make sure both you and your partner are on the latest version of the extension, or at least the same version.</p></div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              Is Binger free?
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <div class="faq-answer"><p>Always. No fees, no premium tiers, no ads. Just movies and vibes.</p></div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              How does the AI scene seeking work?
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <div class="faq-answer"><p>Binger fetches subtitles, groups them into 60-second chunks, rewrites each chunk into a scene description, generates vector embeddings, and matches your description using cosine similarity. Results are cached per movie so repeat seeks are instant.</p></div>
+          </div>
+        </div>
+      </section>
+
+<div class="final-cta">
+        <div class="final-cta-glow"></div>
+        <a href="Binger v6.2.0.zip" download class="hero-cta">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download Binger
+        </a>
       </div>
-      <div class="feature">
-        <h3>💬 In-Overlay Chat</h3>
-        <p>Chat while watching — fullscreen friendly and beautifully integrated.</p>
-      </div>
-      <div class="feature">
-        <h3>📹 Peer-to-Peer Calls</h3>
-        <p>Instant one-on-one video calls right inside the movie overlay.</p>
-      </div>
+
+<footer>
+        <p>&copy; 2025 Binger</p>
+      </footer>
+
     </div>
 
-    <a href="Binger v6.2.0.zip" download class="cta">Download Binger Extension</a>
-    <p id="version-text" style="color: #8b949e; margin-top: -2rem; margin-bottom: 3rem; font-size: 1.1rem;">
-      version v6.2.0
-    </p>
-
-    <section class="guide-section">
-      <h2>How to Install... It’s Crazy Simple</h2>
-
-      <div class="step">
-        <img src="steps/step1.png" alt="Download Binger.zip" />
-        <div class="text"><strong>Step 1:</strong> Click the green button above to download <code>Binger.zip</code></div>
-      </div>
-
-      <div class="step">
-        <img src="steps/step2.png" alt="Extract ZIP" />
-        <div class="text"><strong>Step 2:</strong> Right-click the ZIP file → <strong>"Extract All…"</strong> and open the extracted folder</div>
-      </div>
-
-      <div class="step">
-        <img src="steps/step3.png" alt="Chrome Extensions" />
-        <div class="text"><strong>Step 3:</strong> Open <code>chrome://extensions</code> in a new tab, and enable <strong>Developer mode</strong></div>
-      </div>
-
-      <div class="step">
-        <img src="steps/step4.png" alt="Load Unpacked" />
-        <div class="text"><strong>Step 4:</strong> Click <strong>“Load unpacked”</strong> and select the Binger folder</div>
-      </div>
-
-      <div class="step">
-        <img src="steps/step5.png" alt="Done" />
-        <div class="text"><strong>Step 5:</strong> That’s it! You’ll see the Binger icon in your browser — ready to party 🎉</div>
-      </div>
-    </section>
-
-    <section class="faq-section">
-      <h2>Frequently Asked Questions</h2>
-
-      <div class="faq-item">
-        <button class="faq-question">Do all users need to install Binger?</button>
-        <div class="faq-answer">
-          <p>Yes! Each person watching together needs the extension installed to sync properly.</p>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-question">Do I need to create an account?</button>
-        <div class="faq-answer">
-          <p>Not really... Just install Binger, set up with a username and a valid password (no emails), and you’re good to go. Clean and instant.</p>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-question">Does this work in fullscreen?</button>
-        <div class="faq-answer">
-          <p>It'd be dumb not to.</p>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-question">Why do some features seem slightly out of sync?</button>
-        <div class="faq-answer">
-          <p>Make sure both you and your Binger partner use the latest version of the extension or at least the same version.</p>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-question">Is Binger free?</button>
-        <div class="faq-answer">
-          <p>Always. No fees, no premium tiers. Just 🍿</p>
-        </div>
-      </div>
-
-    </section>
-
-    <footer>
-      © 2025 Binger. Made with 🍿, 💬, and WebRTC.
-    </footer>
-
     <script>
-      document.querySelectorAll('.faq-question').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const item = btn.parentElement;
-          const answer = item.querySelector('.faq-answer');
-          const isOpen = item.classList.contains('open');
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
 
-          // Collapse
+      document.querySelectorAll('.reveal').forEach(function(el) {
+        observer.observe(el);
+      });
+
+      document.querySelectorAll('.faq-question').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var item = btn.parentElement;
+          var answer = item.querySelector('.faq-answer');
+          var isOpen = item.classList.contains('open');
+
           if (isOpen) {
             answer.style.maxHeight = answer.scrollHeight + 'px';
-            requestAnimationFrame(() => {
+            requestAnimationFrame(function() {
               answer.style.maxHeight = '0px';
             });
             item.classList.remove('open');
-          } 
-          // Expand
-          else {
+          } else {
             item.classList.add('open');
             answer.style.maxHeight = answer.scrollHeight + 'px';
           }
         });
       });
 
-      // Reset maxHeight after transition ends
-      document.querySelectorAll('.faq-answer').forEach(answer => {
-        answer.addEventListener('transitionend', () => {
+      document.querySelectorAll('.faq-answer').forEach(function(answer) {
+        answer.addEventListener('transitionend', function() {
           if (!answer.parentElement.classList.contains('open')) {
             answer.style.maxHeight = '';
           }
         });
       });
     </script>
-
   </body>
 </html>
