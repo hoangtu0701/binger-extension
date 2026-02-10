@@ -11,8 +11,8 @@ A Chrome extension that turns [Phimbro](https://phimbro.com) into a synchronized
 - **Video Calls** - WebRTC-based video/audio calls while watching
 - **Private Rooms** - Create or join rooms with 6-digit codes (max 2 users)
 - **Soundboard** - Sound effects and floating/pinned emoji reactions
-- **6 Themes** - Burgundy, Pink, Black & White, Ocean, Volcano, Forest
-- **Fullscreen Support** - Overlay adapts to fullscreen mode with repositioned call iframe
+- **6 Themes** - Burgundy, Pink, Black & White, Ocean, Volcano, Forest (applied to all components including call iframe)
+- **Fullscreen Support** - Connected panel layout with smooth slide animations
 - **Join/Leave Notifications** - Real-time debounced notifications when users join or leave rooms
 - **Smart Animation System** - IntersectionObserver-based animation optimization for chat messages
 
@@ -66,12 +66,12 @@ src/
     content-connection.js     Port connection to background + storage helpers
     content-navigation.js     SPA navigation handling (history patches + polling)
     content-overlay-dom.js    Overlay UI construction + element caching
-    content-theme.js          Theme application + sync
+    content-theme.js          Theme application + sync + call iframe theme forwarding
     content-chatbox.js        Chat UI + bot mode toggle + animation optimization
     content-room.js           Room operations + speech bubble prompts
     content-invite.js         Invitation UI states + progress bar
-    content-session.js        Video sync + call iframe + deadlock prevention
-    content-fullscreen.js     Fullscreen layout management
+    content-session.js        Video sync + call iframe + slide animations + theme bridge
+    content-fullscreen.js     Fullscreen connected panel layout + iframe position correction
     content-soundboard.js     Soundboard UI + effects
     content-message-router.js Routes background messages to content handlers
 
@@ -85,7 +85,7 @@ src/
 
   call_app/
     call.html                 WebRTC call UI with local/remote video elements
-    index.js                  Vite-bundled WebRTC logic (IIFE format)
+    call.js                   Vite-bundled WebRTC logic (IIFE format, includes themed CSS)
     firebase/                 Local Firebase SDK copies (CSP-compliant)
 
 styles/                       CSS organized by component (9 files)
@@ -99,13 +99,14 @@ Popup  <--->  Background  <--->  Firebase Realtime Database
                   ^
                   |  (persistent ports)
                   v
-           Content Scripts
+           Content Scripts  ---postMessage--->  Call Iframe
 ```
 
 - **Popup** communicates with **Background** via `chrome.runtime.sendMessage`
 - **Content Scripts** communicate with **Background** via persistent ports
 - **Background** syncs all data through **Firebase Realtime Database**
 - **Background** broadcasts updates to all connected content script ports via `broadcastToTabs`
+- **Content Scripts** send theme and cam/mic state to **Call Iframe** via `postMessage`
 
 ### Module Load Order
 
@@ -279,7 +280,7 @@ The video call runs in an isolated iframe for CSP compliance and clean separatio
 ```
 call_app/
   call.html           HTML shell with local/remote video elements
-  index.js            Vite-bundled WebRTC logic (IIFE format)
+  call.js             Vite-bundled WebRTC logic (IIFE format, includes themed CSS)
   firebase/           Local Firebase SDK copies (CSP-safe)
 ```
 
@@ -307,11 +308,30 @@ call_app/
 4. Extension destroys old iframe, creates new one with same `roomId` and `uid`
 5. New iframe clears remaining signals, registers with same UID key
 6. New iframe determines offerer role (stable - UIDs never change) and starts signaling
+7. Extension sends current theme to new iframe via `setTheme` postMessage
+
+### Call Iframe Theming
+
+The call iframe supports all 6 Binger themes via CSS custom properties:
+
+| Variable | Controls |
+|----------|----------|
+| `--call-bg` | Body background (matched to soundboard darkness) |
+| `--call-video-bg` | Camera feed box background |
+| `--call-video-border` | Camera feed border color |
+| `--call-btn-bg` | Mic/Cam button background |
+| `--call-btn-color` | Mic/Cam button text color |
+| `--call-btn-hover` | Button hover background |
+| `--call-overlay-bg` | Loading/reconnecting overlay background |
+| `--call-spinner-border` | Spinner circle color |
+
+Theme is sent via `postMessage` at three points: iframe creation, iframe reset (fullscreen toggle or partner's fullscreen toggle), and live theme changes (user or partner switches theme mid-session).
 
 ### Parent-Iframe Communication
 
 | Message | Direction | Purpose |
 |---------|-----------|---------|
+| `setTheme` | Parent to Iframe | Apply theme colors |
 | `restoreCamMic` | Parent to Iframe | Restore cam/mic state after recreation |
 | `updateCamMic` | Iframe to Parent | Report cam/mic toggle changes |
 | `network-warning` | Iframe to Parent | Notify connection failure |
@@ -455,6 +475,7 @@ Triggered when the bot reply contains `Seeking to the scene where...`
 - Theme saved to `chrome.storage.sync`
 - Host's theme applied to room on creation
 - Theme changes broadcast to all room members in real-time
+- Theme propagated to call iframe via `postMessage` on change, creation, and reset
 
 ---
 
@@ -463,18 +484,44 @@ Triggered when the bot reply contains `Seeking to the scene where...`
 ### Layout
 
 - Video region takes 70% height
-- Bottom row (30%) contains: Overlay + Call Iframe + Soundboard
-- Flex layout with 12px gaps, overlay fixed at 660px width
+- Bottom row (30%) contains: Call Iframe + Overlay + Soundboard (left to right)
+- Zero-gap connected panel layout - components snap together with shared borders
+- Overlay wrapper uses `fit-content` width to hug overlay exactly
+
+### Connected Panel Design
+
+In fullscreen during a session, the three bottom-row components connect as a single visual block:
+
+| Component | Border Radius |
+|-----------|--------------|
+| Call Iframe (when visible) | Rounded left, sharp right |
+| Overlay (iframe visible) | All sharp (sandwiched) |
+| Overlay (iframe hidden) | Rounded left, sharp right |
+| Soundboard | Sharp left, rounded right |
+
+Connecting-side borders are removed between adjacent components to eliminate double-border seams. The overlay's border-radius transitions smoothly (0.35s) when the iframe toggles.
+
+### Call Iframe Slide Animation
+
+| Mode | Show Animation | Hide Animation |
+|------|---------------|---------------|
+| Fullscreen | `max-width` expands from 0 to natural size + opacity fade-in | `max-width` collapses to 0 + opacity fade-out |
+| Non-fullscreen | `translateX` slides in from right + opacity fade-in | `translateX` slides out to right + opacity fade-out |
+
+Both animations use `cubic-bezier(0.4, 0, 0.2, 1)` over 0.35 seconds. The fullscreen row uses `justify-content: center`, so the overlay + soundboard chunk naturally re-centers as the iframe expands or collapses.
+
+A `binger-call-initial` CSS class applies `display: none` on iframe creation to prevent flash before first toggle. Removed on first show with a forced reflow (`void offsetHeight`) to enable the CSS transition.
 
 ### Call Iframe Positioning
 
 - **Normal mode:** `position: fixed`, calculated relative to overlay left edge, resize listener for monitor changes
 - **Fullscreen mode:** `position: static` inside flex container, no manual positioning needed
+- **Fullscreen exit:** `requestAnimationFrame` recalculates iframe `left` position after layout reflow to prevent stale position offset
 
 ### Cleanup on Toggle
 
 - Ephemeral elements (floating emojis, pins) removed
-- Call iframe recreated with pre-cleanup and preserved cam/mic state
+- Call iframe recreated with pre-cleanup, preserved cam/mic state, and theme forwarding
 - Soundboard repositioned without size change
 
 ---
@@ -509,6 +556,7 @@ Triggered when the bot reply contains `Seeking to the scene where...`
 | Async parallelization | Promise.all for batch subtitle/embedding operations |
 | Bot mode persistence | chrome.storage.local preserves toggle across navigation |
 | Scroll containment | `overscroll-behavior: contain` on overlay and chatlog prevents scroll bleed to host page |
+| CSS-driven animations | Iframe slide in/out uses pure CSS transitions (no JS animation loops) |
 
 ---
 
@@ -522,7 +570,8 @@ Triggered when the bot reply contains `Seeking to the scene where...`
 | Room full | Error message, join prevented |
 | Auth failure | Error displayed in popup form |
 | Firebase disconnect | Auto-reconnection via SDK |
-| Iframe reset | Pre-cleanup prevents ghost users and stale signals |
+| Iframe reset | Pre-cleanup prevents ghost users and stale signals, theme re-sent on reload |
 | Monitor switch | Resize listener repositions call iframe |
+| Fullscreen exit iframe drift | requestAnimationFrame recalculates position after layout reflow |
 | Bot mode across navigation | Persisted to chrome.storage.local, restored on rejoin |
 | Empty message send | Send button disabled when input is empty, re-enabled on typing |
