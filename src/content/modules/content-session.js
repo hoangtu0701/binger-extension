@@ -169,7 +169,7 @@
     function createCallIframe(roomId) {
         const uid = BingerState.getCurrentUserUid();
         const iframe = document.createElement("iframe");
-        iframe.className = `${CSS_CLASSES.callIframe} ${CSS_CLASSES.callHidden}`;
+        iframe.className = `${CSS_CLASSES.callIframe} ${CSS_CLASSES.callHidden} binger-call-initial`;
         iframe.allow = "camera; microphone; autoplay; fullscreen";
         iframe.src = chrome.runtime.getURL(`call_app/call.html?roomId=${roomId}&uid=${uid}`);
         iframe.style.left = `${calculateIframeLeftPosition()}px`;
@@ -198,6 +198,8 @@
         const fsRow = document.querySelector(SELECTORS.fullscreenRow);
 
         if (state.callIframeVisible) {
+            state.callIframe.classList.remove("binger-call-initial");
+            void state.callIframe.offsetHeight;
             state.callIframe.classList.remove(CSS_CLASSES.callHidden);
         } else {
             state.callIframe.classList.add(CSS_CLASSES.callHidden);
