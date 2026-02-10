@@ -1,6 +1,6 @@
 # Binger
 
-A Chrome extension that turns [Phimbro](https://phimbro.com) into a synchronized movie-watching experience with friends.
+A Chrome extension that turns your favorite movie streaming site into a synchronized movie-watching experience with friends.
 
 ---
 
