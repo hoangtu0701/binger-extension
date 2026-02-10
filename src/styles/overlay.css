@@ -173,17 +173,67 @@
 }
 
 #bingerUsername {
-  text-align: center;
-  margin-top: 8px;
-  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 3px 12px 3px 8px;
+  border-radius: 14px;
+  margin: 10px auto 10px;
+  width: fit-content;
+  background: rgba(200, 140, 80, 0.06);
+  border: 1px solid rgba(200, 140, 80, 0.08);
+  font-size: 11px;
+  line-height: 1;
+}
+
+.binger-username-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(200, 140, 80, 0.4);
+  flex-shrink: 0;
+}
+
+.binger-username-name {
+  font-weight: 600;
   color: #d4a574;
 }
 
-.theme-pink #bingerUsername { color: #e8a0b5; }
-.theme-blackwhite #bingerUsername { color: rgba(255, 255, 255, 0.5); }
-.theme-ocean #bingerUsername { color: rgba(0, 200, 230, 0.6); }
-.theme-volcano #bingerUsername { color: rgba(255, 140, 60, 0.6); }
-.theme-forest #bingerUsername { color: rgba(160, 220, 120, 0.6); }
+.theme-pink #bingerUsername {
+  background: rgba(220, 140, 170, 0.06);
+  border-color: rgba(220, 140, 170, 0.08);
+}
+.theme-pink .binger-username-dot { background: rgba(220, 140, 170, 0.4); }
+.theme-pink .binger-username-name { color: #e8a0b5; }
+
+.theme-blackwhite #bingerUsername {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+.theme-blackwhite .binger-username-dot { background: rgba(255, 255, 255, 0.3); }
+.theme-blackwhite .binger-username-name { color: rgba(255, 255, 255, 0.5); }
+
+.theme-ocean #bingerUsername {
+  background: rgba(0, 180, 220, 0.06);
+  border-color: rgba(0, 180, 220, 0.08);
+}
+.theme-ocean .binger-username-dot { background: rgba(0, 180, 220, 0.4); }
+.theme-ocean .binger-username-name { color: rgba(0, 200, 230, 0.6); }
+
+.theme-volcano #bingerUsername {
+  background: rgba(255, 100, 30, 0.06);
+  border-color: rgba(255, 100, 30, 0.08);
+}
+.theme-volcano .binger-username-dot { background: rgba(255, 100, 30, 0.4); }
+.theme-volcano .binger-username-name { color: rgba(255, 140, 60, 0.6); }
+
+.theme-forest #bingerUsername {
+  background: rgba(100, 200, 100, 0.06);
+  border-color: rgba(100, 200, 100, 0.08);
+}
+.theme-forest .binger-username-dot { background: rgba(100, 200, 100, 0.4); }
+.theme-forest .binger-username-name { color: rgba(160, 220, 120, 0.6); }
 
 #bingerButtonWrapper {
   margin-top: 10px;

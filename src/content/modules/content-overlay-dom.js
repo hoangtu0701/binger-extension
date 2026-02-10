@@ -15,7 +15,7 @@
 
         const usernameEl = document.createElement("div");
         usernameEl.id = "bingerUsername";
-        usernameEl.textContent = "Signed in as: (loading...)";
+        usernameEl.innerHTML = '<span class="binger-username-dot"></span><span class="binger-username-name">...</span>';
         leftPane.appendChild(usernameEl);
 
         const buttonWrapper = document.createElement("div");
@@ -206,9 +206,10 @@
     }
 
     function setUsername(username) {
-        if (elements?.username) {
-            const displayName = username || "Unknown";
-            elements.username.textContent = `Signed in as: ${displayName}`;
+        if (!elements?.username) return;
+        const nameEl = elements.username.querySelector(".binger-username-name");
+        if (nameEl) {
+            nameEl.textContent = username || "Unknown";
         }
     }
 
