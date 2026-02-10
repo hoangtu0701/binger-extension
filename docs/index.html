@@ -32,15 +32,15 @@
         --glow-warm: rgba(200, 140, 80, 0.15);
       }
 
-      html, body {
+      html {
         scroll-behavior: smooth;
-        overflow-x: hidden;
       }
 
       body {
         font-family: "DM Sans", sans-serif;
         background: var(--bg-deep);
         color: var(--text-primary);
+        overflow-x: hidden;
         line-height: 1.6;
       }
 
@@ -730,6 +730,10 @@
       .reveal-delay-4 { transition-delay: 0.4s; }
       .reveal-delay-5 { transition-delay: 0.5s; }
       @media (max-width: 768px) {
+        html {
+          overflow-x: hidden;
+        }
+
         .install-step,
         .install-step:nth-child(even) {
           flex-direction: column !important;
