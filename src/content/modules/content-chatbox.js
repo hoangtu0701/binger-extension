@@ -14,10 +14,6 @@
         return div.innerHTML;
     }
 
-    // ========================================================================
-    // BOT MODE TOGGLE
-    // ========================================================================
-
     function toggleBotMode() {
         const isActive = !BingerState.getIsBotMode();
         BingerState.setIsBotMode(isActive);
@@ -66,10 +62,6 @@
             })
             .catch(() => {});
     }
-
-    // ========================================================================
-    // TYPING INDICATORS
-    // ========================================================================
 
     function handleTypingInput(roomId) {
         if (cachedUid) {
@@ -170,10 +162,6 @@
         });
     }
 
-    // ========================================================================
-    // MESSAGE SENDING
-    // ========================================================================
-
     function sendMessage(roomId, messageText) {
         if (typeof messageText !== "string" || !messageText.trim()) return;
 
@@ -239,10 +227,6 @@
             });
     }
 
-    // ========================================================================
-    // MESSAGE RENDERING
-    // ========================================================================
-
     function renderMessage(message) {
         const chatLog = BingerOverlayDOM.getElement("chatLog");
         if (!chatLog) return;
@@ -306,10 +290,6 @@
         }
     }
 
-    // ========================================================================
-    // VISIBILITY OBSERVER
-    // ========================================================================
-
     function setupChatObserver() {
         const chatLog = BingerOverlayDOM.getElement("chatLog");
         if (!chatLog) return;
@@ -339,10 +319,6 @@
         }
     }
 
-    // ========================================================================
-    // SYSTEM NOTIFICATION RENDERING
-    // ========================================================================
-
     function renderSystemNotification(notificationType, username) {
         const chatLog = BingerOverlayDOM.getElement("chatLog");
         if (!chatLog) return;
@@ -367,10 +343,6 @@
         chatLog.appendChild(notificationEl);
         chatLog.scrollTop = chatLog.scrollHeight;
     }
-
-    // ========================================================================
-    // CHATBOX ACTIVATION
-    // ========================================================================
 
     let boundKeydownHandler = null;
     let boundInputHandler = null;
@@ -530,7 +502,7 @@
 
         BingerOverlayDOM.setRoomIdDisplay(null);
         BingerOverlayDOM.setUserListDisplay(null);
-        elements.chatLog.innerHTML = "(Chat log will appear here)";
+        elements.chatLog.innerHTML = "Chat log will appear here";
 
         BingerState.setIsChatSubscribed(false);
 

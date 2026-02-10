@@ -58,10 +58,15 @@
     function getChatWrapperHTML() {
         return `
             <div id="bingerChatRoomHeader">
-                <div id="bingerRoomId">(No Room)</div>
-                <div id="bingerUserList">(Users: -)</div>
+                <div id="bingerRoomBadge" class="binger-room-badge binger-room-badge--empty">------</div>
+                <div class="binger-strip-divider binger-strip-divider--empty"></div>
+                <div id="bingerAvatarGroup" class="binger-avatar-group">
+                    <div class="binger-avatar binger-avatar--empty">?</div>
+                    <div class="binger-avatar binger-avatar--empty">?</div>
+                </div>
+                <div id="bingerUserCount" class="binger-user-count"></div>
             </div>
-            <div id="bingerChatLog">(Chat log will appear here)</div>
+            <div id="bingerChatLog">Chat log will appear here</div>
             <div id="bingerChatInputBar">
                 <button id="bingerBotToggle" title="Toggle Bot Mode" disabled>B</button>
                 <input type="text" id="bingerChatInput" placeholder="Type a message..." disabled />
@@ -158,8 +163,9 @@
             leaveRoomBtn: document.getElementById("bingerLeaveRoom"),
 
             chatWrapper: document.getElementById("bingerChatWrapper"),
-            roomId: document.getElementById("bingerRoomId"),
-            userList: document.getElementById("bingerUserList"),
+            roomBadge: document.getElementById("bingerRoomBadge"),
+            avatarGroup: document.getElementById("bingerAvatarGroup"),
+            userCount: document.getElementById("bingerUserCount"),
             chatLog: document.getElementById("bingerChatLog"),
             chatInputBar: document.getElementById("bingerChatInputBar"),
             botToggle: document.getElementById("bingerBotToggle"),
@@ -206,20 +212,79 @@
         }
     }
 
+    function getInitials(name) {
+        if (!name) return "?";
+        const cleaned = name.replace(/\s+/g, "");
+        return cleaned.substring(0, 1).toUpperCase();
+    }
+
     function setRoomIdDisplay(roomId) {
-        if (elements?.roomId) {
-            elements.roomId.textContent = roomId ? `Room: ${roomId}` : "(No Room)";
+        if (!elements?.roomBadge) return;
+
+        const header = elements.roomBadge.closest("#bingerChatRoomHeader");
+        const divider = header?.querySelector(".binger-strip-divider");
+
+        if (roomId) {
+            elements.roomBadge.textContent = roomId;
+            elements.roomBadge.classList.remove("binger-room-badge--empty");
+            if (divider) divider.classList.remove("binger-strip-divider--empty");
+        } else {
+            elements.roomBadge.textContent = "------";
+            elements.roomBadge.classList.add("binger-room-badge--empty");
+            if (divider) divider.classList.add("binger-strip-divider--empty");
         }
     }
 
     function setUserListDisplay(users) {
-        if (elements?.userList) {
-            if (Array.isArray(users) && users.length > 0) {
-                elements.userList.textContent = `Users: ${users.join(", ")}`;
-            } else {
-                elements.userList.textContent = "(Users: -)";
-            }
+        if (!elements?.avatarGroup || !elements?.userCount) return;
+
+        const header = elements.avatarGroup.closest("#bingerChatRoomHeader");
+
+        const existingHostTag = header?.querySelector(".binger-host-tag");
+        if (existingHostTag) existingHostTag.remove();
+
+        if (!Array.isArray(users) || users.length === 0) {
+            elements.avatarGroup.innerHTML = "";
+            const slot1 = document.createElement("div");
+            slot1.className = "binger-avatar binger-avatar--empty";
+            slot1.textContent = "?";
+            const slot2 = document.createElement("div");
+            slot2.className = "binger-avatar binger-avatar--empty";
+            slot2.textContent = "?";
+            elements.avatarGroup.appendChild(slot1);
+            elements.avatarGroup.appendChild(slot2);
+            elements.userCount.textContent = "";
+            header?.classList.add("binger-strip--empty");
+            return;
         }
+
+        header?.classList.remove("binger-strip--empty");
+        elements.avatarGroup.innerHTML = "";
+
+        users.forEach((user) => {
+            const name = typeof user === "object" ? user.name : String(user);
+            const isHost = typeof user === "object" ? user.isHost : false;
+
+            const avatar = document.createElement("div");
+            avatar.className = `binger-avatar ${isHost ? "binger-avatar--host" : "binger-avatar--guest"}`;
+            avatar.textContent = getInitials(name);
+
+            const tooltip = document.createElement("div");
+            tooltip.className = "binger-avatar-tooltip";
+            tooltip.textContent = isHost ? `${name} (host)` : name;
+            avatar.appendChild(tooltip);
+
+            if (isHost) {
+                const hostTag = document.createElement("div");
+                hostTag.className = "binger-host-tag";
+                hostTag.textContent = "host";
+                elements.avatarGroup.appendChild(hostTag);
+            }
+
+            elements.avatarGroup.appendChild(avatar);
+        });
+
+        elements.userCount.textContent = `${users.length}/2`;
     }
 
     function showMultiTabWarning() {
