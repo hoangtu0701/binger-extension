@@ -166,6 +166,25 @@
         }, { once: true });
     }
 
+    function sendThemeToIframe(iframe) {
+        if (!iframe) return;
+
+        iframe.addEventListener("load", () => {
+            try {
+                const themeClass = [...document.body.classList].find(c => c.startsWith("theme-"));
+                const theme = themeClass ? themeClass.replace("theme-", "") : "burgundy";
+                iframe.contentWindow.postMessage({ type: "setTheme", theme }, "*");
+            } catch {}
+        }, { once: true });
+    }
+
+    function sendThemeToCallIframe(theme) {
+        if (!state.callIframe) return;
+        try {
+            state.callIframe.contentWindow.postMessage({ type: "setTheme", theme }, "*");
+        } catch {}
+    }
+
     function createCallIframe(roomId) {
         const uid = BingerState.getCurrentUserUid();
         const iframe = document.createElement("iframe");
@@ -175,6 +194,7 @@
         iframe.style.left = `${calculateIframeLeftPosition()}px`;
 
         restoreCamMicToIframe(iframe);
+        sendThemeToIframe(iframe);
 
         return iframe;
     }
@@ -266,6 +286,7 @@
         if (wasFullscreen) fresh.classList.add(CSS_CLASSES.fullscreen);
 
         restoreCamMicToIframe(fresh);
+        sendThemeToIframe(fresh);
 
         const fullscreenRow = document.querySelector(SELECTORS.fullscreenRow);
         if (wasFullscreen && fullscreenRow) {
@@ -697,7 +718,8 @@
 
     window.BingerSession = {
         inSessionMode,
-        outSessionMode
+        outSessionMode,
+        sendThemeToCallIframe
     };
 
 })();

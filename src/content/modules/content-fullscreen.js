@@ -117,6 +117,18 @@
         }
     }
 
+    function sendThemeToIframe(iframe) {
+        if (!iframe) return;
+
+        iframe.addEventListener("load", () => {
+            try {
+                const themeClass = [...document.body.classList].find(c => c.startsWith("theme-"));
+                const theme = themeClass ? themeClass.replace("theme-", "") : "burgundy";
+                iframe.contentWindow.postMessage({ type: "setTheme", theme }, "*");
+            } catch {}
+        }, { once: true });
+    }
+
     function createCallIframe(options) {
         const { roomId, isFullscreen, wasHidden, originalStyles } = options;
         const uid = BingerState.getCurrentUserUid();
@@ -139,6 +151,7 @@
         }
 
         restoreCamMicState(iframe);
+        sendThemeToIframe(iframe);
 
         return iframe;
     }

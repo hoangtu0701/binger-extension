@@ -76,6 +76,10 @@
 
         applyTheme(newTheme);
 
+        if (window.BingerSession?.sendThemeToCallIframe) {
+            window.BingerSession.sendThemeToCallIframe(newTheme);
+        }
+
         BingerConnection.getCurrentRoomId()
             .then((roomId) => {
                 if (roomId) {
@@ -99,6 +103,10 @@
         if (!isValidTheme(theme)) return;
 
         applyTheme(theme);
+
+        if (window.BingerSession?.sendThemeToCallIframe) {
+            window.BingerSession.sendThemeToCallIframe(theme);
+        }
 
         BingerConnection.setSync("theme", theme)
             .catch((err) => {
