@@ -422,7 +422,6 @@
   border: 1px solid rgba(100, 200, 100, 0.08);
 }
 
-
 #bingerChatLog {
   flex: 1;
   padding: 8px;
@@ -961,12 +960,10 @@
    ======================================================================== */
 
 .bingerChatMsg.bot-query {
-  border-left: 2px solid rgba(255, 180, 50, 0.5) !important;
   overflow: visible;
 }
 
 .bingerChatMsg.bot-reply {
-  border-left: 2px solid rgba(255, 180, 50, 0.5) !important;
   font-style: italic;
 }
 
@@ -992,27 +989,11 @@
   box-shadow: 0 0 6px rgba(255, 160, 40, 0.2);
 }
 
-.theme-pink .bingerChatMsg.bot-query {
-  border-left: 2px solid rgba(220, 140, 170, 0.5) !important;
-}
-
-.theme-pink .bingerChatMsg.bot-reply {
-  border-left: 2px solid rgba(220, 140, 170, 0.5) !important;
-}
-
 .theme-pink .bingerChatMsg.bot-query::after {
   background: linear-gradient(135deg, rgba(220, 140, 170, 0.4), rgba(200, 110, 150, 0.5));
   color: #fff0f5;
   border-color: rgba(30, 15, 22, 0.8);
   box-shadow: 0 0 6px rgba(220, 140, 170, 0.2);
-}
-
-.theme-blackwhite .bingerChatMsg.bot-query {
-  border-left: 2px solid rgba(255, 255, 255, 0.25) !important;
-}
-
-.theme-blackwhite .bingerChatMsg.bot-reply {
-  border-left: 2px solid rgba(255, 255, 255, 0.25) !important;
 }
 
 .theme-blackwhite .bingerChatMsg.bot-query::after {
@@ -1022,14 +1003,6 @@
   box-shadow: 0 0 6px rgba(255, 255, 255, 0.08);
 }
 
-.theme-ocean .bingerChatMsg.bot-query {
-  border-left: 2px solid rgba(0, 180, 220, 0.4) !important;
-}
-
-.theme-ocean .bingerChatMsg.bot-reply {
-  border-left: 2px solid rgba(0, 180, 220, 0.4) !important;
-}
-
 .theme-ocean .bingerChatMsg.bot-query::after {
   background: linear-gradient(135deg, rgba(0, 150, 200, 0.4), rgba(0, 120, 180, 0.5));
   color: #c0f0ff;
@@ -1037,27 +1010,11 @@
   box-shadow: 0 0 6px rgba(0, 180, 220, 0.2);
 }
 
-.theme-volcano .bingerChatMsg.bot-query {
-  border-left: 2px solid rgba(255, 120, 40, 0.4) !important;
-}
-
-.theme-volcano .bingerChatMsg.bot-reply {
-  border-left: 2px solid rgba(255, 120, 40, 0.4) !important;
-}
-
 .theme-volcano .bingerChatMsg.bot-query::after {
   background: linear-gradient(135deg, rgba(255, 100, 30, 0.4), rgba(200, 60, 10, 0.5));
   color: #ffe0c0;
   border-color: rgba(20, 8, 4, 0.8);
   box-shadow: 0 0 6px rgba(255, 80, 20, 0.2);
-}
-
-.theme-forest .bingerChatMsg.bot-query {
-  border-left: 2px solid rgba(140, 200, 100, 0.4) !important;
-}
-
-.theme-forest .bingerChatMsg.bot-reply {
-  border-left: 2px solid rgba(140, 200, 100, 0.4) !important;
 }
 
 .theme-forest .bingerChatMsg.bot-query::after {
