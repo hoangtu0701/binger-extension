@@ -16,7 +16,7 @@
         videoHeight: "70%",
         overlayHeight: "30%",
         wrapperWidth: "660px",
-        rowGap: "12px"
+        rowGap: "0px"
     };
 
     const CSS_CLASSES = {
@@ -297,7 +297,7 @@
 
         Object.assign(wrapper.style, {
             height: "100%",
-            width: LAYOUT.wrapperWidth,
+            width: "fit-content",
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
@@ -351,6 +351,11 @@
         overlay.classList.add(CSS_CLASSES.fullscreen);
 
         moveSoundboardToFullscreen(fsRow);
+
+        const iframeEl = fsRow.querySelector("iframe.binger-call-iframe");
+        if (iframeEl && !iframeEl.classList.contains(CSS_CLASSES.callHidden)) {
+            fsRow.classList.add("binger-call-visible");
+        }
 
         state.restoreFn = () => restoreNormalLayout(vjsContainer, video, overlay);
     }

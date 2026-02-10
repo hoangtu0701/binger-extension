@@ -194,10 +194,21 @@
 
         state.callIframeVisible = !state.callIframeVisible;
 
+        const isFullscreen = state.callIframe.classList.contains(CSS_CLASSES.fullscreen);
+        const fsRow = document.querySelector(SELECTORS.fullscreenRow);
+
         if (state.callIframeVisible) {
             state.callIframe.classList.remove(CSS_CLASSES.callHidden);
         } else {
             state.callIframe.classList.add(CSS_CLASSES.callHidden);
+        }
+
+        if (isFullscreen && fsRow) {
+            if (state.callIframeVisible) {
+                fsRow.classList.add("binger-call-visible");
+            } else {
+                fsRow.classList.remove("binger-call-visible");
+            }
         }
 
         return state.callIframeVisible;

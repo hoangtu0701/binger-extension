@@ -17,9 +17,21 @@
   left: unset !important;
   aspect-ratio: 5/2;
   height: 100%;
-  border-radius: 20px;
+  border-radius: 16px 0 0 16px;
   flex: 0 1 auto;
   align-self: center;
+  overflow: hidden;
+  transition: max-width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  max-width: 1000px;
+  opacity: 1;
+}
+
+.binger-call-iframe.fullscreen.binger-call-hidden {
+  display: block !important;
+  max-width: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .bingerTypingBubble {
