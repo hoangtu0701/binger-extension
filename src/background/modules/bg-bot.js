@@ -244,7 +244,7 @@
             const useOnline = await needsWebSearch(msg.prompt, lastMsgs);
             const chatModel = useOnline
                 ? "x-ai/grok-4.1-fast:online"
-                : "google/gemini-2.5-flash-lite";
+                : "x-ai/grok-4.1-fast";
 
             let answer = "(no reply)";
             try {

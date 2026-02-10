@@ -26,7 +26,7 @@ A Chrome extension that turns [Phimbro](https://phimbro.com) into a synchronized
 | Real-time Sync | Firebase Realtime Database |
 | Auth | Firebase Authentication |
 | Video Calls | WebRTC with STUN/TURN (Google, ExpressTurn, Xirsys) |
-| AI Chat | Gemini 2.5 Flash Lite + Grok 4.1 Fast (via OpenRouter) |
+| AI Chat | Grok 4.1 Fast (via OpenRouter) |
 | Scene Seeking | text-embedding-3-large embeddings (via OpenAI) + SubDL subtitles |
 | Decision Routing | Llama 3.2 3B Instruct (via OpenRouter) |
 | API Proxies | Vercel Serverless Functions |
@@ -391,7 +391,7 @@ Replies YES if the question involves a specific movie/series and needs current f
 | Condition | Model | Features |
 |-----------|-------|----------|
 | Web search needed | `x-ai/grok-4.1-fast:online` via OpenRouter | Native xAI web + X search |
-| No web search | `google/gemini-2.5-flash-lite` via OpenRouter | Fast, cheap offline response |
+| No web search | `x-ai/grok-4.1-fast` via OpenRouter | Offline response |
 
 | Property | Value |
 |----------|-------|
@@ -409,7 +409,7 @@ Triggered when the bot reply contains `Seeking to the scene where...`
 1. Extract scene description and optional timing fraction
 2. Fetch subtitles from SubDL API (filters by year, prefers BluRay sources)
 3. Group subtitles into 60-second chunks
-4. Rewrite chunks with `google/gemini-2.5-flash-lite` into concise descriptions
+4. Rewrite chunks with `x-ai/grok-4.1-fast` into concise descriptions
 5. Generate embeddings with `text-embedding-3-large`
 6. Cache embeddings per movie (keyed by name + year)
 7. Embed user's scene description

@@ -8,7 +8,7 @@
 
     const CHUNK_DURATION_SECONDS = 60;
 
-    const REWRITE_MODEL = "google/gemini-2.5-flash-lite";
+    const REWRITE_MODEL = "x-ai/grok-4.1-fast";
     const REWRITE_TEMPERATURE = 0.2;
     const REWRITE_MAX_TOKENS = 50;
 
