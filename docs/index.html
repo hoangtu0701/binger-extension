@@ -730,10 +730,6 @@
       .reveal-delay-4 { transition-delay: 0.4s; }
       .reveal-delay-5 { transition-delay: 0.5s; }
       @media (max-width: 768px) {
-        html {
-          overflow-x: hidden;
-        }
-
         .install-step,
         .install-step:nth-child(even) {
           flex-direction: column !important;
@@ -758,6 +754,11 @@
 
         .hero {
           min-height: 90vh;
+          overflow: hidden;
+        }
+
+        .final-cta {
+          overflow: hidden;
         }
       }
     </style>
