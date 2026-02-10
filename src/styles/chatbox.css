@@ -244,6 +244,131 @@
 #bingerChatInputBar {
   display: flex;
   gap: 6px;
+  align-items: center;
+}
+
+#bingerBotToggle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid rgba(180, 80, 100, 0.2);
+  background: rgba(30, 12, 20, 0.6);
+  color: rgba(200, 140, 100, 0.5);
+  font-weight: 700;
+  font-size: 13px;
+  font-family: 'Segoe UI', sans-serif;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  flex-shrink: 0;
+  padding: 0;
+  line-height: 1;
+}
+
+#bingerBotToggle:hover {
+  border-color: rgba(200, 140, 100, 0.4);
+  color: rgba(200, 140, 100, 0.8);
+}
+
+#bingerBotToggle:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+#bingerBotToggle.active {
+  background: linear-gradient(135deg, rgba(255, 180, 50, 0.4), rgba(255, 140, 30, 0.5));
+  border-color: rgba(255, 180, 80, 0.5);
+  color: #fff8e0;
+  box-shadow: 0 0 10px rgba(255, 160, 40, 0.25);
+}
+
+.theme-pink #bingerBotToggle {
+  background: rgba(40, 20, 28, 0.6);
+  border-color: rgba(220, 140, 170, 0.15);
+  color: rgba(220, 160, 180, 0.5);
+}
+
+.theme-pink #bingerBotToggle:hover {
+  border-color: rgba(220, 140, 170, 0.4);
+  color: rgba(220, 160, 180, 0.8);
+}
+
+.theme-pink #bingerBotToggle.active {
+  background: linear-gradient(135deg, rgba(220, 140, 170, 0.4), rgba(200, 110, 150, 0.5));
+  border-color: rgba(220, 140, 170, 0.5);
+  color: #fff0f5;
+  box-shadow: 0 0 10px rgba(220, 140, 170, 0.25);
+}
+
+.theme-blackwhite #bingerBotToggle {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.theme-blackwhite #bingerBotToggle:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.theme-blackwhite #bingerBotToggle.active {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+.theme-ocean #bingerBotToggle {
+  background: rgba(0, 30, 60, 0.6);
+  border-color: rgba(0, 180, 220, 0.1);
+  color: rgba(0, 180, 220, 0.4);
+}
+
+.theme-ocean #bingerBotToggle:hover {
+  border-color: rgba(0, 180, 220, 0.3);
+  color: rgba(0, 180, 220, 0.7);
+}
+
+.theme-ocean #bingerBotToggle.active {
+  background: linear-gradient(135deg, rgba(0, 150, 200, 0.3), rgba(0, 180, 220, 0.4));
+  border-color: rgba(0, 180, 220, 0.5);
+  color: #c0f0ff;
+  box-shadow: 0 0 10px rgba(0, 180, 220, 0.25);
+}
+
+.theme-volcano #bingerBotToggle {
+  background: rgba(30, 12, 6, 0.6);
+  border-color: rgba(255, 100, 30, 0.1);
+  color: rgba(255, 120, 50, 0.4);
+}
+
+.theme-volcano #bingerBotToggle:hover {
+  border-color: rgba(255, 100, 30, 0.3);
+  color: rgba(255, 120, 50, 0.7);
+}
+
+.theme-volcano #bingerBotToggle.active {
+  background: linear-gradient(135deg, rgba(255, 80, 10, 0.3), rgba(255, 120, 40, 0.4));
+  border-color: rgba(255, 100, 30, 0.5);
+  color: #ffe0c0;
+  box-shadow: 0 0 10px rgba(255, 80, 20, 0.25);
+}
+
+.theme-forest #bingerBotToggle {
+  background: rgba(15, 30, 10, 0.6);
+  border-color: rgba(100, 200, 100, 0.1);
+  color: rgba(140, 200, 100, 0.4);
+}
+
+.theme-forest #bingerBotToggle:hover {
+  border-color: rgba(100, 200, 100, 0.3);
+  color: rgba(140, 200, 100, 0.7);
+}
+
+.theme-forest #bingerBotToggle.active {
+  background: linear-gradient(135deg, rgba(60, 140, 40, 0.3), rgba(80, 160, 50, 0.4));
+  border-color: rgba(100, 200, 100, 0.5);
+  color: #d0ffa0;
+  box-shadow: 0 0 10px rgba(80, 180, 80, 0.2);
 }
 
 #bingerChatInput {
