@@ -536,11 +536,25 @@ A `binger-call-initial` CSS class applies `display: none` on iframe creation to 
 
 ---
 
-## Multi-Tab Handling
+## Warning Banners
+
+Both warning banners use a consistent glassmorphism design with themed variants for all 6 color schemes, slide-in animations from the top, and CSS-only styling (no inline styles).
+
+### Multi-Tab Warning
 
 - Monitors overlay visibility across phimbro tabs
-- Shows warning banner when overlay active in multiple tabs
+- Shows themed banner when overlay active in multiple tabs
 - Prevents duplicate room connections
+- Structure: icon + text, non-interactive (`pointer-events: none`)
+- Slides down from top center via `multiTabSlideIn` animation
+
+### Network Warning
+
+- Triggered by the call iframe via `postMessage` when WebRTC connection fails
+- Shows themed banner with title, description, and dismissible close button
+- Structure: icon + content (title + description) + close button
+- Slides down from top center via `networkWarningSlideIn` animation
+- Dismissed on click or automatically removed when the session ends
 
 ---
 
@@ -566,7 +580,7 @@ A `binger-call-initial` CSS class applies `display: none` on iframe creation to 
 |----------|----------|
 | Buffer sync deadlock | 4-layer prevention (stale clear, empty guard, dedup reset, safety-net interval) |
 | Scene seek failure | Feedback message posted to chat |
-| Network warning | Visual banner in call iframe |
+| Network warning | Themed dismissible banner with slide-in animation |
 | Room full | Error message, join prevented |
 | Auth failure | Error displayed in popup form |
 | Firebase disconnect | Auto-reconnection via SDK |

@@ -66,46 +66,34 @@
 
         const banner = document.createElement("div");
         banner.id = "bingerNetworkWarning";
-        banner.innerHTML = `
-            <strong>Someone in the room may be on a network that blocks video calls.</strong>
-            Try switching connections for a smoother experience.
-            <span id="bingerBannerClose">X</span>
-        `;
 
-        Object.assign(banner.style, {
-            background: "#ffcc00",
-            color: "#000",
-            padding: "20px 16px 16px 16px",
-            margin: "0 auto",
-            maxWidth: "800px",
-            borderRadius: "10px",
-            fontWeight: "500",
-            fontSize: "1rem",
-            textAlign: "center",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
-            position: "fixed",
-            top: "20px",
-            left: "50%",
-            transform: "translateX(-50%)",
-            zIndex: "999999"
-        });
+        const icon = document.createElement("div");
+        icon.className = "network-warning-icon";
+        icon.textContent = "!";
 
+        const content = document.createElement("div");
+        content.className = "network-warning-content";
+
+        const title = document.createElement("div");
+        title.className = "network-warning-title";
+        title.textContent = "Someone in the room may be on a network that blocks video calls.";
+
+        const desc = document.createElement("div");
+        desc.className = "network-warning-desc";
+        desc.textContent = "Try switching connections for a smoother experience.";
+
+        content.appendChild(title);
+        content.appendChild(desc);
+
+        const closeBtn = document.createElement("button");
+        closeBtn.className = "network-warning-close";
+        closeBtn.textContent = "X";
+        closeBtn.onclick = () => banner.remove();
+
+        banner.appendChild(icon);
+        banner.appendChild(content);
+        banner.appendChild(closeBtn);
         document.body.appendChild(banner);
-
-        const closeBtn = document.getElementById("bingerBannerClose");
-        if (closeBtn) {
-            Object.assign(closeBtn.style, {
-                position: "absolute",
-                top: "6px",
-                right: "10px",
-                fontSize: "14px",
-                color: "#000",
-                cursor: "pointer",
-                fontWeight: "bold"
-            });
-
-            closeBtn.onclick = () => banner.remove();
-        }
     }
 
     function addSessionStyling() {
