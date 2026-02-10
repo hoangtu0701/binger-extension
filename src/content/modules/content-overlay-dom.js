@@ -300,7 +300,7 @@
 
         const text = document.createElement("span");
         text.className = "multi-tab-text";
-        text.textContent = "Multiple Phimbro tabs open - please close the others to avoid sync issues.";
+        text.textContent = "Multiple Phimbro tabs open - please close the others and refresh to avoid sync issues.";
 
         warning.appendChild(icon);
         warning.appendChild(text);
