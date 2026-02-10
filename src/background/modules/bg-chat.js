@@ -1,19 +1,6 @@
-// ============================================================================
-// CHAT HANDLERS
-// Handle posting messages and subscribing to chat updates
-// ============================================================================
-
 (function() {
     "use strict";
 
-    // ========================================================================
-    // DEPENDENCY VALIDATION
-    // ========================================================================
-
-    /**
-     * Check that all required global dependencies exist
-     * @returns {boolean} - True if all dependencies are available
-     */
     function validateDependencies() {
         const required = ["BingerBGFirebase", "BingerBGState", "BingerBGHelpers"];
         const missing = required.filter(dep => typeof self[dep] === "undefined");
@@ -25,27 +12,12 @@
         return true;
     }
 
-    // ========================================================================
-    // HELPER: DETERMINE WRITE METHOD
-    // ========================================================================
-
-    /**
-     * Determine whether to use .set() or .push() for a given path
-     * Uses exact segment matching to avoid false positives
-     * @param {string} refPath - The Firebase reference path
-     * @returns {boolean} - True if should use .set(), false for .push()
-     */
     function shouldUseSetForPath(refPath) {
-        // Split path into segments for exact matching
         const segments = refPath.split("/");
-
-        // Paths that should use .set() (exact segment matches)
         const setSegments = ["acceptedInvitees", "inSession", "theme", "typing", "playerState"];
 
-        // Check if any segment exactly matches a set-path keyword
         for (let i = 0; i < segments.length; i++) {
-            const segment = segments[i];
-            if (setSegments.includes(segment)) {
+            if (setSegments.includes(segments[i])) {
                 return true;
             }
         }
@@ -53,24 +25,12 @@
         return false;
     }
 
-    // ========================================================================
-    // POST DATA
-    // ========================================================================
-
-    /**
-     * Handle posting data to Firebase
-     * Uses .set() for specific paths, .push() for messages
-     * @param {object} msg - Message containing path and data
-     * @param {function} sendResponse - Response callback
-     */
     function handlePost(msg, sendResponse) {
-        // Validate dependencies
         if (!validateDependencies()) {
             BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
-        // Validate input
         if (!msg || typeof msg.path !== "string" || msg.path.trim() === "") {
             BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Invalid path" });
             return;
@@ -85,7 +45,6 @@
 
         write
             .then(() => {
-                console.log(`[Binger] Data posted to /${refPath}`);
                 BingerBGHelpers.safeSendResponse(sendResponse, { status: "success" });
             })
             .catch((err) => {
@@ -94,24 +53,12 @@
             });
     }
 
-    // ========================================================================
-    // SUBSCRIBE TO MESSAGES
-    // ========================================================================
-
-    /**
-     * Subscribe to real-time chat messages in a room
-     * Note: child_added fires for all existing messages on initial subscribe
-     * @param {object} msg - Message containing roomId
-     * @param {function} sendResponse - Response callback
-     */
     function handleSubscribeToMessages(msg, sendResponse) {
-        // Validate dependencies
         if (!validateDependencies()) {
             BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
-        // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
             BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
@@ -121,14 +68,11 @@
         const ref = BingerBGFirebase.ref(`rooms/${roomId}/messages`);
         const listeners = BingerBGState.getMessageListeners();
 
-        // Remove existing listener for this room if present
         if (listeners[roomId]) {
             ref.off("child_added", listeners[roomId]);
-            console.log(`[Binger] Removed old message listener for room ${roomId}`);
             delete listeners[roomId];
         }
 
-        // Create and store the new listener callback
         const callback = (snapshot) => {
             const newMessage = snapshot.val();
             if (newMessage) {
@@ -142,27 +86,15 @@
         ref.on("child_added", callback);
         listeners[roomId] = callback;
 
-        console.log(`[Binger] Subscribed to messages in room ${roomId}`);
         BingerBGHelpers.safeSendResponse(sendResponse, { status: "subscribed", roomId: roomId });
     }
 
-    // ========================================================================
-    // UNSUBSCRIBE FROM MESSAGES
-    // ========================================================================
-
-    /**
-     * Unsubscribe from chat messages in a room
-     * @param {object} msg - Message containing roomId
-     * @param {function} sendResponse - Response callback
-     */
     function handleUnsubscribeFromMessages(msg, sendResponse) {
-        // Validate dependencies
         if (!validateDependencies()) {
             BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
-        // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
             BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
@@ -174,17 +106,11 @@
         if (listeners[roomId]) {
             BingerBGFirebase.ref(`rooms/${roomId}/messages`).off("child_added", listeners[roomId]);
             delete listeners[roomId];
-            console.log(`[Binger] Unsubscribed from messages in room ${roomId}`);
             BingerBGHelpers.safeSendResponse(sendResponse, { status: "unsubscribed", roomId: roomId });
         } else {
-            console.log(`[Binger] No active listener for room ${roomId}`);
             BingerBGHelpers.safeSendResponse(sendResponse, { status: "no-listener", roomId: roomId });
         }
     }
-
-    // ========================================================================
-    // EXPOSE TO SERVICE WORKER
-    // ========================================================================
 
     self.BingerBGChat = {
         handlePost,

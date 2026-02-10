@@ -117,10 +117,7 @@
             const leftUids = previousUids.filter(uid => !currentUids.includes(uid));
 
             const hostRef = BingerBGFirebase.ref(`rooms/${roomId}/host`);
-            if (!hostRef) {
-                console.error("[Binger] Failed to create host ref");
-                return;
-            }
+            if (!hostRef) return;
 
             hostRef.once("value")
                 .then((hostSnap) => {
@@ -182,7 +179,6 @@
 
         roomUsersRef.on("value", state.listener);
 
-        console.log(`[Binger] Subscribed to users in room ${roomId}`);
         BingerBGHelpers.safeSendResponse(sendResponse, { status: "subscribed", roomId: roomId });
     }
 
@@ -209,7 +205,6 @@
 
         cleanupState(roomId);
 
-        console.log(`[Binger] Unsubscribed from users in room ${roomId}`);
         BingerBGHelpers.safeSendResponse(sendResponse, { status: "unsubscribed", roomId: roomId });
     }
 

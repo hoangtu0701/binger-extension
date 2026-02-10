@@ -1,27 +1,12 @@
-// ============================================================================
-// BOT HANDLERS
-// Handle Binger Bot queries with LLM prompting and scene seeking
-// ============================================================================
-
 (function() {
     "use strict";
 
-    // Bot user IDs for typing indicators
     const BOT_UID = "BINGER_BOT";
     const BOT_SEEK_UID = "BINGER_BOT_SEEK";
 
-    // Timeout durations (in milliseconds)
     const LLM_TIMEOUT_MS = 30000;
     const EMBED_TIMEOUT_MS = 15000;
 
-    // ========================================================================
-    // DEPENDENCY VALIDATION
-    // ========================================================================
-
-    /**
-     * Check that all required global dependencies exist
-     * @returns {boolean} - True if all dependencies are available
-     */
     function validateDependencies() {
         const required = ["BingerBGFirebase", "BingerBGSubtitles", "BingerBGHelpers"];
         const missing = required.filter(dep => typeof self[dep] === "undefined");
@@ -33,17 +18,6 @@
         return true;
     }
 
-    // ========================================================================
-    // HELPER: FETCH WITH TIMEOUT
-    // ========================================================================
-
-    /**
-     * Fetch wrapper that rejects if the request takes too long
-     * @param {string} url - The URL to fetch
-     * @param {object} options - Fetch options (method, headers, body, etc.)
-     * @param {number} timeoutMs - Timeout in milliseconds
-     * @returns {Promise<Response>}
-     */
     function fetchWithTimeout(url, options, timeoutMs) {
         return new Promise((resolve, reject) => {
             const controller = new AbortController();
@@ -64,14 +38,6 @@
         });
     }
 
-    // ========================================================================
-    // HELPER: GET ROOM ID FROM STORAGE
-    // ========================================================================
-
-    /**
-     * Get current room ID from chrome storage
-     * @returns {Promise<string|null>}
-     */
     function getRoomIdFromStorage() {
         return new Promise((resolve) => {
             chrome.storage.local.get("bingerCurrentRoomId", (result) => {
@@ -85,32 +51,13 @@
         });
     }
 
-    // ========================================================================
-    // HELPER: POST BOT MESSAGE TO CHAT
-    // ========================================================================
-
-    /**
-     * Push a bot message to the room's chat
-     * @param {string} roomId - The room ID
-     * @param {string} text - Message text
-     */
     async function postBotMessage(roomId, text) {
-        // Validate inputs
-        if (!roomId || typeof roomId !== "string") {
-            console.error("[Binger] postBotMessage called with invalid roomId");
-            return;
-        }
-        if (!text || typeof text !== "string") {
-            console.error("[Binger] postBotMessage called with invalid text");
-            return;
-        }
+        if (!roomId || typeof roomId !== "string") return;
+        if (!text || typeof text !== "string") return;
 
         try {
             const ref = BingerBGFirebase.ref(`rooms/${roomId}/messages`);
-            if (!ref) {
-                console.error("[Binger] Failed to create messages ref");
-                return;
-            }
+            if (!ref) return;
 
             await ref.push({
                 sender: "Binger Bot",
@@ -123,14 +70,6 @@
         }
     }
 
-    // ========================================================================
-    // HELPER: CLEAR BOT TYPING STATUS
-    // ========================================================================
-
-    /**
-     * Clear all bot typing/seeking statuses
-     * @param {string} originalRoomId - The original room ID (may have changed)
-     */
     async function clearBotTypingStatus(originalRoomId) {
         try {
             const roomId = await getRoomIdFromStorage() || originalRoomId;
@@ -148,33 +87,20 @@
         }
     }
 
-    // ========================================================================
-    // HELPER: EXTRACT SCENE DESCRIPTION FROM LLM RESPONSE
-    // ========================================================================
-
-    /**
-     * Extract scene description from LLM response
-     * Captures everything after "Seeking to [the] scene" until "..." or end of line
-     * @param {string} text - The LLM response text
-     * @returns {string|null} - The scene description or null if not found
-     */
     function extractSceneDescription(text) {
         if (!text || typeof text !== "string") return null;
 
-        // Simple patterns: capture everything after "Seeking to [the] scene"
         const patterns = [
-            /Seeking to (?:the )?scene\s+(.+?)\.\.\./i,   // Ends with ...
-            /Seeking to (?:the )?scene\s+(.+?)\.{2,}/i,   // Ends with 2+ dots
-            /Seeking to (?:the )?scene\s+(.+?)$/im        // Ends at line end
+            /Seeking to (?:the )?scene\s+(.+?)\.\.\./i,
+            /Seeking to (?:the )?scene\s+(.+?)\.{2,}/i,
+            /Seeking to (?:the )?scene\s+(.+?)$/im
         ];
 
         for (const pattern of patterns) {
             const match = text.match(pattern);
             if (match && match[1]) {
                 let desc = match[1].trim();
-                // Remove trailing dots
                 desc = desc.replace(/\.+$/, "").trim();
-                // Remove leading connector words (where, with, when, etc.)
                 desc = desc.replace(/^(?:where|when|with|featuring|in which|that|of|showing|having|containing)\s+/i, "").trim();
                 if (desc.length > 0) {
                     return desc;
@@ -185,15 +111,6 @@
         return null;
     }
 
-    // ========================================================================
-    // HELPER: VALIDATE AND EXTRACT MOVIE CONTEXT
-    // ========================================================================
-
-    /**
-     * Safely extract movie context fields with defaults
-     * @param {object|null} movieContext - Raw movie context from content script
-     * @returns {object} - Validated movie context
-     */
     function validateMovieContext(movieContext) {
         if (!movieContext || typeof movieContext !== "object") {
             return { valid: false };
@@ -208,31 +125,12 @@
         };
     }
 
-    // ========================================================================
-    // HELPER: BUILD MOVIE CACHE KEY
-    // ========================================================================
-
-    /**
-     * Build a unique cache key for movie embeddings using title and year
-     * @param {string} title - Movie title
-     * @param {string} year - Movie year
-     * @returns {string|null} - Cache key like "Dune (2021)" or null
-     */
     function buildMovieCacheKey(title, year) {
         if (!title || title === "Unknown") return null;
         if (!year || year === "Unknown") return title;
         return `${title} (${year})`;
     }
 
-    // ========================================================================
-    // HELPER: PARSE TIMING FRACTION FROM SCENE DESCRIPTION
-    // ========================================================================
-
-    /**
-     * Extract timing fraction from scene description if present
-     * @param {string} sceneDesc - The scene description
-     * @returns {object} - { cleanDesc, numerator, denominator }
-     */
     function parseTimingFraction(sceneDesc) {
         if (!sceneDesc || typeof sceneDesc !== "string") {
             return { cleanDesc: sceneDesc || "", numerator: null, denominator: null };
@@ -258,17 +156,6 @@
         return { cleanDesc, numerator, denominator };
     }
 
-    // ========================================================================
-    // DECISION: DOES THIS QUESTION NEED WEB SEARCH?
-    // ========================================================================
-
-    /**
-     * Ask a lightweight LLM whether the user's question needs web search.
-     * Only returns true if a movie/series is directly involved in answering.
-     * This call is invisible - never posted to chat.
-     * @param {string} userPrompt - The raw user message
-     * @returns {Promise<boolean>} - True if web search is needed
-     */
     async function needsWebSearch(userPrompt, lastMsgs) {
         try {
             const response = await fetchWithTimeout(
@@ -312,36 +199,23 @@
         }
     }
 
-    // ========================================================================
-    // BOT QUERY HANDLER
-    // ========================================================================
-
-    /**
-     * Handle a bot query - prompts LLM and optionally seeks to a scene
-     * @param {object} msg - Message containing prompt and movieContext
-     * @param {function} sendResponse - Response callback
-     */
     async function handleBotQuery(msg, sendResponse) {
-        // Validate dependencies first
         if (!validateDependencies()) {
             BingerBGHelpers.safeSendResponse(sendResponse, { error: "missing-dependencies" });
             return;
         }
 
-        // Validate input
         if (!msg || typeof msg.prompt !== "string" || msg.prompt.trim() === "") {
             BingerBGHelpers.safeSendResponse(sendResponse, { error: "invalid-prompt" });
             return;
         }
 
-        // Get current room ID
         let roomId = await getRoomIdFromStorage();
         if (!roomId) {
             BingerBGHelpers.safeSendResponse(sendResponse, { error: "no-room" });
             return;
         }
 
-        // Show "Binger Bot is typing"
         try {
             const typingRef = BingerBGFirebase.ref(`rooms/${roomId}/typing/${BOT_UID}`);
             if (typingRef) {
@@ -352,7 +226,6 @@
         }
 
         try {
-            // Gather context from Firebase using Promise.allSettled
             const results = await Promise.allSettled([
                 BingerBGFirebase.ref(`rooms/${roomId}/users`).once("value"),
                 BingerBGFirebase.ref(`rooms/${roomId}/inSession`).once("value"),
@@ -366,16 +239,13 @@
             const userNames = Object.values(usersData).map(u => u.email ? u.email.split("@")[0] : "unknown");
             const lastMsgs = Object.values(chatData).map(m => `${m.sender || "unknown"}: ${m.text || ""}`);
 
-            // Build system message based on context
             const { systemMessage, temp } = buildSystemMessage(msg.movieContext, userNames, inSession, lastMsgs);
 
-            // Decide if web search is needed (invisible, not posted to chat)
             const useOnline = await needsWebSearch(msg.prompt, lastMsgs);
             const chatModel = useOnline
                 ? "x-ai/grok-4.1-fast:online"
                 : "google/gemini-2.5-flash-lite";
 
-            // Call LLM with timeout
             let answer = "(no reply)";
             try {
                 const response = await fetchWithTimeout(
@@ -407,20 +277,16 @@
                 answer = "Sorry, I couldn't process that request. Please try again.";
             }
 
-            // Post the reply to chat
             await postBotMessage(roomId, answer);
 
-            // Clear typing before scene detection
             try {
                 const typingRef = BingerBGFirebase.ref(`rooms/${roomId}/typing/${BOT_UID}`);
                 if (typingRef) {
                     await typingRef.remove();
                 }
-            } catch (err) {
-                // Ignore - will be cleaned up in finally block
+            } catch {
             }
 
-            // Check for scene seeking pattern
             const sceneDesc = extractSceneDescription(answer);
             if (sceneDesc) {
                 await handleSceneSeeking(sceneDesc, msg.movieContext, roomId, inSession);
@@ -436,22 +302,9 @@
         }
     }
 
-    // ========================================================================
-    // BUILD SYSTEM MESSAGE
-    // ========================================================================
-
-    /**
-     * Build the system message for the LLM based on context
-     * @param {object} rawMovieContext - Movie context from content script
-     * @param {string[]} userNames - Users in the room
-     * @param {boolean} inSession - Whether in watch session
-     * @param {string[]} lastMsgs - Recent chat messages
-     * @returns {object} - { systemMessage, temp }
-     */
     function buildSystemMessage(rawMovieContext, userNames, inSession, lastMsgs) {
         const movieContext = validateMovieContext(rawMovieContext);
 
-        // Format context values
         const usersLine = userNames.length > 0 ? `${userNames.join(", ")} (${userNames.length} total)` : "None";
         const chatLine = lastMsgs.length > 0 ? lastMsgs.join(" | ") : "No recent messages";
 
@@ -460,7 +313,6 @@
         let systemMessage;
 
         if (!movieContext.valid) {
-            // No movie context at all
             movieLine = "Not watching any specific movie";
             temp = 1.2;
             systemMessage = {
@@ -481,7 +333,6 @@
                 ].join("\n")
             };
         } else if (movieContext.isWatching) {
-            // Actively watching a movie
             movieLine = `Watching: ${movieContext.title} (${movieContext.year}), at ${movieContext.minutes} minutes`;
             temp = 0.5;
             systemMessage = {
@@ -512,7 +363,6 @@
                 ].join("\n")
             };
         } else {
-            // On movie page but not watching
             movieLine = `Selected: ${movieContext.title} (${movieContext.year})`;
             temp = 1.2;
             systemMessage = {
@@ -537,21 +387,7 @@
         return { systemMessage, temp };
     }
 
-    // ========================================================================
-    // HANDLE SCENE SEEKING
-    // ========================================================================
-
-    /**
-     * Handle scene seeking - embed the scene description and find the best match
-     * @param {string} sceneDesc - The scene description from LLM response
-     * @param {object} movieContext - Movie context
-     * @param {string} roomId - Current room ID
-     * @param {boolean} inSession - Whether in watch session
-     */
     async function handleSceneSeeking(sceneDesc, movieContext, roomId, inSession) {
-        console.log("[Binger] Scene detected:", sceneDesc);
-
-        // Show "Binger Bot is seeking"
         try {
             const seekRef = BingerBGFirebase.ref(`rooms/${roomId}/typing/${BOT_SEEK_UID}`);
             if (seekRef) {
@@ -561,30 +397,20 @@
             console.warn("[Binger] Failed to set seeking indicator:", err);
         }
 
-        // Parse timing fraction if present
         const { cleanDesc, numerator, denominator } = parseTimingFraction(sceneDesc);
-        console.log("[Binger] Clean description:", cleanDesc);
-        if (numerator !== null) {
-            console.log("[Binger] Timing fraction:", numerator, "/", denominator);
-        }
 
-        // Validate movie context
         const validatedContext = validateMovieContext(movieContext);
         if (!validatedContext.valid || !validatedContext.title || validatedContext.title === "Unknown") {
-            console.warn("[Binger] Invalid movie context for scene seeking");
             await postBotMessage(roomId, "Sorry, I couldn't identify the movie. Please try again.");
             return;
         }
 
-        // Build cache key with title AND year
         const cacheKey = buildMovieCacheKey(validatedContext.title, validatedContext.year);
         if (!cacheKey) {
-            console.warn("[Binger] Could not build cache key");
             await postBotMessage(roomId, "Sorry, I couldn't identify the movie. Please try again.");
             return;
         }
 
-        // Embed the scene description
         let vector = null;
         try {
             const resp = await fetchWithTimeout(
@@ -603,10 +429,6 @@
 
             const data = await resp.json();
             vector = data?.data?.[0]?.embedding;
-
-            if (vector) {
-                console.log("[Binger] Got embedding:", vector.slice(0, 5), "...");
-            }
         } catch (err) {
             console.error("[Binger] Failed to embed scene description:", err);
             await postBotMessage(roomId, "Sorry, I had trouble processing that scene description. Please try again.");
@@ -614,18 +436,15 @@
         }
 
         if (!vector) {
-            console.warn("[Binger] No embedding vector returned");
             await postBotMessage(roomId, "Sorry, I couldn't understand that scene description. Please try rephrasing.");
             return;
         }
 
-        // Get or build movie embeddings using cache key (title + year)
         let stored = null;
         try {
             stored = BingerBGSubtitles.getStoredMovieEmbeddings();
 
             if (!stored || stored.movieId !== cacheKey) {
-                console.log("[Binger] Building fresh embeddings for:", cacheKey);
                 const buildResult = await BingerBGSubtitles.buildMovieEmbeddings(cacheKey);
 
                 if (!buildResult.success) {
@@ -635,8 +454,6 @@
                 }
 
                 stored = buildResult.payload;
-            } else {
-                console.log("[Binger] Using cached embeddings for:", stored.movieId);
             }
         } catch (err) {
             console.error("[Binger] Failed to get/build movie embeddings:", err);
@@ -645,55 +462,31 @@
         }
 
         if (!stored || !stored.chunks || stored.chunks.length === 0) {
-            console.warn("[Binger] No subtitle chunks available");
             await postBotMessage(roomId, "Sorry, I couldn't find subtitles for this movie. Scene seeking isn't available.");
             return;
         }
 
-        // Find the best matching time
         const targetTime = findBestMatchTime(vector, stored, numerator, denominator);
 
         if (targetTime === null) {
-            console.warn("[Binger] No matching scene found");
             await postBotMessage(roomId, "Sorry, I couldn't find a matching scene. Try describing it differently.");
             return;
         }
 
-        // Seek to the target time
         const seekSuccess = await seekToTime(targetTime, roomId, inSession);
         if (!seekSuccess) {
             await postBotMessage(roomId, "Sorry, I found the scene but couldn't seek to it. Make sure you're on the movie page.");
         }
     }
 
-    // ========================================================================
-    // FIND BEST MATCH TIME
-    // ========================================================================
-
-    /**
-     * Find the best matching time in the movie based on scene embedding
-     * @param {number[]} vector - Scene embedding vector
-     * @param {object} stored - Stored movie embeddings
-     * @param {number|null} numerator - Timing fraction numerator
-     * @param {number|null} denominator - Timing fraction denominator
-     * @returns {number|null} - Target time in seconds or null
-     */
     function findBestMatchTime(vector, stored, numerator, denominator) {
-        // Validate inputs
-        if (!vector || !Array.isArray(vector)) {
-            console.warn("[Binger] findBestMatchTime called with invalid vector");
-            return null;
-        }
-        if (!stored || !stored.chunks || !Array.isArray(stored.chunks)) {
-            console.warn("[Binger] findBestMatchTime called with invalid stored data");
-            return null;
-        }
+        if (!vector || !Array.isArray(vector)) return null;
+        if (!stored || !stored.chunks || !Array.isArray(stored.chunks)) return null;
 
         const totalChunks = stored.chunks.length;
         let searchChunks = stored.chunks;
         let baseOffset = 0;
 
-        // Apply timing restriction if valid fraction provided
         if (numerator !== null && denominator !== null && denominator > 0) {
             const fraction = numerator / denominator;
 
@@ -705,16 +498,10 @@
 
             searchChunks = stored.chunks.slice(startIdx, endIdx);
             baseOffset = startIdx;
-
-            console.log(`[Binger] Searching chunks ${startIdx} to ${endIdx} (fraction: ${numerator}/${denominator})`);
         }
 
-        if (searchChunks.length === 0) {
-            console.log("[Binger] No chunks in search window");
-            return null;
-        }
+        if (searchChunks.length === 0) return null;
 
-        // Score all candidates by cosine similarity
         const scored = searchChunks.map((chunk, localIdx) => ({
             idx: baseOffset + localIdx,
             score: BingerBGHelpers.cosineSimilarity(vector, chunk.vector)
@@ -726,11 +513,8 @@
         const top2 = scored[1];
         const top3 = scored[2];
 
-        if (!top1 || !Number.isFinite(top1.idx)) {
-            return null;
-        }
+        if (!top1 || !Number.isFinite(top1.idx)) return null;
 
-        // Build inclusion set - include adjacent high-scoring chunks
         const isAdjacent = (a, b) => Math.abs(a - b) === 1;
         const included = [top1];
 
@@ -741,51 +525,23 @@
             included.push(top3);
         }
 
-        // Weighted average of start times
         const totalWeight = included.reduce((sum, r) => sum + Math.max(0, r.score), 0) || 1;
         const weightedStart = included.reduce((sum, r) => {
             return sum + Math.max(0, r.score) * stored.chunks[r.idx].start;
         }, 0) / totalWeight;
 
         const CONTEXT_LEAD_SECONDS = 8;
-        const target = Math.max(0, Math.floor(weightedStart - CONTEXT_LEAD_SECONDS));
-
-        console.log(`[Binger] Top matches: ${included.map(r => `${r.idx}:${r.score.toFixed(3)}`).join(", ")}`);
-        console.log(`[Binger] Weighted start: ${weightedStart.toFixed(2)}s, target: ${target}s`);
-
-        return target;
+        return Math.max(0, Math.floor(weightedStart - CONTEXT_LEAD_SECONDS));
     }
 
-    // ========================================================================
-    // SEEK TO TIME
-    // ========================================================================
-
-    /**
-     * Seek the video to a specific time
-     * @param {number} target - Target time in seconds
-     * @param {string} roomId - Room ID
-     * @param {boolean} inSession - Whether in watch session
-     * @returns {Promise<boolean>} - True if seek was initiated successfully
-     */
     async function seekToTime(target, roomId, inSession) {
-        // Validate inputs
-        if (typeof target !== "number" || !Number.isFinite(target)) {
-            console.warn("[Binger] seekToTime called with invalid target:", target);
-            return false;
-        }
-        if (!roomId || typeof roomId !== "string") {
-            console.warn("[Binger] seekToTime called with invalid roomId");
-            return false;
-        }
+        if (typeof target !== "number" || !Number.isFinite(target)) return false;
+        if (!roomId || typeof roomId !== "string") return false;
 
         try {
             if (inSession) {
-                // In session - sync via Firebase so everyone seeks
                 const playerRef = BingerBGFirebase.ref(`rooms/${roomId}/playerState`);
-                if (!playerRef) {
-                    console.error("[Binger] Failed to create playerState ref");
-                    return false;
-                }
+                if (!playerRef) return false;
 
                 await playerRef.set({
                     action: "seek",
@@ -793,7 +549,6 @@
                 });
                 return true;
             } else {
-                // Not in session - find phimbro watch tab by URL (not active tab)
                 return new Promise((resolve) => {
                     chrome.tabs.query({ url: "*://phimbro.com/watch/*" }, (tabs) => {
                         if (chrome.runtime.lastError) {
@@ -802,17 +557,14 @@
                             return;
                         }
 
-                        // Use the first matching phimbro watch tab
                         const tab = tabs && tabs[0];
 
                         if (!tab) {
-                            console.warn("[Binger] No phimbro watch tab found, cannot seek");
                             resolve(false);
                             return;
                         }
 
                         if (!chrome.scripting || !chrome.scripting.executeScript) {
-                            console.warn("[Binger] chrome.scripting not available");
                             resolve(false);
                             return;
                         }
@@ -836,9 +588,6 @@
                             }
 
                             const success = results && results[0] && results[0].result === true;
-                            if (!success) {
-                                console.warn("[Binger] Video element not found or seek failed");
-                            }
                             resolve(success);
                         });
                     });
@@ -849,10 +598,6 @@
             return false;
         }
     }
-
-    // ========================================================================
-    // EXPOSE TO SERVICE WORKER
-    // ========================================================================
 
     self.BingerBGBot = {
         handleBotQuery

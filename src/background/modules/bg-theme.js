@@ -1,19 +1,6 @@
-// ============================================================================
-// THEME HANDLERS
-// Handle subscribing to and broadcasting theme changes
-// ============================================================================
-
 (function() {
     "use strict";
 
-    // ========================================================================
-    // DEPENDENCY VALIDATION
-    // ========================================================================
-
-    /**
-     * Check that all required global dependencies exist
-     * @returns {boolean} - True if all dependencies are available
-     */
     function validateDependencies() {
         const required = ["BingerBGFirebase", "BingerBGState", "BingerBGHelpers"];
         const missing = required.filter(dep => typeof self[dep] === "undefined");
@@ -25,23 +12,12 @@
         return true;
     }
 
-    // ========================================================================
-    // SUBSCRIBE TO THEME
-    // ========================================================================
-
-    /**
-     * Subscribe to theme updates in a room
-     * @param {object} msg - Message containing roomId
-     * @param {function} sendResponse - Response callback
-     */
     function handleSubscribeToTheme(msg, sendResponse) {
-        // Validate dependencies
         if (!validateDependencies()) {
             BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
-        // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
             BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
@@ -57,11 +33,9 @@
 
         const listeners = BingerBGState.getThemeListeners();
 
-        // If already have a listener, detach it first
         if (listeners[roomId]) {
             ref.off("value", listeners[roomId]);
             delete listeners[roomId];
-            console.log(`[Binger] Removed old theme listener for ${roomId}`);
         }
 
         const cb = (snapshot) => {
@@ -77,27 +51,15 @@
         ref.on("value", cb);
         listeners[roomId] = cb;
 
-        console.log(`[Binger] Subscribed to theme in room ${roomId}`);
         BingerBGHelpers.safeSendResponse(sendResponse, { status: "subscribed", roomId: roomId });
     }
 
-    // ========================================================================
-    // UNSUBSCRIBE FROM THEME
-    // ========================================================================
-
-    /**
-     * Unsubscribe from theme updates in a room
-     * @param {object} msg - Message containing roomId
-     * @param {function} sendResponse - Response callback
-     */
     function handleUnsubscribeFromTheme(msg, sendResponse) {
-        // Validate dependencies
         if (!validateDependencies()) {
             BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Missing dependencies" });
             return;
         }
 
-        // Validate input
         if (!msg || typeof msg.roomId !== "string" || msg.roomId.trim() === "") {
             BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Invalid roomId" });
             return;
@@ -112,17 +74,11 @@
                 ref.off("value", listeners[roomId]);
             }
             delete listeners[roomId];
-            console.log(`[Binger] Unsubscribed from theme in room ${roomId}`);
             BingerBGHelpers.safeSendResponse(sendResponse, { status: "unsubscribed", roomId: roomId });
         } else {
-            console.log(`[Binger] No active theme listener for room ${roomId}`);
             BingerBGHelpers.safeSendResponse(sendResponse, { status: "no-listener", roomId: roomId });
         }
     }
-
-    // ========================================================================
-    // EXPOSE TO SERVICE WORKER
-    // ========================================================================
 
     self.BingerBGTheme = {
         handleSubscribeToTheme,
