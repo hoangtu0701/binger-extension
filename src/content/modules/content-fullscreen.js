@@ -409,6 +409,17 @@
 
         recreateIframeForNormal();
 
+        requestAnimationFrame(() => {
+            if (state.iframe && !state.iframe.classList.contains(CSS_CLASSES.fullscreen)) {
+                const overlay = document.querySelector(SELECTORS.overlay);
+                if (overlay) {
+                    const overlayRect = overlay.getBoundingClientRect();
+                    const iframeWidth = state.iframe.offsetWidth || 700;
+                    state.iframe.style.left = `${overlayRect.left - iframeWidth - 8}px`;
+                }
+            }
+        });
+
         state.wrapper = null;
         state.videoRegion = null;
         state.restoreFn = null;
