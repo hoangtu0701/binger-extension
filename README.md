@@ -194,7 +194,7 @@ Avatar hover tooltips fade in smoothly (0.2s opacity + 4px upward slide) with a 
 
 ### Bot Query Indicator
 
-Bot query messages display a 16px glowing "B" circle badge on the top-right corner of the message bubble. Uses `overflow: visible` on the message with `position: absolute` on the badge. No border-left accent on bot messages - the badge is the sole indicator. Themed per all 6 color schemes with gradient backgrounds and matching border/glow colors. Font-size locked with `!important` for fullscreen safety.
+Bot query messages display a 16px glowing "B" circle badge at the top-right corner of the message bubble. Uses `overflow: visible` on the message with `position: absolute` on the badge. No border-left accent on bot messages - the badge is the sole indicator. Themed per all 6 color schemes with gradient backgrounds and matching border/glow colors. Font-size locked with `!important` for fullscreen safety.
 
 ### Message Animation System
 
