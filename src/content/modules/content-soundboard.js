@@ -1,14 +1,5 @@
-// ============================================================================
-// SOUNDBOARD MODULE
-// Handles sound effects, visual effects, and emoji pins during sessions
-// ============================================================================
-
 (function() {
     "use strict";
-
-    // ========================================================================
-    // CONSTANTS
-    // ========================================================================
 
     const SELECTORS = {
         soundboard: "#bingerSoundboard",
@@ -37,10 +28,6 @@
         visualFontSize: "48px"
     };
 
-    // ========================================================================
-    // SOUND & VISUAL DEFINITIONS
-    // ========================================================================
-
     const SOUND_FILES = {
         adlib: "binger_assets/soundboard/adlib.mp3",
         aergh: "binger_assets/soundboard/aergh.mp3",
@@ -60,29 +47,25 @@
     };
 
     const SOUNDS = [
-        { id: "aergh", emoji: "\uD83D\uDE2B" },  // grimacing
-        { id: "flute", emoji: "\uD83C\uDFB6" },  // music notes
-        { id: "hmm", emoji: "\uD83E\uDD14" },    // thinking
-        { id: "pipe", emoji: "\uD83D\uDD29" },   // nut and bolt
-        { id: "rose", emoji: "\uD83E\uDD40" }    // wilted flower
+        { id: "aergh", emoji: "\uD83D\uDE2B" },
+        { id: "flute", emoji: "\uD83C\uDFB6" },
+        { id: "hmm", emoji: "\uD83E\uDD14" },
+        { id: "pipe", emoji: "\uD83D\uDD29" },
+        { id: "rose", emoji: "\uD83E\uDD40" }
     ];
 
     const VISUALS = [
-        { id: "mad", emoji: "\uD83E\uDD2C" },       // angry with symbols
-        { id: "poop", emoji: "\uD83D\uDCA9" },      // poop
-        { id: "sadtears", emoji: "\uD83E\uDD72" },  // smiling with tear
-        { id: "laugh", emoji: "\uD83E\uDD23" },     // rofl
-        { id: "hammer", emoji: "\uD83D\uDD28" },    // hammer
-        { id: "hearts", emoji: "\uD83E\uDD70" },    // smiling with hearts
-        { id: "smile", emoji: "\uD83D\uDE00" },     // grinning
-        { id: "disguise", emoji: "\uD83E\uDD78" },  // disguised face
-        { id: "pleading", emoji: "\uD83E\uDD7A" },  // pleading
-        { id: "shock", emoji: "\uD83E\uDEE8" }      // shaking face
+        { id: "mad", emoji: "\uD83E\uDD2C" },
+        { id: "poop", emoji: "\uD83D\uDCA9" },
+        { id: "sadtears", emoji: "\uD83E\uDD72" },
+        { id: "laugh", emoji: "\uD83E\uDD23" },
+        { id: "hammer", emoji: "\uD83D\uDD28" },
+        { id: "hearts", emoji: "\uD83E\uDD70" },
+        { id: "smile", emoji: "\uD83D\uDE00" },
+        { id: "disguise", emoji: "\uD83E\uDD78" },
+        { id: "pleading", emoji: "\uD83E\uDD7A" },
+        { id: "shock", emoji: "\uD83E\uDEE8" }
     ];
-
-    // ========================================================================
-    // ANIMATION DEFINITIONS
-    // ========================================================================
 
     const PIN_ANIMATIONS = {
         mad: "madGlowShake 0.8s infinite",
@@ -169,10 +152,6 @@
         }
     `;
 
-    // ========================================================================
-    // STATE
-    // ========================================================================
-
     const state = {
         soundboardEl: null,
         currentRoomId: null,
@@ -180,19 +159,10 @@
         initialized: false
     };
 
-    // Audio cache
     const audioMap = {};
     const readyAudioSet = new Set();
 
-    // ========================================================================
-    // INITIALIZATION HELPERS
-    // ========================================================================
-
-    /**
-     * Inject animation styles into document head
-     */
     function injectAnimationStyles() {
-        // Pin animations
         if (!document.getElementById("bingerPinAnimations")) {
             const style = document.createElement("style");
             style.id = "bingerPinAnimations";
@@ -200,7 +170,6 @@
             document.head.appendChild(style);
         }
 
-        // Float animations
         if (!document.getElementById("bingerFloatAnimations")) {
             const style = document.createElement("style");
             style.id = "bingerFloatAnimations";
@@ -209,9 +178,6 @@
         }
     }
 
-    /**
-     * Preload all audio files
-     */
     function preloadAudio() {
         for (const [id, path] of Object.entries(SOUND_FILES)) {
             const audio = new Audio(chrome.runtime.getURL(path));
@@ -223,19 +189,8 @@
         }
     }
 
-    // ========================================================================
-    // AUDIO PLAYBACK
-    // ========================================================================
-
-    /**
-     * Play a sound effect
-     * @param {string} soundId - The sound ID to play
-     */
     function playSound(soundId) {
-        if (!soundId || typeof soundId !== "string") {
-            console.warn("[Binger] Invalid soundId:", soundId);
-            return;
-        }
+        if (!soundId || typeof soundId !== "string") return;
 
         const audio = audioMap[soundId];
         if (audio) {
@@ -243,52 +198,25 @@
             audio.play().catch((e) =>
                 console.warn("[Binger] Failed to play sound:", soundId, e)
             );
-        } else {
-            console.warn("[Binger] Unknown soundId:", soundId);
         }
     }
 
-    // ========================================================================
-    // VISUAL EFFECTS
-    // ========================================================================
-
-    /**
-     * Get the container element for visual effects
-     * @returns {Element}
-     */
     function getEffectContainer() {
         const videoRegion = document.querySelector(SELECTORS.videoRegion);
         const overlay = document.querySelector(SELECTORS.overlay);
         return videoRegion || overlay?.parentNode || document.body;
     }
 
-    /**
-     * Find visual definition by ID
-     * @param {string} visualId
-     * @returns {object|undefined}
-     */
     function findVisualById(visualId) {
         return VISUALS.find(v => v.id === visualId);
     }
 
-    /**
-     * Find visual definition by emoji
-     * @param {string} emoji
-     * @returns {object|undefined}
-     */
     function findVisualByEmoji(emoji) {
         return VISUALS.find(v => v.emoji === emoji);
     }
 
-    /**
-     * Trigger a floating visual effect
-     * @param {string} effectId - The visual effect ID
-     */
     function triggerVisualEffect(effectId) {
-        if (!effectId || typeof effectId !== "string") {
-            console.warn("[Binger] Invalid effectId:", effectId);
-            return;
-        }
+        if (!effectId || typeof effectId !== "string") return;
 
         const visual = findVisualById(effectId);
         const emoji = visual?.emoji || "?";
@@ -297,11 +225,9 @@
         el.className = `visual-effect ${CSS_CLASSES.ephemeral}`;
         el.innerText = emoji;
 
-        // Pick random animation
         const animations = ["floatDrift", "floatPop", "floatSpiral"];
         const chosen = animations[Math.floor(Math.random() * animations.length)];
 
-        // Set drift direction for floatDrift
         if (chosen === "floatDrift") {
             const driftX = Math.random() > 0.5 ? "40px" : "-40px";
             el.style.setProperty("--drift-x", driftX);
@@ -320,18 +246,11 @@
 
         getEffectContainer().appendChild(el);
 
-        // Auto-remove if untouched
         const despawnTimer = setTimeout(() => el.remove(), CONFIG.visualDuration);
 
-        // Setup drag-to-pin functionality
         setupDragToPinBehavior(el, despawnTimer);
     }
 
-    /**
-     * Get client coordinates from mouse or touch event
-     * @param {Event} e - Mouse or touch event
-     * @returns {object} { clientX, clientY }
-     */
     function getEventCoordinates(e) {
         if (e.touches && e.touches.length > 0) {
             return {
@@ -351,17 +270,7 @@
         };
     }
 
-    /**
-     * Setup drag-to-pin behavior for visual element
-     * Supports both mouse and touch events
-     * @param {HTMLElement} el - The visual element
-     * @param {number} despawnTimer - The auto-remove timer
-     */
     function setupDragToPinBehavior(el, despawnTimer) {
-        /**
-         * Handle drag start (mouse or touch)
-         * @param {Event} e - Start event
-         */
         function handleDragStart(e) {
             e.preventDefault();
             clearTimeout(despawnTimer);
@@ -374,22 +283,13 @@
 
             document.body.style.cursor = "crosshair";
 
-            /**
-             * Handle drag move
-             * @param {Event} ev - Move event
-             */
             function handleMove(ev) {
                 const moveCoords = getEventCoordinates(ev);
                 el.style.left = `${moveCoords.clientX - offsetX}px`;
                 el.style.top = `${moveCoords.clientY - offsetY}px`;
             }
 
-            /**
-             * Handle drag end
-             * @param {Event} ev - End event
-             */
             function handleEnd(ev) {
-                // Remove all move/end listeners
                 window.removeEventListener("mousemove", handleMove);
                 window.removeEventListener("mouseup", handleEnd);
                 window.removeEventListener("touchmove", handleMove);
@@ -400,7 +300,6 @@
 
                 const endCoords = getEventCoordinates(ev);
 
-                // Check if dropped on video
                 const video = document.querySelector(SELECTORS.video);
                 if (video) {
                     const videoRect = video.getBoundingClientRect();
@@ -428,7 +327,6 @@
                 el.remove();
             }
 
-            // Add move/end listeners for both mouse and touch
             window.addEventListener("mousemove", handleMove);
             window.addEventListener("mouseup", handleEnd);
             window.addEventListener("touchmove", handleMove, { passive: false });
@@ -436,51 +334,27 @@
             window.addEventListener("touchcancel", handleEnd);
         }
 
-        // Attach both mouse and touch start handlers
         el.addEventListener("mousedown", handleDragStart);
         el.addEventListener("touchstart", handleDragStart, { passive: false });
     }
 
-    // ========================================================================
-    // PIN EFFECTS
-    // ========================================================================
-
-    /**
-     * Display a pin on the video
-     * @param {object} options - Pin options
-     * @param {string} options.visualId - The visual ID
-     * @param {number} options.relX - Relative X position (0-1)
-     * @param {number} options.relY - Relative Y position (0-1)
-     */
     function displayPin({ visualId, relX, relY }) {
         const video = document.querySelector(SELECTORS.video);
         if (!video) return;
 
-        // Validate visualId
-        if (!visualId || typeof visualId !== "string") {
-            console.warn("[Binger] displayPin: invalid visualId");
-            return;
-        }
+        if (!visualId || typeof visualId !== "string") return;
+        if (typeof relX !== "number" || typeof relY !== "number") return;
 
-        // Validate coordinates are numbers in valid range
-        if (typeof relX !== "number" || typeof relY !== "number") {
-            console.warn("[Binger] displayPin: invalid coordinates");
-            return;
-        }
-
-        // Clamp coordinates to valid range
         const clampedX = Math.max(0, Math.min(1, relX));
         const clampedY = Math.max(0, Math.min(1, relY));
 
         const visual = findVisualById(visualId);
         const emoji = visual?.emoji || "?";
 
-        // Calculate absolute position
         const rect = video.getBoundingClientRect();
         const absX = rect.left + clampedX * rect.width;
         const absY = rect.top + clampedY * rect.height;
 
-        // Create pin element
         const pinEl = document.createElement("div");
         pinEl.className = CSS_CLASSES.pinEmoji;
         pinEl.textContent = emoji;
@@ -501,22 +375,12 @@
 
         getEffectContainer().appendChild(pinEl);
 
-        // Auto-remove after duration
         setTimeout(() => {
             pinEl.style.opacity = "0";
             setTimeout(() => pinEl.remove(), CONFIG.pinFadeTime);
         }, CONFIG.pinDuration);
     }
 
-    // ========================================================================
-    // UI CREATION
-    // ========================================================================
-
-    /**
-     * Create a sound button
-     * @param {object} sound - Sound definition { id, emoji }
-     * @returns {HTMLButtonElement}
-     */
     function createSoundButton(sound) {
         const btn = document.createElement("button");
         btn.className = CSS_CLASSES.soundBtn;
@@ -531,11 +395,6 @@
         return btn;
     }
 
-    /**
-     * Create a visual button
-     * @param {object} visual - Visual definition { id, emoji }
-     * @returns {HTMLButtonElement}
-     */
     function createVisualButton(visual) {
         const btn = document.createElement("button");
         btn.className = CSS_CLASSES.visualBtn;
@@ -550,48 +409,36 @@
         return btn;
     }
 
-    /**
-     * Create the soundboard UI
-     */
     function createSoundboardUI() {
         if (state.soundboardEl) return;
 
-        // Create main container
         state.soundboardEl = document.createElement("div");
         state.soundboardEl.id = "bingerSoundboard";
         state.soundboardEl.className = CSS_CLASSES.soundboard;
 
-        // Visual section
         const visualSection = document.createElement("div");
         visualSection.className = CSS_CLASSES.visualSection;
         VISUALS.forEach(visual => {
             visualSection.appendChild(createVisualButton(visual));
         });
 
-        // Divider
         const divider = document.createElement("div");
         divider.className = CSS_CLASSES.divider;
 
-        // Sound section
         const soundSection = document.createElement("div");
         soundSection.className = CSS_CLASSES.soundSection;
         SOUNDS.forEach(sound => {
             soundSection.appendChild(createSoundButton(sound));
         });
 
-        // Assemble
         state.soundboardEl.appendChild(visualSection);
         state.soundboardEl.appendChild(divider);
         state.soundboardEl.appendChild(soundSection);
         document.body.appendChild(state.soundboardEl);
 
-        // Start listeners
         startListeners();
     }
 
-    /**
-     * Destroy the soundboard UI
-     */
     function destroySoundboardUI() {
         if (state.soundboardEl) {
             state.soundboardEl.remove();
@@ -601,16 +448,8 @@
         stopListeners();
     }
 
-    // ========================================================================
-    // FIREBASE LISTENERS
-    // ========================================================================
-
-    /**
-     * Start Firebase listeners for soundboard events
-     */
     function startListeners() {
         chrome.storage.local.get("bingerCurrentRoomId", (result) => {
-            // Check for storage errors
             if (chrome.runtime.lastError) {
                 console.warn("[Binger] Storage error in startListeners:", chrome.runtime.lastError.message);
                 return;
@@ -640,9 +479,6 @@
         });
     }
 
-    /**
-     * Stop Firebase listeners for soundboard events
-     */
     function stopListeners() {
         if (state.listenerAttached && state.currentRoomId) {
             BingerConnection.sendMessageAsync({
@@ -665,16 +501,7 @@
         }
     }
 
-    // ========================================================================
-    // MESSAGE HANDLER
-    // ========================================================================
-
-    /**
-     * Handle messages from background.js
-     * @param {object} msg - The message object
-     */
     function handleMessage(msg) {
-        // Validate message
         if (!msg || typeof msg !== "object") return;
 
         switch (msg.command) {
@@ -706,32 +533,15 @@
         }
     }
 
-    // ========================================================================
-    // INITIALIZATION
-    // ========================================================================
-
-    /**
-     * Initialize the soundboard module
-     * Only initializes once to prevent duplicate listeners
-     */
     function init() {
-        // Prevent duplicate initialization
-        if (state.initialized) {
-            console.log("[Binger] Soundboard already initialized - skipping");
-            return;
-        }
+        if (state.initialized) return;
 
         injectAnimationStyles();
         preloadAudio();
         chrome.runtime.onMessage.addListener(handleMessage);
 
         state.initialized = true;
-        console.log("[Binger] Soundboard module initialized");
     }
-
-    // ========================================================================
-    // EXPOSE TO WINDOW
-    // ========================================================================
 
     window.BingerSoundboard = {
         init,

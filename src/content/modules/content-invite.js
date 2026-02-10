@@ -1,29 +1,9 @@
-// ============================================================================
-// INVITE MODULE
-// Handles watch together invites - sending, receiving, UI states
-// ============================================================================
-
 (function() {
     "use strict";
 
-    // ========================================================================
-    // CONSTANTS
-    // ========================================================================
-
-    // Long press threshold for decline action (milliseconds)
     const LONG_PRESS_THRESHOLD_MS = 800;
 
-    // ========================================================================
-    // INVITE SENDING
-    // ========================================================================
-
-    /**
-     * Send a watch together invite
-     * Default handler for the Binge button
-     */
     function sendInvite() {
-        console.log("[Binger] Watch Together clicked");
-
         const movieUrl = window.location.href;
 
         BingerConnection.getCurrentRoomId()
@@ -44,7 +24,6 @@
                         const sender = email.split("@")[0] || "anonymous";
                         const senderUid = response.user.uid;
 
-                        // Construct invite data
                         const inviteData = {
                             createdBy: senderUid,
                             sender,
@@ -53,14 +32,12 @@
                             accepted: {}
                         };
 
-                        // Send invite to Firebase
                         return BingerConnection.sendMessage({
                             command: "sendInviteAndBroadcast",
                             roomId,
                             inviteData
                         }).then((res) => {
                             if (res?.status === "success") {
-                                console.log("[Binger] Invite sent and stored");
                                 BingerConnection.sendMessageAsync({
                                     command: "subscribeToActiveInvite",
                                     roomId
@@ -77,13 +54,6 @@
             });
     }
 
-    // ========================================================================
-    // INVITE CANCELLATION
-    // ========================================================================
-
-    /**
-     * Cancel the active invite (inviter action)
-     */
     function cancelInvite() {
         BingerConnection.getCurrentRoomId()
             .then((roomId) => {
@@ -94,9 +64,6 @@
                     roomId
                 }).then((res) => {
                     if (res?.status === "success") {
-                        console.log("[Binger] Invite cancelled - now posting chat message");
-
-                        // Post cancellation message to chat
                         return BingerConnection.sendMessage({ command: "checkAuth" })
                             .then((authRes) => {
                                 if (!authRes?.user) return;
@@ -127,14 +94,6 @@
             });
     }
 
-    // ========================================================================
-    // INVITE ACCEPTANCE
-    // ========================================================================
-
-    /**
-     * Accept an invite (invitee action)
-     * @param {object} invite - The invite object
-     */
     function acceptInvite(invite) {
         const watchTogetherBtn = BingerOverlayDOM.getElement("watchTogetherBtn");
         if (watchTogetherBtn) {
@@ -157,7 +116,6 @@
                     .then((roomId) => {
                         if (!roomId) return;
 
-                        // Post acceptance message
                         const msg = {
                             sender: "Binger Bot",
                             timestamp: Date.now(),
@@ -170,7 +128,6 @@
                             data: msg
                         });
 
-                        // Mark as accepted in Firebase
                         BingerConnection.sendMessageAsync({
                             command: "post",
                             path: `rooms/${roomId}/activeInvite/acceptedInvitees/${uid}`,
@@ -183,13 +140,6 @@
             });
     }
 
-    // ========================================================================
-    // INVITE DECLINE
-    // ========================================================================
-
-    /**
-     * Decline an invite (invitee action)
-     */
     function declineInvite() {
         BingerConnection.sendMessage({ command: "checkAuth" })
             .then((authRes) => {
@@ -203,7 +153,6 @@
                     .then((roomId) => {
                         if (!roomId) return;
 
-                        // Post decline message
                         const msg = {
                             sender: "Binger Bot",
                             timestamp: Date.now(),
@@ -220,7 +169,6 @@
                                 return;
                             }
 
-                            // Cancel the invite in Firebase
                             return BingerConnection.sendMessage({
                                 command: "cancelActiveInvite",
                                 roomId
@@ -237,13 +185,6 @@
             });
     }
 
-    // ========================================================================
-    // INVITER UI
-    // ========================================================================
-
-    /**
-     * Setup the inviter UI (cancel button)
-     */
     function setupInviterUI() {
         const watchTogetherBtn = BingerOverlayDOM.getElement("watchTogetherBtn");
         if (!watchTogetherBtn) return;
@@ -252,21 +193,11 @@
         watchTogetherBtn.innerText = "Cancel Invite";
         watchTogetherBtn.classList.add("binge-inviter-active");
 
-        // Clear any existing handlers
         clearButtonHandlers(watchTogetherBtn);
 
         watchTogetherBtn.onclick = cancelInvite;
     }
 
-    // ========================================================================
-    // INVITEE UI
-    // ========================================================================
-
-    /**
-     * Setup the invitee UI (accept/decline with progress bar)
-     * Short press = Accept, Long press (800ms+) = Decline
-     * @param {object} invite - The invite object
-     */
     function setupInviteeUI(invite) {
         const watchTogetherBtn = BingerOverlayDOM.getElement("watchTogetherBtn");
         if (!watchTogetherBtn) return;
@@ -276,10 +207,8 @@
         watchTogetherBtn.classList.remove("binge-invitee-accepted");
         watchTogetherBtn.classList.add("binge-invitee-active");
 
-        // Clear any existing handlers
         clearButtonHandlers(watchTogetherBtn);
 
-        // Create progress bar
         const progressBar = document.createElement("div");
         progressBar.style.height = "4px";
         progressBar.style.width = "0%";
@@ -292,12 +221,9 @@
 
         BingerState.setProgressBar(progressBar);
 
-        // Track press time
         let pressStartTime = null;
 
-        // Handler for press start (mouse or touch)
         function handlePressStart(e) {
-            // Prevent default to avoid double-firing on touch devices
             if (e.type === "touchstart") {
                 e.preventDefault();
             }
@@ -305,9 +231,7 @@
             progressBar.style.width = "100%";
         }
 
-        // Handler for press end (mouse or touch)
         function handlePressEnd(e) {
-            // Prevent default to avoid double-firing on touch devices
             if (e.type === "touchend") {
                 e.preventDefault();
             }
@@ -320,34 +244,26 @@
             pressStartTime = null;
 
             if (duration >= LONG_PRESS_THRESHOLD_MS) {
-                // Long press = Decline
                 declineInvite();
             } else {
-                // Short press = Accept
                 acceptInvite(invite);
             }
         }
 
-        // Handler for press cancel (mouse leave or touch cancel)
         function handlePressCancel() {
             progressBar.style.width = "0%";
             pressStartTime = null;
         }
 
-        // Mouse events
         watchTogetherBtn.onmousedown = handlePressStart;
         watchTogetherBtn.onmouseup = handlePressEnd;
         watchTogetherBtn.onmouseleave = handlePressCancel;
 
-        // Touch events for mobile support
         watchTogetherBtn.ontouchstart = handlePressStart;
         watchTogetherBtn.ontouchend = handlePressEnd;
         watchTogetherBtn.ontouchcancel = handlePressCancel;
     }
 
-    /**
-     * Setup the accepted state UI
-     */
     function setupAcceptedUI() {
         const watchTogetherBtn = BingerOverlayDOM.getElement("watchTogetherBtn");
         if (!watchTogetherBtn) return;
@@ -357,114 +273,69 @@
         watchTogetherBtn.innerText = "Accepted";
         watchTogetherBtn.disabled = true;
 
-        // Clear all handlers
         clearButtonHandlers(watchTogetherBtn);
     }
 
-    // ========================================================================
-    // RESET UI
-    // ========================================================================
-
-    /**
-     * Clear all button handlers (mouse and touch)
-     * @param {HTMLElement} button - The button element
-     */
     function clearButtonHandlers(button) {
         if (!button) return;
 
-        // Mouse events
         button.onclick = null;
         button.onmousedown = null;
         button.onmouseup = null;
         button.onmouseleave = null;
 
-        // Touch events
         button.ontouchstart = null;
         button.ontouchend = null;
         button.ontouchcancel = null;
     }
 
-    /**
-     * Reset the watch together button to default state
-     */
     function resetWatchTogetherButton() {
         const watchTogetherBtn = BingerOverlayDOM.getElement("watchTogetherBtn");
         if (!watchTogetherBtn) return;
 
-        console.log("[Binger] No active invite - resetting button state");
-
-        // Remove lingering progress bar
         const progressBar = watchTogetherBtn.querySelector("div");
         if (progressBar) progressBar.remove();
 
-        // Clear handlers
         clearButtonHandlers(watchTogetherBtn);
 
-        // Reset to original state
         watchTogetherBtn.innerHTML = `<img src="${chrome.runtime.getURL("binger_assets/images/binge.png")}" alt="Watch Together" class="bottom-icon" />`;
         watchTogetherBtn.disabled = true;
         watchTogetherBtn.style.backgroundColor = "";
         watchTogetherBtn.style.color = "";
         watchTogetherBtn.style.border = "";
 
-        // Remove all styling classes
         watchTogetherBtn.classList.remove("binge-invitee-active");
         watchTogetherBtn.classList.remove("binge-inviter-active");
         watchTogetherBtn.classList.remove("binge-invitee-accepted");
 
-        // Restore default click handler
         watchTogetherBtn.onclick = sendInvite;
 
-        // Re-enable if eligible
         BingerRoom.checkWatchTogetherEligibility();
     }
 
-    // ========================================================================
-    // INVITE UPDATE HANDLER
-    // ========================================================================
-
-    /**
-     * Handle active invite update from background
-     * @param {object|null} invite - The invite object or null if no invite
-     */
     function handleInviteUpdate(invite) {
         const currentUser = BingerState.getCurrentUser();
 
-        // Validate invite object has required fields
         if (invite && typeof invite === "object" && invite.createdBy) {
-            console.log("[Binger] Active invite received:", invite);
-
             const isSender = invite.createdBy === currentUser?.uid;
 
             if (isSender) {
-                // Inviter view
                 setupInviterUI();
             } else {
-                // Invitee view
                 const uid = currentUser?.uid;
                 const hasAccepted = invite.acceptedInvitees && invite.acceptedInvitees[uid];
 
                 if (hasAccepted) {
-                    // Already accepted
                     setupAcceptedUI();
                 } else {
-                    // Fresh invitee - show accept/decline
                     setupInviteeUI(invite);
                 }
             }
         } else {
-            // No active invite or invalid invite
             resetWatchTogetherButton();
         }
     }
 
-    // ========================================================================
-    // INITIALIZATION
-    // ========================================================================
-
-    /**
-     * Setup the default watch together button handler
-     */
     function setupWatchTogetherButton() {
         const watchTogetherBtn = BingerOverlayDOM.getElement("watchTogetherBtn");
         if (watchTogetherBtn) {
@@ -472,27 +343,19 @@
         }
     }
 
-    // ========================================================================
-    // EXPOSE TO WINDOW
-    // ========================================================================
-
     window.BingerInvite = {
-        // Actions
         sendInvite,
         cancelInvite,
         acceptInvite,
         declineInvite,
 
-        // UI
         setupInviterUI,
         setupInviteeUI,
         setupAcceptedUI,
         resetWatchTogetherButton,
 
-        // Handler
         handleInviteUpdate,
 
-        // Setup
         setupWatchTogetherButton
     };
 

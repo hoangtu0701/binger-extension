@@ -1,14 +1,5 @@
-// ============================================================================
-// FULLSCREEN MODE MODULE
-// Handles entering/exiting fullscreen with layout rearrangement
-// ============================================================================
-
 (function() {
     "use strict";
-
-    // ========================================================================
-    // CONSTANTS
-    // ========================================================================
 
     const SELECTORS = {
         overlay: "#bingerOverlay",
@@ -35,53 +26,31 @@
         pinEmoji: "binger-pin-emoji"
     };
 
-    // ========================================================================
-    // STATE
-    // ========================================================================
-
     const state = {
-        // Overlay position tracking
         overlay: null,
         overlayOriginalParent: null,
         overlayNextSibling: null,
 
-        // Call iframe tracking
         iframe: null,
         iframeOriginalParent: null,
         iframeNextSibling: null,
         iframeOriginalStyles: null,
 
-        // Soundboard tracking
         soundboardOriginalParent: null,
         soundboardNextSibling: null,
 
-        // Video.js tracking
         originalVJSStyles: null,
         originalVideoStyles: null,
 
-        // Created elements
         wrapper: null,
         videoRegion: null,
 
-        // Restore function
         restoreFn: null
     };
 
-    // Track if fullscreen listener is attached (prevents duplicate listeners)
     let fullscreenListenerAttached = false;
-
-    // Track if currently processing a fullscreen change (prevents race conditions)
     let isProcessingFullscreen = false;
 
-    // ========================================================================
-    // HELPER UTILITIES
-    // ========================================================================
-
-    /**
-     * Check if a node is ephemeral (floating emoji, etc.)
-     * @param {Node} node - The DOM node to check
-     * @returns {boolean}
-     */
     function isEphemeral(node) {
         return (
             node?.classList?.contains(CSS_CLASSES.ephemeral) ||
@@ -89,11 +58,6 @@
         );
     }
 
-    /**
-     * Skip ephemeral siblings and return the next non-ephemeral sibling
-     * @param {Node} sibling - Starting sibling node
-     * @returns {Node|null}
-     */
     function skipEphemeralSiblings(sibling) {
         let current = sibling;
         while (current && isEphemeral(current)) {
@@ -102,18 +66,11 @@
         return current;
     }
 
-    /**
-     * Remove all ephemeral elements from the document
-     */
     function removeAllEphemeralElements() {
         const selector = `.${CSS_CLASSES.ephemeral}, .${CSS_CLASSES.pinEmoji}`;
         document.querySelectorAll(selector).forEach(el => el.remove());
     }
 
-    /**
-     * Get the video.js container and video element
-     * @returns {{vjsContainer: Element|null, video: Element|null}}
-     */
     function getVideoElements() {
         const vjsContainer = document.querySelector(SELECTORS.videoJsFullscreen) ||
                             document.querySelector(SELECTORS.videoJs);
@@ -121,11 +78,6 @@
         return { vjsContainer, video };
     }
 
-    /**
-     * Extract room ID from iframe src
-     * @param {HTMLIFrameElement} iframe - The call iframe
-     * @returns {string|null}
-     */
     function extractRoomIdFromIframe(iframe) {
         try {
             return new URL(iframe?.src).searchParams.get("roomId");
@@ -135,18 +87,9 @@
         }
     }
 
-    // ========================================================================
-    // IFRAME MANAGEMENT
-    // ========================================================================
-
-    /**
-     * Restore camera/mic state to iframe after recreation
-     * @param {HTMLIFrameElement} iframe - The new iframe
-     */
     function restoreCamMicState(iframe) {
         if (!iframe || !window.BINGER?.camMicState) return;
 
-        // Use addEventListener instead of onload to avoid overwriting other handlers
         iframe.addEventListener("load", () => {
             const { camOn, micOn } = window.BINGER.camMicState;
             try {
@@ -160,10 +103,6 @@
         }, { once: true });
     }
 
-    /**
-     * Broadcast call reset to sync with other users
-     * @param {string} roomId - The room ID
-     */
     function broadcastCallReset(roomId) {
         if (!roomId) return;
         BingerConnection.sendMessageAsync({
@@ -172,25 +111,12 @@
         });
     }
 
-    /**
-     * Sync iframe reference with sessionMode.js
-     * @param {HTMLIFrameElement} iframe - The iframe to sync
-     */
     function syncIframeReference(iframe) {
         if (typeof window.bingerSetCallIframe === "function") {
             window.bingerSetCallIframe(iframe);
         }
     }
 
-    /**
-     * Create a new call iframe
-     * @param {object} options - Configuration options
-     * @param {string} options.roomId - The room ID
-     * @param {boolean} options.isFullscreen - Whether in fullscreen mode
-     * @param {boolean} options.wasHidden - Whether iframe was hidden
-     * @param {string|null} options.originalStyles - Original inline styles
-     * @returns {HTMLIFrameElement}
-     */
     function createCallIframe(options) {
         const { roomId, isFullscreen, wasHidden, originalStyles } = options;
         const uid = BingerState.getCurrentUserUid();
@@ -208,21 +134,15 @@
             iframe.classList.add(CSS_CLASSES.callHidden);
         }
 
-        // Restore original styles if not in fullscreen
         if (!isFullscreen && originalStyles) {
             iframe.setAttribute("style", originalStyles);
         }
 
-        // Setup cam/mic restoration
         restoreCamMicState(iframe);
 
         return iframe;
     }
 
-    /**
-     * Save iframe position for later restoration
-     * Only saves if not already saved (prevents overwriting during repeated calls)
-     */
     function saveIframePosition() {
         state.iframe = document.querySelector(SELECTORS.callIframe);
 
@@ -233,19 +153,12 @@
         }
     }
 
-    /**
-     * Clear saved iframe position (called after restore)
-     */
     function clearIframePosition() {
         state.iframeOriginalParent = null;
         state.iframeNextSibling = null;
         state.iframeOriginalStyles = null;
     }
 
-    /**
-     * Recreate iframe in fullscreen row
-     * @param {Element} fsRow - The fullscreen row element
-     */
     function recreateIframeForFullscreen(fsRow) {
         if (!state.iframe) return;
 
@@ -254,7 +167,6 @@
 
         const wasHidden = state.iframe.classList.contains(CSS_CLASSES.callHidden);
 
-        // Tell old iframe to clean up Firebase entries before destroying it
         try {
             state.iframe.contentWindow.postMessage({ type: "cleanupCall" }, "*");
         } catch (err) {
@@ -277,9 +189,6 @@
         syncIframeReference(newIframe);
     }
 
-    /**
-     * Recreate iframe in original position after exiting fullscreen
-     */
     function recreateIframeForNormal() {
         if (!state.iframeOriginalParent) return;
 
@@ -288,7 +197,6 @@
 
         const wasHidden = state.iframe?.classList.contains(CSS_CLASSES.callHidden);
 
-        // Tell old iframe to clean up Firebase entries before destroying it
         try {
             state.iframe?.contentWindow?.postMessage({ type: "cleanupCall" }, "*");
         } catch (err) {
@@ -311,17 +219,9 @@
         broadcastCallReset(roomId);
         syncIframeReference(newIframe);
 
-        // Clear saved position after restore
         clearIframePosition();
     }
 
-    // ========================================================================
-    // SOUNDBOARD MANAGEMENT
-    // ========================================================================
-
-    /**
-     * Save soundboard position for later restoration
-     */
     function saveSoundboardPosition() {
         const soundboard = document.getElementById("bingerSoundboard");
 
@@ -331,18 +231,11 @@
         }
     }
 
-    /**
-     * Clear saved soundboard position (called after restore)
-     */
     function clearSoundboardPosition() {
         state.soundboardOriginalParent = null;
         state.soundboardNextSibling = null;
     }
 
-    /**
-     * Move soundboard to fullscreen row
-     * @param {Element} fsRow - The fullscreen row element
-     */
     function moveSoundboardToFullscreen(fsRow) {
         const soundboard = document.getElementById("bingerSoundboard");
         if (!soundboard) return;
@@ -352,9 +245,6 @@
         fsRow.appendChild(soundboard);
     }
 
-    /**
-     * Restore soundboard to original position
-     */
     function restoreSoundboardPosition() {
         const soundboard = document.getElementById("bingerSoundboard");
 
@@ -362,20 +252,10 @@
             soundboard.classList.remove(CSS_CLASSES.fullscreen);
             const insertBefore = skipEphemeralSiblings(state.soundboardNextSibling);
             state.soundboardOriginalParent.insertBefore(soundboard, insertBefore);
-
-            // Clear saved position after restore
             clearSoundboardPosition();
         }
     }
 
-    // ========================================================================
-    // DOM CREATION
-    // ========================================================================
-
-    /**
-     * Create the video region container (70% height)
-     * @returns {HTMLDivElement}
-     */
     function createVideoRegion() {
         const region = document.createElement("div");
         region.id = "binger-video-region";
@@ -394,10 +274,6 @@
         return region;
     }
 
-    /**
-     * Create the fullscreen row container (30% height)
-     * @returns {HTMLDivElement}
-     */
     function createFullscreenRow() {
         const row = document.createElement("div");
         row.id = "binger-fullscreen-row";
@@ -415,10 +291,6 @@
         return row;
     }
 
-    /**
-     * Create the overlay wrapper for fullscreen mode
-     * @returns {HTMLDivElement}
-     */
     function createOverlayWrapper() {
         const wrapper = document.createElement("div");
         wrapper.id = "binger-wrapper";
@@ -437,34 +309,15 @@
         return wrapper;
     }
 
-    // ========================================================================
-    // LAYOUT FUNCTIONS
-    // ========================================================================
-
-    /**
-     * Setup fullscreen layout
-     * @param {Element} vjsContainer - The video.js container
-     * @param {Element} video - The video element
-     * @param {Element} overlay - The Binger overlay
-     */
     function enterFullscreenLayout(vjsContainer, video, overlay) {
-        // Already patched - skip
-        if (document.getElementById("binger-video-region")) {
-            console.log("[Binger] Already patched - skipping");
-            return;
-        }
+        if (document.getElementById("binger-video-region")) return;
 
-        console.log("[Binger] Entered fullscreen");
-
-        // Save current styles
         state.originalVJSStyles = vjsContainer.getAttribute("style");
         state.originalVideoStyles = video.getAttribute("style");
 
-        // Setup base document styles
         document.documentElement.style.height = "100%";
         document.body.style.height = "100%";
 
-        // Configure video.js container
         Object.assign(vjsContainer.style, {
             display: "flex",
             flexDirection: "column",
@@ -472,7 +325,6 @@
             width: "100%"
         });
 
-        // Create video region and move children
         state.videoRegion = createVideoRegion();
         [...vjsContainer.children].forEach(child => {
             if (child !== state.videoRegion && !isEphemeral(child)) {
@@ -481,54 +333,37 @@
         });
         vjsContainer.appendChild(state.videoRegion);
 
-        // Stretch video to fill region
         Object.assign(video.style, {
             width: "100%",
             height: "100%",
             objectFit: "contain"
         });
 
-        // Create fullscreen row
         const fsRow = createFullscreenRow();
         vjsContainer.appendChild(fsRow);
 
-        // Save and recreate iframe
         saveIframePosition();
         recreateIframeForFullscreen(fsRow);
 
-        // Create wrapper and move overlay
         state.wrapper = createOverlayWrapper();
         fsRow.appendChild(state.wrapper);
         state.wrapper.appendChild(overlay);
         overlay.classList.add(CSS_CLASSES.fullscreen);
 
-        // Move soundboard
         moveSoundboardToFullscreen(fsRow);
 
-        // Setup restore function
         state.restoreFn = () => restoreNormalLayout(vjsContainer, video, overlay);
     }
 
-    /**
-     * Restore normal layout after exiting fullscreen
-     * @param {Element} vjsContainer - The video.js container
-     * @param {Element} video - The video element
-     * @param {Element} overlay - The Binger overlay
-     */
     function restoreNormalLayout(vjsContainer, video, overlay) {
-        console.log("[Binger] Restoring normal layout");
-
-        // Move overlay back
         if (state.overlayOriginalParent) {
             const insertBefore = skipEphemeralSiblings(state.overlayNextSibling);
             state.overlayOriginalParent.insertBefore(overlay, insertBefore);
         }
         overlay.classList.remove(CSS_CLASSES.fullscreen);
 
-        // Move soundboard back
         restoreSoundboardPosition();
 
-        // Move video children back
         const videoRegion = document.getElementById("binger-video-region");
         if (videoRegion) {
             while (videoRegion.firstChild) {
@@ -542,11 +377,9 @@
             videoRegion.remove();
         }
 
-        // Remove fullscreen elements
         document.getElementById("binger-fullscreen-row")?.remove();
         document.getElementById("binger-wrapper")?.remove();
 
-        // Restore video.js styles
         if (state.originalVJSStyles !== null) {
             vjsContainer.setAttribute("style", state.originalVJSStyles);
         } else {
@@ -559,23 +392,18 @@
             video.removeAttribute("style");
         }
 
-        // Restore document styles
         document.documentElement.style.height = "";
         document.body.style.height = "";
 
-        // Reset video.js internal elements
         vjsContainer.querySelectorAll(".vjs-tech, .vjs-poster")
             .forEach(el => el.removeAttribute("style"));
 
-        // Trigger video.js resize if available
         if (typeof video.player === "function") {
             setTimeout(() => video.player().resize?.(), 0);
         }
 
-        // Recreate iframe in original position
         recreateIframeForNormal();
 
-        // Reset state
         state.wrapper = null;
         state.videoRegion = null;
         state.restoreFn = null;
@@ -583,27 +411,14 @@
         state.originalVideoStyles = null;
     }
 
-    // ========================================================================
-    // FULLSCREEN EVENT HANDLER
-    // ========================================================================
-
-    /**
-     * Handle fullscreen change event
-     */
     function handleFullscreenChange() {
-        // Prevent race conditions from rapid fullscreen toggles
-        if (isProcessingFullscreen) {
-            console.log("[Binger] Already processing fullscreen change - skipping");
-            return;
-        }
+        if (isProcessingFullscreen) return;
 
         isProcessingFullscreen = true;
 
         BingerConnection.sendMessage({ command: "checkAuth" })
             .then((response) => {
-                // Skip if user not signed in
                 if (!response?.user) {
-                    console.log("[Binger] Ignoring fullscreen change (user signed out)");
                     isProcessingFullscreen = false;
                     return;
                 }
@@ -616,7 +431,6 @@
                     return;
                 }
 
-                // Remove floating emojis
                 removeAllEphemeralElements();
 
                 const isFullscreen = !!document.fullscreenElement;
@@ -628,7 +442,6 @@
                         if (state.restoreFn) {
                             state.restoreFn();
                         } else {
-                            // Emergency fallback
                             console.warn("[Binger] restoreFn missing - attempting manual cleanup");
                             restoreNormalLayout(vjsContainer, video, state.overlay);
                         }
@@ -645,20 +458,8 @@
             });
     }
 
-    // ========================================================================
-    // PUBLIC API
-    // ========================================================================
-
-    /**
-     * Attach fullscreen listener to the overlay
-     * @param {string} overlaySelector - CSS selector for the overlay
-     */
     function attachFullscreenListener(overlaySelector = SELECTORS.overlay) {
-        // Prevent duplicate listener attachment
-        if (fullscreenListenerAttached) {
-            console.log("[Binger] Fullscreen listener already attached - skipping");
-            return;
-        }
+        if (fullscreenListenerAttached) return;
 
         state.overlay = document.querySelector(overlaySelector);
 
@@ -667,18 +468,12 @@
             return;
         }
 
-        // Save overlay's original position
         state.overlayOriginalParent = state.overlay.parentNode;
         state.overlayNextSibling = state.overlay.nextSibling;
 
-        // Attach event listener
         document.addEventListener("fullscreenchange", handleFullscreenChange);
         fullscreenListenerAttached = true;
     }
-
-    // ========================================================================
-    // EXPOSE TO WINDOW
-    // ========================================================================
 
     window.BingerFullscreen = {
         init: attachFullscreenListener
