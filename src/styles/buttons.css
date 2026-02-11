@@ -301,11 +301,10 @@
 .bottom-icon {
   width: 32px;
   height: 32px;
-  object-fit: contain;
   pointer-events: none;
 }
 
-#bingerBottomButtons button:disabled img {
+#bingerBottomButtons button:disabled svg {
   opacity: 0.3;
   filter: grayscale(100%);
 }

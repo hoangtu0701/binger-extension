@@ -298,7 +298,7 @@
 
         clearButtonHandlers(watchTogetherBtn);
 
-        watchTogetherBtn.innerHTML = `<img src="${chrome.runtime.getURL("binger_assets/images/binge.png")}" alt="Watch Together" class="bottom-icon" />`;
+        watchTogetherBtn.innerHTML = `<svg class="bottom-icon" viewBox="0 0 32 32" fill="none"><circle cx="10" cy="9" r="3.5" stroke="rgba(200,140,80,0.7)" stroke-width="1.5" fill="none"/><circle cx="22" cy="9" r="3.5" stroke="rgba(200,140,80,0.7)" stroke-width="1.5" fill="none"/><path d="M4 22C4 18.5 6.5 16 10 16C11.5 16 12.8 16.5 13.8 17.3" stroke="rgba(200,140,80,0.5)" stroke-width="1.5" stroke-linecap="round" fill="none"/><path d="M28 22C28 18.5 25.5 16 22 16C20.5 16 19.2 16.5 18.2 17.3" stroke="rgba(200,140,80,0.5)" stroke-width="1.5" stroke-linecap="round" fill="none"/><path d="M13 21L20 25.5L13 30V21Z" fill="rgba(200,140,80,0.5)" stroke="rgba(200,140,80,0.7)" stroke-width="1.2" stroke-linejoin="round"/></svg>`;
         watchTogetherBtn.disabled = true;
         watchTogetherBtn.style.backgroundColor = "";
         watchTogetherBtn.style.color = "";

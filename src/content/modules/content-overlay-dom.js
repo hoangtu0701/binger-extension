@@ -99,12 +99,12 @@
         const watchTogetherBtn = document.createElement("button");
         watchTogetherBtn.id = "watchTogetherBtn";
         watchTogetherBtn.disabled = true;
-        watchTogetherBtn.innerHTML = `<img src="${chrome.runtime.getURL("binger_assets/images/binge.png")}" alt="Watch Together" class="bottom-icon" />`;
+        watchTogetherBtn.innerHTML = `<svg class="bottom-icon" viewBox="0 0 32 32" fill="none"><circle cx="10" cy="9" r="3.5" stroke="rgba(200,140,80,0.7)" stroke-width="1.5" fill="none"/><circle cx="22" cy="9" r="3.5" stroke="rgba(200,140,80,0.7)" stroke-width="1.5" fill="none"/><path d="M4 22C4 18.5 6.5 16 10 16C11.5 16 12.8 16.5 13.8 17.3" stroke="rgba(200,140,80,0.5)" stroke-width="1.5" stroke-linecap="round" fill="none"/><path d="M28 22C28 18.5 25.5 16 22 16C20.5 16 19.2 16.5 18.2 17.3" stroke="rgba(200,140,80,0.5)" stroke-width="1.5" stroke-linecap="round" fill="none"/><path d="M13 21L20 25.5L13 30V21Z" fill="rgba(200,140,80,0.5)" stroke="rgba(200,140,80,0.7)" stroke-width="1.2" stroke-linejoin="round"/></svg>`;
 
         const cameraToggleBtn = document.createElement("button");
         cameraToggleBtn.id = "cameraToggleBtn";
         cameraToggleBtn.disabled = true;
-        cameraToggleBtn.innerHTML = `<img src="${chrome.runtime.getURL("binger_assets/images/cam.png")}" alt="Camera Toggle" class="bottom-icon" />`;
+        cameraToggleBtn.innerHTML = `<svg class="bottom-icon" viewBox="0 0 32 32" fill="none"><rect x="3" y="8" width="19" height="16" rx="4" stroke="rgba(200,140,80,0.7)" stroke-width="1.5" fill="rgba(200,140,80,0.06)"/><path d="M22 12.5L29 8.5V23.5L22 19.5" stroke="rgba(200,140,80,0.5)" stroke-width="1.5" stroke-linejoin="round" fill="rgba(200,140,80,0.08)"/><circle cx="12.5" cy="16" r="4" stroke="rgba(200,140,80,0.35)" stroke-width="1.2" fill="none"/><circle cx="12.5" cy="16" r="1.5" fill="rgba(200,140,80,0.3)"/></svg>`;
 
         bottomBtnBar.appendChild(watchTogetherBtn);
         bottomBtnBar.appendChild(cameraToggleBtn);

@@ -68,8 +68,6 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "binger_assets/images/binge.png",
-        "binger_assets/images/cam.png",
         "call_app/call.html",
         "call_app/*",
         "binger_assets/soundboard/*"
