@@ -273,8 +273,14 @@
   cursor: pointer;
   transition: all 0.25s ease;
   height: 40px;
-  padding-top: 5px;
-  padding-bottom: 3px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #d4a574;
   background: rgba(200, 140, 80, 0.1);
   border: 1px solid rgba(200, 140, 80, 0.15);
 }
@@ -309,6 +315,11 @@
   filter: grayscale(100%);
 }
 
+.theme-pink #watchTogetherBtn,
+.theme-pink #cameraToggleBtn {
+  color: #e8a0b5;
+}
+
 .theme-pink #watchTogetherBtn:enabled {
   background: linear-gradient(135deg, rgba(210, 110, 140, 0.25), rgba(190, 90, 120, 0.3));
   border-color: rgba(220, 130, 160, 0.2);
@@ -323,6 +334,7 @@
 
 .theme-blackwhite #watchTogetherBtn,
 .theme-blackwhite #cameraToggleBtn {
+  color: rgba(255, 255, 255, 0.6);
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
@@ -340,6 +352,7 @@
 
 .theme-ocean #watchTogetherBtn,
 .theme-ocean #cameraToggleBtn {
+  color: #60d0e8;
   background: rgba(0, 180, 220, 0.06);
   border: 1px solid rgba(0, 180, 220, 0.1);
 }
@@ -358,6 +371,7 @@
 
 .theme-volcano #watchTogetherBtn,
 .theme-volcano #cameraToggleBtn {
+  color: #e8a060;
   background: rgba(255, 80, 20, 0.06);
   border: 1px solid rgba(255, 100, 30, 0.1);
 }
@@ -376,6 +390,7 @@
 
 .theme-forest #watchTogetherBtn,
 .theme-forest #cameraToggleBtn {
+  color: #a0d880;
   background: rgba(80, 160, 60, 0.06);
   border: 1px solid rgba(100, 200, 100, 0.1);
 }
