@@ -34,6 +34,26 @@
 
       html {
         scroll-behavior: smooth;
+        scrollbar-color: #5a1a28 #0a0408;
+        scrollbar-width: thin;
+      }
+
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: #0a0408;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #5a1a28, #3d1018);
+        border-radius: 6px;
+        border: 1px solid #0a0408;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(180deg, #7a2538, #5a1a28);
       }
 
       body {
