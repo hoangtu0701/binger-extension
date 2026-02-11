@@ -588,6 +588,31 @@
   border-color: rgba(6, 14, 4, 0.6);
 }
 
+.binger-msg-avatar.bot-avatar {
+  background: linear-gradient(135deg, #5a2028, #481820);
+  color: #f0d0c0;
+}
+.theme-pink .binger-msg-avatar.bot-avatar {
+  background: linear-gradient(135deg, #2a5028, #204020);
+  color: #d0f0c8;
+}
+.theme-blackwhite .binger-msg-avatar.bot-avatar {
+  background: rgba(255, 255, 255, 0.18);
+  color: #e8e8e8;
+}
+.theme-ocean .binger-msg-avatar.bot-avatar {
+  background: linear-gradient(135deg, #1a2068, #142058);
+  color: #b0c8ff;
+}
+.theme-volcano .binger-msg-avatar.bot-avatar {
+  background: linear-gradient(135deg, rgba(255, 140, 30, 0.45), rgba(255, 100, 20, 0.5));
+  color: #fff8e0;
+}
+.theme-forest .binger-msg-avatar.bot-avatar {
+  background: linear-gradient(135deg, #0a3828, #083020);
+  color: #a0ffd0;
+}
+
 .invite-message { margin-bottom: 8px; }
 
 .theme-pink .bingerChatMsg {
@@ -607,7 +632,7 @@
 }
 
 .theme-pink .bingerChatMsg.bot-reply {
-  background: linear-gradient(135deg, rgba(160, 60, 120, 0.35), rgba(140, 45, 100, 0.3));
+  background: linear-gradient(135deg, rgba(130, 40, 95, 0.42), rgba(110, 30, 80, 0.36));
   color: #f0d0e8;
   border: none;
 }
@@ -626,21 +651,20 @@
 .theme-blackwhite .bingerChatMsg {
   background: rgba(255, 255, 255, 0.03);
   color: rgba(255, 255, 255, 0.85);
-  border-left: none;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: none;
   backdrop-filter: blur(4px);
 }
 
 .theme-blackwhite .bingerChatMsg.msg-own {
   background: rgba(255, 255, 255, 0.10);
   color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: none;
 }
 
 .theme-blackwhite .bingerChatMsg.bot-reply {
   background: rgba(140, 160, 255, 0.06);
   color: rgba(200, 210, 255, 0.9);
-  border: 1px solid rgba(140, 160, 255, 0.10);
+  border: 2px solid rgba(140, 160, 255, 0.10);
 }
 
 .theme-blackwhite .bingerChatMsg::before {
@@ -660,21 +684,20 @@
 .theme-ocean .bingerChatMsg {
   background: rgba(0, 45, 80, 0.35);
   color: #b8e0ea;
-  border-left: none;
-  border: 1px solid rgba(0, 160, 200, 0.08);
+  border: none;
   backdrop-filter: blur(4px);
 }
 
 .theme-ocean .bingerChatMsg.msg-own {
   background: rgba(5, 90, 130, 0.35);
   color: #d8f4fc;
-  border: 1px solid rgba(0, 220, 255, 0.14);
+  border: none;
 }
 
 .theme-ocean .bingerChatMsg.bot-reply {
   background: rgba(25, 30, 80, 0.4);
   color: #b0c8f0;
-  border: 1px solid rgba(60, 120, 255, 0.12);
+  border: 2px solid rgba(60, 120, 255, 0.12);
 }
 
 .theme-ocean .bingerChatMsg::before {
@@ -693,21 +716,20 @@
 .theme-volcano .bingerChatMsg {
   background: rgba(40, 14, 6, 0.65);
   color: #e0c0a0;
-  border-left: none;
-  border: 1px solid rgba(255, 70, 15, 0.08);
+  border: none;
   backdrop-filter: blur(4px);
 }
 
 .theme-volcano .bingerChatMsg.msg-own {
   background: rgba(85, 35, 12, 0.55);
   color: #f4e0c8;
-  border: 1px solid rgba(255, 145, 50, 0.16);
+  border: none;
 }
 
 .theme-volcano .bingerChatMsg.bot-reply {
   background: rgba(45, 12, 20, 0.65);
   color: #f0dca0;
-  border: 1px solid rgba(255, 200, 60, 0.14);
+  border: 2px solid rgba(255, 200, 60, 0.14);
 }
 
 .theme-volcano .bingerChatMsg::before {
@@ -727,21 +749,20 @@
 .theme-forest .bingerChatMsg {
   background: rgba(22, 42, 15, 0.55);
   color: #c4e0b4;
-  border-left: none;
-  border: 1px solid rgba(90, 180, 90, 0.08);
+  border: none;
   backdrop-filter: blur(4px);
 }
 
 .theme-forest .bingerChatMsg.msg-own {
   background: rgba(42, 78, 30, 0.5);
   color: #e8f8d8;
-  border: 1px solid rgba(150, 240, 110, 0.14);
+  border: none;
 }
 
 .theme-forest .bingerChatMsg.bot-reply {
   background: rgba(10, 40, 30, 0.55);
   color: #b0e8c8;
-  border: 1px solid rgba(60, 220, 160, 0.14);
+  border: 2px solid rgba(60, 220, 160, 0.14);
 }
 
 .theme-forest .bingerChatMsg::before {
@@ -1244,7 +1265,7 @@
   pointer-events: none;
   background: linear-gradient(135deg, rgba(255, 180, 50, 0.35), rgba(255, 140, 30, 0.45));
   color: #fff8e0;
-  border: 1.5px solid rgba(10, 4, 8, 0.8);
+  border: none;
   box-shadow: 0 0 6px rgba(255, 160, 40, 0.2);
 }
 
@@ -1256,34 +1277,29 @@
 .theme-pink .bingerChatMsg.bot-query::after {
   background: linear-gradient(135deg, rgba(220, 140, 170, 0.4), rgba(200, 110, 150, 0.5));
   color: #fff0f5;
-  border-color: rgba(30, 15, 22, 0.8);
   box-shadow: 0 0 6px rgba(220, 140, 170, 0.2);
 }
 
 .theme-blackwhite .bingerChatMsg.bot-query::after {
   background: rgba(255, 255, 255, 0.15);
   color: #ffffff;
-  border-color: rgba(10, 10, 10, 0.8);
   box-shadow: 0 0 6px rgba(255, 255, 255, 0.08);
 }
 
 .theme-ocean .bingerChatMsg.bot-query::after {
   background: linear-gradient(135deg, rgba(0, 150, 200, 0.4), rgba(0, 120, 180, 0.5));
   color: #c0f0ff;
-  border-color: rgba(5, 20, 40, 0.8);
   box-shadow: 0 0 6px rgba(0, 180, 220, 0.2);
 }
 
 .theme-volcano .bingerChatMsg.bot-query::after {
   background: linear-gradient(135deg, rgba(255, 100, 30, 0.4), rgba(200, 60, 10, 0.5));
   color: #ffe0c0;
-  border-color: rgba(20, 8, 4, 0.8);
   box-shadow: 0 0 6px rgba(255, 80, 20, 0.2);
 }
 
 .theme-forest .bingerChatMsg.bot-query::after {
   background: linear-gradient(135deg, rgba(80, 160, 50, 0.4), rgba(60, 130, 40, 0.5));
   color: #d0ffa0;
-  border-color: rgba(8, 18, 8, 0.8);
   box-shadow: 0 0 6px rgba(80, 180, 80, 0.15);
 }

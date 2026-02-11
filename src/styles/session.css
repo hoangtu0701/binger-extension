@@ -114,18 +114,18 @@
 .theme-blackwhite #bingerOverlay.in-session .bingerChatMsg {
   background: rgba(255, 255, 255, 0.03) !important;
   color: rgba(255, 255, 255, 0.85) !important;
-  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border: none !important;
 }
 
 .theme-blackwhite #bingerOverlay.in-session .bingerChatMsg.msg-own {
   background: rgba(255, 255, 255, 0.10) !important;
-  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border: none !important;
   color: #ffffff !important;
 }
 
 .theme-blackwhite #bingerOverlay.in-session #bingerChatLog .bingerChatMsg.bot-reply {
   background: rgba(140, 160, 255, 0.06) !important;
-  border: 1px solid rgba(140, 160, 255, 0.10) !important;
+  border: 2px solid rgba(140, 160, 255, 0.10) !important;
   color: rgba(200, 210, 255, 0.9) !important;
 }
 
@@ -165,20 +165,20 @@
 .theme-ocean #bingerOverlay.in-session .bingerChatMsg {
   background: rgba(0, 45, 80, 0.35) !important;
   color: #b8e0ea !important;
-  border: 1px solid rgba(0, 160, 200, 0.08) !important;
+  border: none !important;
   position: relative;
   overflow: hidden;
 }
 
 .theme-ocean #bingerOverlay.in-session .bingerChatMsg.msg-own {
   background: rgba(5, 90, 130, 0.35) !important;
-  border: 1px solid rgba(0, 220, 255, 0.14) !important;
+  border: none !important;
   color: #d8f4fc !important;
 }
 
 .theme-ocean #bingerOverlay.in-session #bingerChatLog .bingerChatMsg.bot-reply {
   background: rgba(25, 30, 80, 0.4) !important;
-  border: 1px solid rgba(60, 120, 255, 0.12) !important;
+  border: 2px solid rgba(60, 120, 255, 0.12) !important;
   color: #b0c8f0 !important;
 }
 
@@ -229,20 +229,20 @@
 .theme-volcano #bingerOverlay.in-session .bingerChatMsg {
   background: rgba(40, 14, 6, 0.55) !important;
   color: #e0c0a0 !important;
-  border: 1px solid rgba(255, 70, 15, 0.08) !important;
+  border: none !important;
   position: relative;
   overflow: hidden;
 }
 
 .theme-volcano #bingerOverlay.in-session .bingerChatMsg.msg-own {
   background: rgba(85, 35, 12, 0.45) !important;
-  border: 1px solid rgba(255, 145, 50, 0.16) !important;
+  border: none !important;
   color: #f4e0c8 !important;
 }
 
 .theme-volcano #bingerOverlay.in-session #bingerChatLog .bingerChatMsg.bot-reply {
   background: rgba(45, 12, 20, 0.55) !important;
-  border: 1px solid rgba(255, 200, 60, 0.14) !important;
+  border: 2px solid rgba(255, 200, 60, 0.14) !important;
   color: #f0dca0 !important;
 }
 
@@ -294,20 +294,20 @@
 .theme-forest #bingerOverlay.in-session .bingerChatMsg {
   background: rgba(22, 42, 15, 0.45) !important;
   color: #c4e0b4 !important;
-  border: 1px solid rgba(90, 180, 90, 0.08) !important;
+  border: none !important;
   position: relative;
   overflow: hidden;
 }
 
 .theme-forest #bingerOverlay.in-session .bingerChatMsg.msg-own {
   background: rgba(42, 78, 30, 0.4) !important;
-  border: 1px solid rgba(150, 240, 110, 0.14) !important;
+  border: none !important;
   color: #e8f8d8 !important;
 }
 
 .theme-forest #bingerOverlay.in-session #bingerChatLog .bingerChatMsg.bot-reply {
   background: rgba(10, 40, 30, 0.45) !important;
-  border: 1px solid rgba(60, 220, 160, 0.14) !important;
+  border: 2px solid rgba(60, 220, 160, 0.14) !important;
   color: #b0e8c8 !important;
 }
 
@@ -379,4 +379,29 @@
   background: linear-gradient(135deg, rgba(60, 120, 40, 0.5), rgba(50, 100, 35, 0.5)) !important;
   color: #d0ffa0 !important;
   border-color: rgba(6, 14, 4, 0.6) !important;
+}
+
+#bingerOverlay.in-session #bingerChatLog .binger-msg-avatar.bot-avatar {
+  background: linear-gradient(135deg, rgba(90, 32, 40, 0.6), rgba(72, 24, 32, 0.6)) !important;
+  color: #f0d0c0 !important;
+}
+.theme-pink #bingerOverlay.in-session #bingerChatLog .binger-msg-avatar.bot-avatar {
+  background: linear-gradient(135deg, rgba(42, 80, 40, 0.5), rgba(32, 64, 32, 0.5)) !important;
+  color: #d0f0c8 !important;
+}
+.theme-blackwhite #bingerOverlay.in-session #bingerChatLog .binger-msg-avatar.bot-avatar {
+  background: rgba(255, 255, 255, 0.18) !important;
+  color: #e8e8e8 !important;
+}
+.theme-ocean #bingerOverlay.in-session #bingerChatLog .binger-msg-avatar.bot-avatar {
+  background: linear-gradient(135deg, rgba(30, 30, 110, 0.5), rgba(20, 25, 90, 0.5)) !important;
+  color: #b0c8ff !important;
+}
+.theme-volcano #bingerOverlay.in-session #bingerChatLog .binger-msg-avatar.bot-avatar {
+  background: linear-gradient(135deg, rgba(255, 140, 30, 0.45), rgba(255, 100, 20, 0.5)) !important;
+  color: #fff8e0 !important;
+}
+.theme-forest #bingerOverlay.in-session #bingerChatLog .binger-msg-avatar.bot-avatar {
+  background: linear-gradient(135deg, rgba(15, 60, 50, 0.5), rgba(10, 50, 40, 0.5)) !important;
+  color: #a0ffd0 !important;
 }

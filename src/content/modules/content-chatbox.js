@@ -313,6 +313,9 @@
         if (!isOwn) {
             const avatarEl = document.createElement("div");
             avatarEl.className = "binger-msg-avatar";
+            if (type === "bot") {
+                avatarEl.classList.add("bot-avatar");
+            }
             const initial = safeSender.charAt(0).toUpperCase();
             avatarEl.textContent = initial;
             chatLog.appendChild(avatarEl);
