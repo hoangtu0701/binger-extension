@@ -4,7 +4,8 @@
   border-radius: 14px;
   font-size: 14px;
   width: 320px;
-  height: 332px;
+  height: 342px;
+  transition: height 0.35s cubic-bezier(0.4, 0, 0.2, 1), margin 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
   gap: 8px;

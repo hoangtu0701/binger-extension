@@ -11,10 +11,11 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 0 80px rgba(120, 40, 60, 0.08);
   z-index: 9999;
   cursor: default;
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition: opacity 0.3s ease, transform 0.3s ease, height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   opacity: 0.97;
   height: 580px;
   overscroll-behavior: contain;
+  overflow: hidden;
 }
 
 .theme-pink #bingerOverlay {
@@ -85,13 +86,14 @@
 
 #bingerLayoutContainer {
   color: white;
-  padding: 12px 20px;
+  padding: 12px 20px 6px 20px;
   height: 580px;
   font-size: 16px;
   font-family: 'Inter', 'Segoe UI', sans-serif;
   font-weight: 500;
   display: flex;
   flex-direction: column;
+  transition: height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .bingerHeader {
@@ -105,6 +107,7 @@
   background: linear-gradient(135deg, rgba(140, 40, 55, 0.8), rgba(100, 25, 40, 0.9));
   border: 1px solid rgba(200, 140, 80, 0.15);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  position: relative;
 }
 
 .theme-pink .bingerHeader {
@@ -186,6 +189,10 @@
   border: 1px solid rgba(200, 140, 80, 0.08);
   font-size: 11px;
   line-height: 1;
+  transition: opacity 0.2s ease, max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              margin 0.35s cubic-bezier(0.4, 0, 0.2, 1), padding 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  max-height: 30px;
+  overflow: hidden;
 }
 
 .binger-username-dot {
@@ -242,4 +249,125 @@
   gap: 8px;
   justify-content: center;
   position: relative;
+  transition: opacity 0.2s ease, max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              margin 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  max-height: 60px;
+  overflow: hidden;
+}
+
+#bingerBottomButtons {
+  transition: opacity 0.2s ease;
+}
+
+#bingerMinimizeBtn {
+  position: absolute;
+  top: 8px;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(200, 140, 80, 0.2);
+  background: rgba(200, 140, 80, 0.08);
+  color: #d4a574;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s ease;
+  z-index: 10;
+  padding: 0;
+}
+
+#bingerMinimizeBtn:hover {
+  background: rgba(200, 140, 80, 0.2);
+  border-color: rgba(200, 140, 80, 0.35);
+  transform: scale(1.1);
+}
+
+#bingerMinimizeBtn svg {
+  width: 14px;
+  height: 14px;
+  pointer-events: none;
+  transition: transform 0.3s ease;
+}
+
+#bingerOverlay.binger-minimized #bingerMinimizeBtn svg {
+  transform: rotate(180deg);
+}
+
+.theme-pink #bingerMinimizeBtn {
+  border-color: rgba(220, 140, 170, 0.2);
+  background: rgba(220, 140, 170, 0.08);
+  color: #e8a0b5;
+}
+.theme-pink #bingerMinimizeBtn:hover {
+  background: rgba(220, 140, 170, 0.2);
+  border-color: rgba(220, 140, 170, 0.35);
+}
+
+.theme-blackwhite #bingerMinimizeBtn {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.5);
+}
+.theme-blackwhite #bingerMinimizeBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.theme-ocean #bingerMinimizeBtn {
+  border-color: rgba(0, 180, 220, 0.2);
+  background: rgba(0, 180, 220, 0.08);
+  color: rgba(0, 200, 230, 0.6);
+}
+.theme-ocean #bingerMinimizeBtn:hover {
+  background: rgba(0, 180, 220, 0.2);
+  border-color: rgba(0, 180, 220, 0.35);
+}
+
+.theme-volcano #bingerMinimizeBtn {
+  border-color: rgba(255, 100, 30, 0.15);
+  background: rgba(255, 100, 30, 0.06);
+  color: rgba(255, 140, 60, 0.6);
+}
+.theme-volcano #bingerMinimizeBtn:hover {
+  background: rgba(255, 100, 30, 0.15);
+  border-color: rgba(255, 100, 30, 0.3);
+}
+
+.theme-forest #bingerMinimizeBtn {
+  border-color: rgba(100, 200, 100, 0.15);
+  background: rgba(100, 200, 100, 0.06);
+  color: rgba(160, 220, 120, 0.6);
+}
+.theme-forest #bingerMinimizeBtn:hover {
+  background: rgba(100, 200, 100, 0.15);
+  border-color: rgba(100, 200, 100, 0.3);
+}
+
+#bingerOverlay.binger-minimized:not(.fullscreen) {
+  height: 337px;
+}
+
+#bingerOverlay.binger-minimized:not(.fullscreen) #bingerUsername {
+  opacity: 0;
+  max-height: 0;
+  margin: 0 auto;
+  padding: 0;
+  pointer-events: none;
+}
+
+#bingerOverlay.binger-minimized:not(.fullscreen) #bingerButtonWrapper {
+  opacity: 0;
+  max-height: 0;
+  pointer-events: none;
+}
+
+#bingerOverlay.binger-minimized:not(.fullscreen) #bingerBottomButtons {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#bingerOverlay.binger-minimized:not(.fullscreen) #bingerChatWrapper {
+  height: 249px;
 }

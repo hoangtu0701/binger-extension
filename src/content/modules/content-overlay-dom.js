@@ -4,6 +4,45 @@
     let elements = null;
     let overlayInitialized = false;
 
+    const STORAGE_KEY = "bingerOverlayMinimized";
+
+    function createMinimizeButton() {
+        const btn = document.createElement("button");
+        btn.id = "bingerMinimizeBtn";
+        btn.title = "Toggle overlay size";
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>';
+        btn.addEventListener("click", toggleMinimized);
+        return btn;
+    }
+
+    function toggleMinimized() {
+        const overlay = elements?.overlay;
+        if (!overlay) return;
+
+        const isMinimized = overlay.classList.toggle("binger-minimized");
+        persistMinimizedState(isMinimized);
+    }
+
+    function persistMinimizedState(isMinimized) {
+        try {
+            chrome.storage.local.set({ [STORAGE_KEY]: isMinimized });
+        } catch (_) {}
+    }
+
+    function restoreMinimizedState() {
+        const overlay = elements?.overlay;
+        if (!overlay) return;
+
+        try {
+            chrome.storage.local.get(STORAGE_KEY, (result) => {
+                if (chrome.runtime.lastError) return;
+                if (result[STORAGE_KEY] === true) {
+                    overlay.classList.add("binger-minimized");
+                }
+            });
+        } catch (_) {}
+    }
+
     function createLeftPane() {
         const leftPane = document.createElement("div");
         leftPane.id = "bingerLeftPane";
@@ -11,6 +50,7 @@
         const headerText = document.createElement("div");
         headerText.className = "bingerHeader";
         headerText.textContent = "Active Binger Overlay";
+        headerText.appendChild(createMinimizeButton());
         leftPane.appendChild(headerText);
 
         const usernameEl = document.createElement("div");
@@ -143,6 +183,7 @@
         if (document.getElementById("bingerOverlay")) {
             cacheElements();
             overlayInitialized = true;
+            restoreMinimizedState();
             return;
         }
 
@@ -151,6 +192,7 @@
 
         cacheElements();
         overlayInitialized = true;
+        restoreMinimizedState();
     }
 
     function cacheElements() {
@@ -180,7 +222,9 @@
             cameraToggleBtn: document.getElementById("cameraToggleBtn"),
 
             joinBubble: document.getElementById("bingerJoinBubble"),
-            joinBubbleInput: document.getElementById("bingerJoinBubbleInput")
+            joinBubbleInput: document.getElementById("bingerJoinBubbleInput"),
+
+            minimizeBtn: document.getElementById("bingerMinimizeBtn")
         };
     }
 
