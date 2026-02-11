@@ -107,7 +107,9 @@
   border: 1px solid rgba(200, 140, 80, 0.15);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   position: relative;
-  transition: margin 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: margin 0.35s cubic-bezier(0.4, 0, 0.2, 1), filter 0.25s ease, transform 0.15s ease;
+  cursor: pointer;
+  user-select: none;
 }
 
 .theme-pink .bingerHeader {
@@ -258,91 +260,60 @@
   transition: opacity 0.2s ease;
 }
 
-#bingerMinimizeBtn {
+.bingerHeader:hover {
+  filter: brightness(1.08);
+}
+
+.bingerHeader:active {
+  transform: scale(0.985);
+}
+
+#bingerMinimizeBar {
   position: absolute;
-  top: 8px;
-  right: 6px;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 1px solid rgba(200, 140, 80, 0.2);
-  background: rgba(200, 140, 80, 0.08);
-  color: #d4a574;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.25s ease;
-  z-index: 10;
-  padding: 0;
-}
-
-#bingerMinimizeBtn:hover {
-  background: rgba(200, 140, 80, 0.2);
-  border-color: rgba(200, 140, 80, 0.35);
-  transform: scale(1.1);
-}
-
-#bingerMinimizeBtn svg {
-  width: 14px;
-  height: 14px;
+  bottom: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(200, 140, 80, 0.3);
+  transition: all 0.3s ease;
   pointer-events: none;
-  transition: transform 0.3s ease;
 }
 
-#bingerOverlay.binger-minimized #bingerMinimizeBtn svg {
-  transform: rotate(180deg);
+.bingerHeader:hover #bingerMinimizeBar {
+  background: rgba(200, 140, 80, 0.55);
+  width: 50px;
 }
 
-.theme-pink #bingerMinimizeBtn {
-  border-color: rgba(220, 140, 170, 0.2);
-  background: rgba(220, 140, 170, 0.08);
-  color: #e8a0b5;
-}
-.theme-pink #bingerMinimizeBtn:hover {
-  background: rgba(220, 140, 170, 0.2);
-  border-color: rgba(220, 140, 170, 0.35);
+#bingerOverlay.binger-minimized #bingerMinimizeBar {
+  background: rgba(200, 140, 80, 0.5);
+  width: 24px;
 }
 
-.theme-blackwhite #bingerMinimizeBtn {
-  border-color: rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(255, 255, 255, 0.5);
-}
-.theme-blackwhite #bingerMinimizeBtn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
+#bingerOverlay.binger-minimized .bingerHeader:hover #bingerMinimizeBar {
+  width: 34px;
 }
 
-.theme-ocean #bingerMinimizeBtn {
-  border-color: rgba(0, 180, 220, 0.2);
-  background: rgba(0, 180, 220, 0.08);
-  color: rgba(0, 200, 230, 0.6);
-}
-.theme-ocean #bingerMinimizeBtn:hover {
-  background: rgba(0, 180, 220, 0.2);
-  border-color: rgba(0, 180, 220, 0.35);
-}
+.theme-pink #bingerMinimizeBar { background: rgba(220, 140, 170, 0.3); }
+.theme-pink .bingerHeader:hover #bingerMinimizeBar { background: rgba(220, 140, 170, 0.55); }
+.theme-pink #bingerOverlay.binger-minimized #bingerMinimizeBar { background: rgba(220, 140, 170, 0.5); }
 
-.theme-volcano #bingerMinimizeBtn {
-  border-color: rgba(255, 100, 30, 0.15);
-  background: rgba(255, 100, 30, 0.06);
-  color: rgba(255, 140, 60, 0.6);
-}
-.theme-volcano #bingerMinimizeBtn:hover {
-  background: rgba(255, 100, 30, 0.15);
-  border-color: rgba(255, 100, 30, 0.3);
-}
+.theme-blackwhite #bingerMinimizeBar { background: rgba(255, 255, 255, 0.15); }
+.theme-blackwhite .bingerHeader:hover #bingerMinimizeBar { background: rgba(255, 255, 255, 0.3); }
+.theme-blackwhite #bingerOverlay.binger-minimized #bingerMinimizeBar { background: rgba(255, 255, 255, 0.25); }
 
-.theme-forest #bingerMinimizeBtn {
-  border-color: rgba(100, 200, 100, 0.15);
-  background: rgba(100, 200, 100, 0.06);
-  color: rgba(160, 220, 120, 0.6);
-}
-.theme-forest #bingerMinimizeBtn:hover {
-  background: rgba(100, 200, 100, 0.15);
-  border-color: rgba(100, 200, 100, 0.3);
-}
+.theme-ocean #bingerMinimizeBar { background: rgba(0, 180, 220, 0.25); }
+.theme-ocean .bingerHeader:hover #bingerMinimizeBar { background: rgba(0, 180, 220, 0.45); }
+.theme-ocean #bingerOverlay.binger-minimized #bingerMinimizeBar { background: rgba(0, 180, 220, 0.4); }
+
+.theme-volcano #bingerMinimizeBar { background: rgba(255, 100, 30, 0.2); }
+.theme-volcano .bingerHeader:hover #bingerMinimizeBar { background: rgba(255, 100, 30, 0.4); }
+.theme-volcano #bingerOverlay.binger-minimized #bingerMinimizeBar { background: rgba(255, 100, 30, 0.35); }
+
+.theme-forest #bingerMinimizeBar { background: rgba(100, 200, 100, 0.2); }
+.theme-forest .bingerHeader:hover #bingerMinimizeBar { background: rgba(100, 200, 100, 0.4); }
+.theme-forest #bingerOverlay.binger-minimized #bingerMinimizeBar { background: rgba(100, 200, 100, 0.35); }
 
 #bingerOverlay.binger-minimized:not(.fullscreen) {
   height: 337px;

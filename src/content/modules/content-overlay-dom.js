@@ -7,12 +7,14 @@
     const STORAGE_KEY = "bingerOverlayMinimized";
 
     function createMinimizeButton() {
-        const btn = document.createElement("button");
-        btn.id = "bingerMinimizeBtn";
-        btn.title = "Toggle overlay size";
-        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>';
-        btn.addEventListener("click", toggleMinimized);
-        return btn;
+        const bar = document.createElement("div");
+        bar.id = "bingerMinimizeBar";
+        return bar;
+    }
+
+    function attachHeaderToggle(header) {
+        header.style.cursor = "pointer";
+        header.addEventListener("click", toggleMinimized);
     }
 
     function toggleMinimized() {
@@ -51,6 +53,7 @@
         headerText.className = "bingerHeader";
         headerText.textContent = "Active Binger Overlay";
         headerText.appendChild(createMinimizeButton());
+        attachHeaderToggle(headerText);
         leftPane.appendChild(headerText);
 
         const usernameEl = document.createElement("div");
@@ -224,7 +227,7 @@
             joinBubble: document.getElementById("bingerJoinBubble"),
             joinBubbleInput: document.getElementById("bingerJoinBubbleInput"),
 
-            minimizeBtn: document.getElementById("bingerMinimizeBtn")
+            minimizeBar: document.getElementById("bingerMinimizeBar")
         };
     }
 
