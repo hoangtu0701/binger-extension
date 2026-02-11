@@ -13,6 +13,7 @@ A Chrome extension that turns your favorite movie streaming site into a synchron
 - **Soundboard** - Sound effects and floating/pinned emoji reactions
 - **6 Themes** - Burgundy, Pink, Black & White, Ocean, Volcano, Forest (applied to all components including call iframe)
 - **Fullscreen Support** - Connected panel layout with smooth slide animations
+- **Minimize Mode** - Collapsible overlay with smooth transitions, auto-expands for pending invites
 - **Join/Leave Notifications** - Real-time debounced notifications when users join or leave rooms
 - **Smart Animation System** - IntersectionObserver-based animation optimization for chat messages
 
@@ -150,7 +151,9 @@ Content scripts follow a similar ordered initialization through `main.js`.
 - Persists across page reloads and SPA navigation
 - Displays current user info and room status
 - All 6 themes apply to every overlay element
+- A drag bar indicator below the header signals the toggle affordance, themed per color scheme.
 - `overscroll-behavior: contain` prevents scroll chaining to the host page
+- Clicking the header banner toggles minimized mode (header + chatbox only). State persists via `chrome.storage.local`. Fullscreen always shows standard layout; exiting restores previous mode. Pending invites auto-expand the minimized overlay to show action buttons.
 
 ### Username Display
 
@@ -582,6 +585,7 @@ Both warning banners use a consistent glassmorphism design with themed variants 
 | CSS-driven animations | Iframe slide in/out uses pure CSS transitions (no JS animation loops) |
 | Theme switch cleanup | Stale forest leaf DOM elements removed instantly on theme change |
 | Typing indicator sink | Typing bubbles re-appended to chat log bottom on every message and notification render |
+| Minimize persistence | chrome.storage.local preserves minimized state across navigations and restarts |
 
 ---
 
