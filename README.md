@@ -195,6 +195,7 @@ Avatar hover tooltips fade in smoothly (0.2s opacity + 4px upward slide) with a 
 - Three distinct message color tones per theme: other user, own, and Binger Bot (all within the same palette)
 - Bot reply messages styled with italic text and distinct avatar color; bordered on Black & White, Ocean, Volcano, and Forest themes
 - Smart message grouping: consecutive same-sender messages within 2 minutes share one timestamp (above first message) and one avatar (below last message, left-side only). A different sender or a gap over 2 minutes breaks the group. System notifications also break grouping.
+- Typing and seeking indicators always appear at the bottom of the chat log, re-sinking below new messages and notifications as they arrive, retaining their relative order
 
 ### Bot Query Indicator
 
@@ -425,6 +426,9 @@ Triggered when the bot reply contains `Seeking to the scene where...`
 
 - "Binger Bot is typing..." during response generation
 - "Binger Bot is seeking..." with randomized messages during scene search
+- Uses per-query Firebase children (`typing/BINGER_BOT/{queryId}`) instead of a single boolean, so concurrent queries from both users keep the indicator alive until all responses are delivered
+- Same pattern for seek indicator (`typing/BINGER_BOT_SEEK/{seekId}`)
+- All typing/seeking indicators automatically sink to the bottom of the chat log as new messages and notifications arrive
 
 ---
 
@@ -577,6 +581,7 @@ Both warning banners use a consistent glassmorphism design with themed variants 
 | Scroll containment | `overscroll-behavior: contain` on overlay and chatlog prevents scroll bleed to host page |
 | CSS-driven animations | Iframe slide in/out uses pure CSS transitions (no JS animation loops) |
 | Theme switch cleanup | Stale forest leaf DOM elements removed instantly on theme change |
+| Typing indicator sink | Typing bubbles re-appended to chat log bottom on every message and notification render |
 
 ---
 
