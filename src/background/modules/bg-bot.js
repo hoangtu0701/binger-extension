@@ -7,6 +7,8 @@
     const LLM_TIMEOUT_MS = 30000;
     const EMBED_TIMEOUT_MS = 15000;
 
+    let pendingBotQueries = 0;
+
     function validateDependencies() {
         const required = ["BingerBGFirebase", "BingerBGSubtitles", "BingerBGHelpers"];
         const missing = required.filter(dep => typeof self[dep] === "undefined");
@@ -218,10 +220,14 @@
             return;
         }
 
+        pendingBotQueries++;
+
         try {
-            const typingRef = BingerBGFirebase.ref(`rooms/${roomId}/typing/${BOT_UID}`);
-            if (typingRef) {
-                await typingRef.set(true);
+            if (pendingBotQueries === 1) {
+                const typingRef = BingerBGFirebase.ref(`rooms/${roomId}/typing/${BOT_UID}`);
+                if (typingRef) {
+                    await typingRef.set(true);
+                }
             }
         } catch (err) {
             console.warn("[Binger] Failed to set typing indicator:", err);
@@ -282,9 +288,12 @@
             await postBotMessage(roomId, answer);
 
             try {
-                const typingRef = BingerBGFirebase.ref(`rooms/${roomId}/typing/${BOT_UID}`);
-                if (typingRef) {
-                    await typingRef.remove();
+                pendingBotQueries = Math.max(0, pendingBotQueries - 1);
+                if (pendingBotQueries === 0) {
+                    const typingRef = BingerBGFirebase.ref(`rooms/${roomId}/typing/${BOT_UID}`);
+                    if (typingRef) {
+                        await typingRef.remove();
+                    }
                 }
             } catch {
             }
@@ -298,9 +307,12 @@
 
         } catch (err) {
             console.error("[Binger] botQuery error:", err);
+            pendingBotQueries = Math.max(0, pendingBotQueries - 1);
             BingerBGHelpers.safeSendResponse(sendResponse, { error: String(err?.message || err) });
         } finally {
-            await clearBotTypingStatus(roomId);
+            if (pendingBotQueries === 0) {
+                await clearBotTypingStatus(roomId);
+            }
         }
     }
 
