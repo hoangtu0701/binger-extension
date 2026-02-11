@@ -18,6 +18,14 @@
         return div.innerHTML;
     }
 
+    function sinkTypingBubbles() {
+        const chatLog = BingerOverlayDOM.getElement("chatLog");
+        if (!chatLog) return;
+        chatLog.querySelectorAll(".bingerTypingBubble").forEach((bubble) => {
+            chatLog.appendChild(bubble);
+        });
+    }
+
     function toggleBotMode() {
         const isActive = !BingerState.getIsBotMode();
         BingerState.setIsBotMode(isActive);
@@ -322,6 +330,7 @@
             chatLog.appendChild(avatarEl);
         }
 
+        sinkTypingBubbles();
         chatLog.scrollTop = chatLog.scrollHeight;
 
         if (chatObserver) {
@@ -386,6 +395,7 @@
         notificationEl.textContent = text;
 
         chatLog.appendChild(notificationEl);
+        sinkTypingBubbles();
         chatLog.scrollTop = chatLog.scrollHeight;
 
         lastRenderedMessage = null;
