@@ -773,30 +773,40 @@
         <div class="hero-glow"></div>
         <svg class="hero-logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
-            <linearGradient id="heroFrame" x1="0" y1="0" x2="100" y2="100">
-              <stop offset="0%" stop-color="#c83848"/>
+            <linearGradient id="heroBorder" x1="0" y1="0" x2="100" y2="100">
+              <stop offset="0%" stop-color="#d44058"/>
+              <stop offset="50%" stop-color="#a83242"/>
               <stop offset="100%" stop-color="#7a1828"/>
             </linearGradient>
+            <linearGradient id="heroInner" x1="20" y1="15" x2="80" y2="85">
+              <stop offset="0%" stop-color="#1f0c14"/>
+              <stop offset="100%" stop-color="#140810"/>
+            </linearGradient>
             <filter id="heroGlow">
-              <feGaussianBlur stdDeviation="2" result="blur"/>
+              <feGaussianBlur stdDeviation="1.8" result="blur"/>
               <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
             </filter>
           </defs>
-          <rect x="10" y="5" width="80" height="90" rx="6" fill="#0a0408" stroke="url(#heroFrame)" stroke-width="2.5"/>
-          <rect x="14" y="12" width="8" height="6" rx="2" fill="none" stroke="rgba(200,100,120,0.4)" stroke-width="1.2"/>
-          <rect x="14" y="26" width="8" height="6" rx="2" fill="none" stroke="rgba(200,100,120,0.4)" stroke-width="1.2"/>
-          <rect x="14" y="40" width="8" height="6" rx="2" fill="none" stroke="rgba(200,100,120,0.4)" stroke-width="1.2"/>
-          <rect x="14" y="54" width="8" height="6" rx="2" fill="none" stroke="rgba(200,100,120,0.4)" stroke-width="1.2"/>
-          <rect x="14" y="68" width="8" height="6" rx="2" fill="none" stroke="rgba(200,100,120,0.4)" stroke-width="1.2"/>
-          <rect x="14" y="82" width="8" height="6" rx="2" fill="none" stroke="rgba(200,100,120,0.4)" stroke-width="1.2"/>
-          <rect x="78" y="12" width="8" height="6" rx="2" fill="none" stroke="rgba(200,100,120,0.4)" stroke-width="1.2"/>
-          <rect x="78" y="26" width="8" height="6" rx="2" fill="none" stroke="rgba(200,100,120,0.4)" stroke-width="1.2"/>
-          <rect x="78" y="40" width="8" height="6" rx="2" fill="none" stroke="rgba(200,100,120,0.4)" stroke-width="1.2"/>
-          <rect x="78" y="54" width="8" height="6" rx="2" fill="none" stroke="rgba(200,100,120,0.4)" stroke-width="1.2"/>
-          <rect x="78" y="68" width="8" height="6" rx="2" fill="none" stroke="rgba(200,100,120,0.4)" stroke-width="1.2"/>
-          <rect x="78" y="82" width="8" height="6" rx="2" fill="none" stroke="rgba(200,100,120,0.4)" stroke-width="1.2"/>
-          <rect x="26" y="20" width="48" height="60" rx="3" fill="none" stroke="rgba(200,100,120,0.2)" stroke-width="1.2"/>
-          <text x="50" y="65" text-anchor="middle" font-family="Playfair Display, serif" font-weight="700" font-size="54" fill="#f5e6d0" filter="url(#heroGlow)">B</text>
+          <rect x="6" y="2" width="88" height="96" rx="7" fill="url(#heroInner)"/>
+          <rect x="6" y="2" width="88" height="96" rx="7" fill="none" stroke="url(#heroBorder)" stroke-width="3"/>
+          <rect x="11" y="8" width="7" height="5" rx="1.5" fill="rgba(200,100,120,0.25)"/>
+          <rect x="11" y="19" width="7" height="5" rx="1.5" fill="rgba(200,100,120,0.25)"/>
+          <rect x="11" y="30" width="7" height="5" rx="1.5" fill="rgba(200,100,120,0.25)"/>
+          <rect x="11" y="41" width="7" height="5" rx="1.5" fill="rgba(200,100,120,0.25)"/>
+          <rect x="11" y="52" width="7" height="5" rx="1.5" fill="rgba(200,100,120,0.25)"/>
+          <rect x="11" y="63" width="7" height="5" rx="1.5" fill="rgba(200,100,120,0.25)"/>
+          <rect x="11" y="74" width="7" height="5" rx="1.5" fill="rgba(200,100,120,0.25)"/>
+          <rect x="11" y="85" width="7" height="5" rx="1.5" fill="rgba(200,100,120,0.25)"/>
+          <rect x="82" y="8" width="7" height="5" rx="1.5" fill="rgba(200,100,120,0.25)"/>
+          <rect x="82" y="19" width="7" height="5" rx="1.5" fill="rgba(200,100,120,0.25)"/>
+          <rect x="82" y="30" width="7" height="5" rx="1.5" fill="rgba(200,100,120,0.25)"/>
+          <rect x="82" y="41" width="7" height="5" rx="1.5" fill="rgba(200,100,120,0.25)"/>
+          <rect x="82" y="52" width="7" height="5" rx="1.5" fill="rgba(200,100,120,0.25)"/>
+          <rect x="82" y="63" width="7" height="5" rx="1.5" fill="rgba(200,100,120,0.25)"/>
+          <rect x="82" y="74" width="7" height="5" rx="1.5" fill="rgba(200,100,120,0.25)"/>
+          <rect x="82" y="85" width="7" height="5" rx="1.5" fill="rgba(200,100,120,0.25)"/>
+          <rect x="22" y="12" width="56" height="76" rx="3" fill="none" stroke="rgba(200,100,120,0.1)" stroke-width="1"/>
+          <text x="50" y="64" text-anchor="middle" font-family="Playfair Display, serif" font-weight="700" font-size="52" fill="#f5e6d0" filter="url(#heroGlow)">B</text>
         </svg>
         <h1 class="hero-title">Binger</h1>
         <p class="hero-tagline">Watch together. Chat. Call. All in sync.</p>
