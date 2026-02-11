@@ -15,7 +15,6 @@
   opacity: 0.97;
   height: 580px;
   overscroll-behavior: contain;
-  overflow: hidden;
 }
 
 .theme-pink #bingerOverlay {
@@ -348,6 +347,7 @@
 
 #bingerOverlay.binger-minimized:not(.fullscreen) {
   height: 337px;
+  overflow: hidden;
 }
 
 #bingerOverlay.binger-minimized:not(.fullscreen) #bingerUsername {
@@ -381,4 +381,8 @@
 #bingerOverlay.binger-minimized:not(.fullscreen) .bingerHeader {
   margin-top: 2px;
   margin-bottom: -8px;
+}
+
+#bingerOverlay.binger-minimized:not(.fullscreen) #bingerBotTooltip {
+  display: none;
 }

@@ -58,7 +58,7 @@
   flex-direction: column;
   justify-content: flex-start;
   min-height: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 #bingerOverlay.fullscreen #bingerChatWrapper {
