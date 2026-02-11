@@ -61,6 +61,7 @@
 
             await ref.push({
                 sender: "Binger Bot",
+                senderUid: BOT_UID,
                 type: "bot",
                 text: text,
                 timestamp: Date.now()

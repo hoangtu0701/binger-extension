@@ -254,6 +254,13 @@
         const messageEl = document.createElement("div");
         messageEl.className = "bingerChatMsg";
 
+        const currentUsername = BingerState.getCurrentUsername();
+        if (currentUsername && safeSender === currentUsername) {
+            messageEl.classList.add("msg-own");
+        } else {
+            messageEl.classList.add("msg-other");
+        }
+
         if (type === "botQuery") {
             messageEl.classList.add("bot-query");
         } else if (type === "bot") {
