@@ -499,16 +499,16 @@
 }
 
 .bingerChatMsg.binger-msg-grouped {
-  margin-top: 4px;
-  margin-bottom: 4px;
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
 
 .bingerChatMsg:has(+ .bingerChatMsg.binger-msg-grouped) {
-  margin-bottom: 4px;
+  margin-bottom: 5px;
 }
 
 .bingerChatMsg:has(+ .binger-msg-avatar) {
-  margin-bottom: 4px;
+  margin-bottom: 5px;
 }
 
 .binger-msg-timestamp {
@@ -539,7 +539,7 @@
   text-transform: uppercase;
   line-height: 1;
   margin-top: 2px;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
   background: linear-gradient(135deg, #6b4a28, #5a3420);
   color: #f5e6d0;
   border: 1.5px solid rgba(10, 4, 8, 0.6);
