@@ -163,6 +163,13 @@
                     bubble.textContent = `${safeUsername} is typing`;
                 }
 
+                for (let i = 0; i < 3; i++) {
+                    const dot = document.createElement("span");
+                    dot.className = "typing-dot";
+                    dot.textContent = ".";
+                    bubble.appendChild(dot);
+                }
+
                 const overlay = BingerOverlayDOM.getElement("overlay");
                 if (overlay?.classList.contains("in-session")) {
                     bubble.classList.add("session-mode");
