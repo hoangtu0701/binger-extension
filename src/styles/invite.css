@@ -12,8 +12,7 @@
 }
 
 #watchTogetherBtn.binge-invitee-active {
-  flex-direction: column;
-  gap: 2px;
+  position: relative;
   background: linear-gradient(135deg, rgba(200, 160, 60, 0.4), rgba(180, 140, 40, 0.5)) !important;
   color: #f5e6d0 !important;
   border: 1px solid rgba(200, 160, 80, 0.3) !important;
@@ -24,6 +23,37 @@
   background: linear-gradient(135deg, rgba(220, 180, 80, 0.5), rgba(200, 160, 60, 0.6)) !important;
   box-shadow: 0 4px 16px rgba(200, 160, 60, 0.25) !important;
   transform: translateY(-1px);
+}
+
+.binge-invite-progress {
+  position: absolute;
+  bottom: 4px;
+  left: 10%;
+  height: 3px;
+  width: 0%;
+  max-width: 80%;
+  border-radius: 2px;
+  background: rgba(255, 220, 140, 0.7);
+}
+
+.theme-pink .binge-invite-progress {
+  background: rgba(255, 200, 220, 0.7);
+}
+
+.theme-blackwhite .binge-invite-progress {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.theme-ocean .binge-invite-progress {
+  background: rgba(100, 220, 255, 0.6);
+}
+
+.theme-volcano .binge-invite-progress {
+  background: rgba(255, 160, 80, 0.7);
+}
+
+.theme-forest .binge-invite-progress {
+  background: rgba(160, 240, 120, 0.6);
 }
 
 #watchTogetherBtn.binge-invitee-accepted {
