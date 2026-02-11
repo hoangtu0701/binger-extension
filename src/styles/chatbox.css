@@ -499,16 +499,16 @@
 }
 
 .bingerChatMsg.binger-msg-grouped {
-  margin-top: 3px;
-  margin-bottom: 3px;
+  margin-top: 4px;
+  margin-bottom: 4px;
 }
 
 .bingerChatMsg:has(+ .bingerChatMsg.binger-msg-grouped) {
-  margin-bottom: 3px;
+  margin-bottom: 4px;
 }
 
 .bingerChatMsg:has(+ .binger-msg-avatar) {
-  margin-bottom: 3px;
+  margin-bottom: 4px;
 }
 
 .binger-msg-timestamp {
