@@ -355,3 +355,12 @@
 #bingerOverlay.binger-minimized:not(.fullscreen) #bingerBotTooltip {
   display: none;
 }
+
+#bingerOverlay.binger-minimized:not(.fullscreen):has(.binge-invitee-active, .binge-inviter-active) {
+  height: 395px;
+}
+
+#bingerOverlay.binger-minimized:not(.fullscreen):has(.binge-invitee-active, .binge-inviter-active) #bingerBottomButtons {
+  opacity: 1;
+  pointer-events: auto;
+}
