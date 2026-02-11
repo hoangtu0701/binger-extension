@@ -26,6 +26,8 @@
             document.body.classList.remove(cls);
         });
 
+        document.querySelectorAll(".leaf").forEach((leaf) => leaf.remove());
+
         if (currentTheme !== DEFAULT_THEME) {
             document.body.classList.add(`theme-${currentTheme}`);
         }

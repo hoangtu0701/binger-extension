@@ -7,6 +7,7 @@
     let listenersAttached = false;
     let cachedUid = null;
     let lastRenderedMessage = null;
+    let activationTimestamp = 0;
 
     const GROUP_TIME_THRESHOLD = 120000;
 
@@ -327,7 +328,7 @@
             chatObserver.observe(messageEl);
         }
 
-        if (!isInitialLoad) {
+        if (typeof timestamp === "number" && timestamp >= activationTimestamp) {
             BingerTheme.spawnLeaves(messageEl);
         }
 
@@ -490,6 +491,7 @@
         elements.chatLog.innerHTML = "";
         BingerOverlayDOM.setUserListDisplay(null);
         lastRenderedMessage = null;
+        activationTimestamp = Date.now();
 
         isInitialLoad = true;
         setupChatObserver();
@@ -569,6 +571,7 @@
         isInitialLoad = true;
         cachedUid = null;
         lastRenderedMessage = null;
+        activationTimestamp = 0;
 
         const botToggle = BingerOverlayDOM.getElement("botToggle");
         if (botToggle) {
