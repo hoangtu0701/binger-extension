@@ -206,9 +206,9 @@ Bot query messages display a 16px glowing borderless "B" circle badge. Positione
 |--------------|-------------------|
 | Old (out of view) | No animations rendered |
 | Old (in view) | Idle animations only (theme-specific) |
-| New (real-time) | Entrance + idle animations |
+| New (real-time) | Entrance + idle animations + forest leaf spawning |
 
-Uses IntersectionObserver on the chat log to toggle `.paused` class, preventing animation recalculation on messages outside the viewport.
+Uses IntersectionObserver on the chat log to toggle `.paused` class, preventing animation recalculation on messages outside the viewport. Forest leaf spawning uses activation timestamp comparison (not a timer) to distinguish old messages from real-time ones, ensuring leaves always play on new messages regardless of arrival timing. Stale leaf elements are removed instantly on theme switch to prevent static emoji flash.
 
 ---
 
@@ -576,6 +576,7 @@ Both warning banners use a consistent glassmorphism design with themed variants 
 | Bot mode persistence | chrome.storage.local preserves toggle across navigation |
 | Scroll containment | `overscroll-behavior: contain` on overlay and chatlog prevents scroll bleed to host page |
 | CSS-driven animations | Iframe slide in/out uses pure CSS transitions (no JS animation loops) |
+| Theme switch cleanup | Stale forest leaf DOM elements removed instantly on theme change |
 
 ---
 
