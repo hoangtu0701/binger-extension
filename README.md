@@ -191,10 +191,14 @@ Avatar hover tooltips fade in smoothly (0.2s opacity + 4px upward slide) with a 
 - Default "Chat log will appear here" text centered in the chatlog when disabled
 - Bot mode toggle for AI queries (see Binger Bot section)
 - Send button disabled when input is empty, re-enabled on typing, re-disabled after successful send
+- Own messages right-aligned, other user's messages left-aligned, both with dynamic fit-content width (max 90%)
+- Three distinct message color tones per theme: other user, own, and Binger Bot (all within the same palette)
+- Bot reply messages styled with italic text and distinct avatar color; bordered on Black & White, Ocean, Volcano, and Forest themes
+- Smart message grouping: consecutive same-sender messages within 2 minutes share one timestamp (above first message) and one avatar (below last message, left-side only). A different sender or a gap over 2 minutes breaks the group. System notifications also break grouping.
 
 ### Bot Query Indicator
 
-Bot query messages display a 16px glowing "B" circle badge at the top-right corner of the message bubble. Uses `overflow: hidden` with extra top/right padding to keep the badge visible while containing theme animations (e.g. Forest leaves). No border-left accent on bot messages - the badge is the sole indicator. Themed per all 6 color schemes with gradient backgrounds and matching border/glow colors. Font-size locked with `!important` for fullscreen safety.
+Bot query messages display a 16px glowing borderless "B" circle badge. Positioned at top-right for left-side messages and top-left for right-side own messages. Uses `overflow: hidden` with extra padding on the badge side to keep it visible while containing theme animations (e.g. Forest leaves). Themed per all 6 color schemes with gradient backgrounds and matching glow colors. Font-size locked with `!important` for fullscreen safety.
 
 ### Message Animation System
 
@@ -357,7 +361,8 @@ Bot mode is activated via a toggle button ("B") in the chat input bar. When acti
 - The input placeholder changes to "Ask Binger..."
 - All messages sent are routed to the bot
 - Bot query messages display a glowing "B" circle badge on the top-right corner of the message bubble
-- Bot replies display with italic styling
+- Bot replies display with italic styling and a distinct avatar color per theme (separate from user avatars)
+- Invite accepted/declined/cancelled notifications render as bot-styled messages
 
 Bot mode state persists across page navigation via `chrome.storage.local` and resets when leaving a room.
 
@@ -466,7 +471,7 @@ Triggered when the bot reply contains `Seeking to the scene where...`
 | Theme | Primary Colors |
 |-------|----------------|
 | Burgundy | Dark red, warm white |
-| Pink | Pink, green accents |
+| Pink | Pink (own), green (other), magenta (bot) |
 | Black & White | Animated star field |
 | Ocean | Blue gradient, sand textures |
 | Volcano | Red/orange with lava effects |
