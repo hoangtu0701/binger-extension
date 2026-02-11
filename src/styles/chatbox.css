@@ -1152,7 +1152,12 @@
 
 .bingerChatMsg.bot-query {
   overflow: hidden;
-  padding-right: 24px;
+  padding-right: 28px;
+}
+
+.bingerChatMsg.bot-query.msg-own {
+  padding-right: 12px;
+  padding-left: 28px;
 }
 
 .bingerChatMsg.bot-reply {
@@ -1179,6 +1184,11 @@
   color: #fff8e0;
   border: 1.5px solid rgba(10, 4, 8, 0.8);
   box-shadow: 0 0 6px rgba(255, 160, 40, 0.2);
+}
+
+.bingerChatMsg.bot-query.msg-own::after {
+  right: auto;
+  left: 5px;
 }
 
 .theme-pink .bingerChatMsg.bot-query::after {
