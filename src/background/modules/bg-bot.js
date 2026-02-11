@@ -7,8 +7,6 @@
     const LLM_TIMEOUT_MS = 30000;
     const EMBED_TIMEOUT_MS = 15000;
 
-    let pendingBotQueries = 0;
-
     function validateDependencies() {
         const required = ["BingerBGFirebase", "BingerBGSubtitles", "BingerBGHelpers"];
         const missing = required.filter(dep => typeof self[dep] === "undefined");
@@ -72,21 +70,8 @@
         }
     }
 
-    async function clearBotTypingStatus(originalRoomId) {
-        try {
-            const roomId = await getRoomIdFromStorage() || originalRoomId;
-            if (roomId) {
-                const typingRef = BingerBGFirebase.ref(`rooms/${roomId}/typing/${BOT_UID}`);
-                const seekRef = BingerBGFirebase.ref(`rooms/${roomId}/typing/${BOT_SEEK_UID}`);
-
-                await Promise.all([
-                    typingRef ? typingRef.remove() : Promise.resolve(),
-                    seekRef ? seekRef.remove() : Promise.resolve()
-                ]);
-            }
-        } catch (err) {
-            console.warn("[Binger] Failed to clear typing status:", err);
-        }
+    function generateQueryId() {
+        return `q_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     }
 
     function extractSceneDescription(text) {
@@ -220,14 +205,12 @@
             return;
         }
 
-        pendingBotQueries++;
+        const queryId = generateQueryId();
 
         try {
-            if (pendingBotQueries === 1) {
-                const typingRef = BingerBGFirebase.ref(`rooms/${roomId}/typing/${BOT_UID}`);
-                if (typingRef) {
-                    await typingRef.set(true);
-                }
+            const typingRef = BingerBGFirebase.ref(`rooms/${roomId}/typing/${BOT_UID}/${queryId}`);
+            if (typingRef) {
+                await typingRef.set(true);
             }
         } catch (err) {
             console.warn("[Binger] Failed to set typing indicator:", err);
@@ -288,12 +271,9 @@
             await postBotMessage(roomId, answer);
 
             try {
-                pendingBotQueries = Math.max(0, pendingBotQueries - 1);
-                if (pendingBotQueries === 0) {
-                    const typingRef = BingerBGFirebase.ref(`rooms/${roomId}/typing/${BOT_UID}`);
-                    if (typingRef) {
-                        await typingRef.remove();
-                    }
+                const typingRef = BingerBGFirebase.ref(`rooms/${roomId}/typing/${BOT_UID}/${queryId}`);
+                if (typingRef) {
+                    await typingRef.remove();
                 }
             } catch {
             }
@@ -307,12 +287,14 @@
 
         } catch (err) {
             console.error("[Binger] botQuery error:", err);
-            pendingBotQueries = Math.max(0, pendingBotQueries - 1);
-            BingerBGHelpers.safeSendResponse(sendResponse, { error: String(err?.message || err) });
-        } finally {
-            if (pendingBotQueries === 0) {
-                await clearBotTypingStatus(roomId);
+            try {
+                const typingRef = BingerBGFirebase.ref(`rooms/${roomId}/typing/${BOT_UID}/${queryId}`);
+                if (typingRef) {
+                    await typingRef.remove();
+                }
+            } catch {
             }
+            BingerBGHelpers.safeSendResponse(sendResponse, { error: String(err?.message || err) });
         }
     }
 
@@ -402,8 +384,10 @@
     }
 
     async function handleSceneSeeking(sceneDesc, movieContext, roomId, inSession) {
+        const seekId = generateQueryId();
+
         try {
-            const seekRef = BingerBGFirebase.ref(`rooms/${roomId}/typing/${BOT_SEEK_UID}`);
+            const seekRef = BingerBGFirebase.ref(`rooms/${roomId}/typing/${BOT_SEEK_UID}/${seekId}`);
             if (seekRef) {
                 await seekRef.set(true);
             }
@@ -411,6 +395,20 @@
             console.warn("[Binger] Failed to set seeking indicator:", err);
         }
 
+        try {
+            await executeSceneSeeking(sceneDesc, movieContext, roomId, inSession);
+        } finally {
+            try {
+                const seekRef = BingerBGFirebase.ref(`rooms/${roomId}/typing/${BOT_SEEK_UID}/${seekId}`);
+                if (seekRef) {
+                    await seekRef.remove();
+                }
+            } catch {
+            }
+        }
+    }
+
+    async function executeSceneSeeking(sceneDesc, movieContext, roomId, inSession) {
         const { cleanDesc, numerator, denominator } = parseTimingFraction(sceneDesc);
 
         const validatedContext = validateMovieContext(movieContext);
