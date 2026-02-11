@@ -141,8 +141,8 @@ body {
 }
 
 .not-on-site-icon {
-  width: 56px;
-  height: 56px;
+  width: 72px;
+  height: 72px;
   margin-bottom: 16px;
   animation: gentleFloat 3s ease-in-out infinite;
 }
