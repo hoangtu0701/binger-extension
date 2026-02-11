@@ -541,6 +541,12 @@ body {
   border-color: rgba(255, 255, 255, 0.3);
 }
 
+.theme-dot.active {
+  border-width: 2.5px;
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.15);
+}
+
 .theme-dot.burgundy {
   background: #8b1e32;
 }
