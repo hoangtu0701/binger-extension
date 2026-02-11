@@ -61,7 +61,6 @@
 
             await ref.push({
                 sender: "Binger Bot",
-                senderUid: BOT_UID,
                 type: "bot",
                 text: text,
                 timestamp: Date.now()
@@ -174,7 +173,9 @@
                                 content: [
                                     "You are a classifier. Your ONLY job is to decide whether a question requires up-to-date web information about a movie or TV series to answer properly.",
                                     "",
-                                    "Reply YES if the question directly involves knowledge of a movie or series and needs current/factual info.",
+                                    "This message is being sent from a user to Binger Bot, a concise movie expert bot that can chat casually, answer movie questions, and seek to specific scenes in a movie when asked. Your job is ONLY to decide if Binger needs live web search to answer this message.",
+                                    "",
+                                    "Reply YES if the question directly involves knowledge of a movie or series and needs current/factual info (cast, plot, ratings, release dates, reviews) OR if the user wants to.",
                                     "",
                                     "Reply NO for everything else: casual chat, greetings, jokes, personal questions, scene-seeking requests, general knowledge, or anything not about specific movies/series.",
                                     "",
