@@ -383,7 +383,7 @@ Every bot query goes through a routing system that minimizes cost:
 | Property | Value |
 |----------|-------|
 | Model | `meta-llama/llama-3.2-3b-instruct` via OpenRouter |
-| Purpose | Classify whether the query needs live web search |
+| Purpose | Classify whether the query needs live web search. Aware that the downstream bot (Binger) handles casual chat, movie questions, and scene seeking without web search. |
 | Input | User prompt + last 10 chat messages for context |
 | Output | YES or NO |
 | Temperature | 0 |
