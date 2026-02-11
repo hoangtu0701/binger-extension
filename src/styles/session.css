@@ -55,7 +55,7 @@
   border-left: none !important;
 }
 
-.theme-pink #bingerOverlay.in-session .bingerChatMsg:nth-child(even) {
+.theme-pink #bingerOverlay.in-session .bingerChatMsg.msg-own {
   background: rgba(70, 110, 70, 0.25) !important;
 }
 
@@ -270,3 +270,45 @@
 #bingerOverlay.in-session #bingerChatLog::-webkit-scrollbar-thumb { background: rgba(60, 100, 160, 0.4); border-radius: 3px; }
 #bingerOverlay.in-session #bingerChatLog::-webkit-scrollbar-thumb:hover { background: rgba(60, 100, 160, 0.6); }
 #bingerOverlay.in-session #bingerChatLog { scrollbar-width: thin; scrollbar-color: rgba(60, 100, 160, 0.4) transparent; }
+
+#bingerOverlay.in-session #bingerChatLog .binger-msg-timestamp {
+  color: rgba(120, 160, 220, 0.4) !important;
+}
+
+#bingerOverlay.in-session #bingerChatLog .binger-msg-avatar {
+  background: rgba(40, 70, 120, 0.5) !important;
+  color: white !important;
+  border-color: rgba(5, 15, 30, 0.6) !important;
+}
+
+.theme-pink #bingerOverlay.in-session #bingerChatLog .binger-msg-timestamp { color: rgba(220, 160, 180, 0.4) !important; }
+.theme-blackwhite #bingerOverlay.in-session #bingerChatLog .binger-msg-timestamp { color: rgba(255, 255, 255, 0.2) !important; }
+.theme-ocean #bingerOverlay.in-session #bingerChatLog .binger-msg-timestamp { color: rgba(0, 200, 230, 0.35) !important; }
+.theme-volcano #bingerOverlay.in-session #bingerChatLog .binger-msg-timestamp { color: rgba(255, 120, 50, 0.35) !important; }
+.theme-forest #bingerOverlay.in-session #bingerChatLog .binger-msg-timestamp { color: rgba(160, 220, 120, 0.35) !important; }
+
+.theme-pink #bingerOverlay.in-session #bingerChatLog .binger-msg-avatar {
+  background: linear-gradient(135deg, rgba(180, 80, 110, 0.5), rgba(150, 60, 90, 0.5)) !important;
+  color: #fff0f5 !important;
+  border-color: rgba(30, 15, 22, 0.6) !important;
+}
+.theme-blackwhite #bingerOverlay.in-session #bingerChatLog .binger-msg-avatar {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+  border-color: rgba(10, 10, 10, 0.6) !important;
+}
+.theme-ocean #bingerOverlay.in-session #bingerChatLog .binger-msg-avatar {
+  background: linear-gradient(135deg, rgba(0, 100, 150, 0.5), rgba(0, 80, 130, 0.5)) !important;
+  color: #c0f0ff !important;
+  border-color: rgba(5, 20, 40, 0.6) !important;
+}
+.theme-volcano #bingerOverlay.in-session #bingerChatLog .binger-msg-avatar {
+  background: linear-gradient(135deg, rgba(200, 60, 10, 0.5), rgba(160, 50, 10, 0.5)) !important;
+  color: #ffe0c0 !important;
+  border-color: rgba(12, 6, 4, 0.6) !important;
+}
+.theme-forest #bingerOverlay.in-session #bingerChatLog .binger-msg-avatar {
+  background: linear-gradient(135deg, rgba(60, 120, 40, 0.5), rgba(50, 100, 35, 0.5)) !important;
+  color: #d0ffa0 !important;
+  border-color: rgba(6, 14, 4, 0.6) !important;
+}

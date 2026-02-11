@@ -6,6 +6,9 @@
     let chatObserver = null;
     let listenersAttached = false;
     let cachedUid = null;
+    let lastRenderedMessage = null;
+
+    const GROUP_TIME_THRESHOLD = 120000;
 
     function escapeHtml(text) {
         if (typeof text !== "string") return "";
@@ -233,7 +236,6 @@
         if (!chatLog) return;
 
         if (!message || typeof message !== "object") {
-            console.warn("[Binger] Invalid message object received");
             return;
         }
 
@@ -244,21 +246,50 @@
         }
 
         if (typeof text !== "string") {
-            console.warn("[Binger] Message missing text field");
             return;
         }
 
         const time = BingerHelpers.formatTime(timestamp);
         const safeSender = sender || "anonymous";
+        const currentUsername = BingerState.getCurrentUsername();
+        const isOwn = currentUsername && safeSender === currentUsername;
+
+        const isSameSender = lastRenderedMessage && lastRenderedMessage.sender === safeSender;
+        const isWithinThreshold = lastRenderedMessage &&
+            typeof timestamp === "number" &&
+            typeof lastRenderedMessage.timestamp === "number" &&
+            (timestamp - lastRenderedMessage.timestamp) < GROUP_TIME_THRESHOLD;
+        const isContinuation = isSameSender && isWithinThreshold;
+
+        if (isContinuation && !isOwn) {
+            const allAvatars = chatLog.querySelectorAll(".binger-msg-avatar");
+            const prevAvatar = allAvatars.length > 0 ? allAvatars[allAvatars.length - 1] : null;
+            if (prevAvatar) {
+                prevAvatar.remove();
+            }
+        }
+
+        if (!isContinuation) {
+            const timestampEl = document.createElement("div");
+            timestampEl.className = "binger-msg-timestamp";
+            if (isOwn) {
+                timestampEl.classList.add("msg-own");
+            }
+            timestampEl.textContent = time;
+            chatLog.appendChild(timestampEl);
+        }
 
         const messageEl = document.createElement("div");
         messageEl.className = "bingerChatMsg";
 
-        const currentUsername = BingerState.getCurrentUsername();
-        if (currentUsername && safeSender === currentUsername) {
+        if (isOwn) {
             messageEl.classList.add("msg-own");
         } else {
             messageEl.classList.add("msg-other");
+        }
+
+        if (isContinuation) {
+            messageEl.classList.add("binger-msg-grouped");
         }
 
         if (type === "botQuery") {
@@ -273,20 +304,20 @@
 
         messageEl.classList.add("paused");
 
-        const senderEl = document.createElement("strong");
-        senderEl.textContent = safeSender;
-
-        const timeEl = document.createElement("span");
-        timeEl.textContent = ` [${time}]: `;
-
         const textEl = document.createElement("span");
         textEl.textContent = text;
-
-        messageEl.appendChild(senderEl);
-        messageEl.appendChild(timeEl);
         messageEl.appendChild(textEl);
 
         chatLog.appendChild(messageEl);
+
+        if (!isOwn) {
+            const avatarEl = document.createElement("div");
+            avatarEl.className = "binger-msg-avatar";
+            const initial = safeSender.charAt(0).toUpperCase();
+            avatarEl.textContent = initial;
+            chatLog.appendChild(avatarEl);
+        }
+
         chatLog.scrollTop = chatLog.scrollHeight;
 
         if (chatObserver) {
@@ -296,6 +327,8 @@
         if (!isInitialLoad) {
             BingerTheme.spawnLeaves(messageEl);
         }
+
+        lastRenderedMessage = { sender: safeSender, timestamp: timestamp };
     }
 
     function setupChatObserver() {
@@ -350,6 +383,8 @@
 
         chatLog.appendChild(notificationEl);
         chatLog.scrollTop = chatLog.scrollHeight;
+
+        lastRenderedMessage = null;
     }
 
     let boundKeydownHandler = null;
@@ -451,6 +486,7 @@
 
         elements.chatLog.innerHTML = "";
         BingerOverlayDOM.setUserListDisplay(null);
+        lastRenderedMessage = null;
 
         isInitialLoad = true;
         setupChatObserver();
@@ -529,6 +565,7 @@
         resetBotMode();
         isInitialLoad = true;
         cachedUid = null;
+        lastRenderedMessage = null;
 
         const botToggle = BingerOverlayDOM.getElement("botToggle");
         if (botToggle) {
