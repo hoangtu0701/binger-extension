@@ -57,6 +57,17 @@
   color: rgba(200, 140, 100, 0.5);
 }
 
+.bingerTypingBubble::after {
+  content: "";
+  animation: typingDots 1.2s steps(1) infinite;
+}
+
+@keyframes typingDots {
+  0%   { content: "."; }
+  33%  { content: ".."; }
+  66%  { content: "..."; }
+}
+
 .bingerTypingBubble.session-mode {
   font-style: italic !important;
   font-size: 14px !important;

@@ -148,19 +148,19 @@
 
                 if (uid === "BINGER_BOT_SEEK") {
                     const variants = [
-                        `${safeUsername} is seeking...`,
-                        `${safeUsername} is moving to the scene...`,
-                        `${safeUsername} is finding the moment...`,
-                        `${safeUsername} is scrubbing the timeline...`,
-                        `${safeUsername} is skipping the boring parts...`,
-                        `${safeUsername} is teleporting to the scene...`,
-                        `${safeUsername} is spinning the film wheel...`,
-                        `${safeUsername} is loading up the drama...`,
-                        `${safeUsername} is shuffling scenes...`
+                        `${safeUsername} is seeking`,
+                        `${safeUsername} is moving to the scene`,
+                        `${safeUsername} is finding the moment`,
+                        `${safeUsername} is scrubbing the timeline`,
+                        `${safeUsername} is skipping the boring parts`,
+                        `${safeUsername} is teleporting to the scene`,
+                        `${safeUsername} is spinning the film wheel`,
+                        `${safeUsername} is loading up the drama`,
+                        `${safeUsername} is shuffling scenes`
                     ];
                     bubble.textContent = variants[Math.floor(Math.random() * variants.length)];
                 } else {
-                    bubble.textContent = `${safeUsername} is typing...`;
+                    bubble.textContent = `${safeUsername} is typing`;
                 }
 
                 const overlay = BingerOverlayDOM.getElement("overlay");
