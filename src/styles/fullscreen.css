@@ -76,3 +76,8 @@
   border-left: none;
   border-right: none;
 }
+
+#bingerOverlay.fullscreen .binger-msg-timestamp {
+  font-size: 12px;
+  margin-bottom: 5px;
+}
