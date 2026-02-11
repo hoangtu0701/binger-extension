@@ -68,7 +68,10 @@
             </div>
             <div id="bingerChatLog">Chat log will appear here</div>
             <div id="bingerChatInputBar">
-                <button id="bingerBotToggle" title="Toggle Bot Mode" disabled>B</button>
+                <div id="bingerBotToggleWrap">
+                    <button id="bingerBotToggle" disabled>B</button>
+                    <span id="bingerBotTooltip">Talk to Binger Bot</span>
+                </div>
                 <input type="text" id="bingerChatInput" placeholder="Type a message..." disabled />
                 <button id="bingerSendBtn" disabled>Send</button>
             </div>
