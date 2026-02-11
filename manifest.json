@@ -4,7 +4,9 @@
   "version": "7.0.1",
   "description": "Watch movies together with real-time synced chat and playback.",
   "icons": {
-    "128": "binger_assets/images/icon.png"
+    "16": "binger_assets/images/icon16.png",
+    "48": "binger_assets/images/icon48.png",
+    "128": "binger_assets/images/icon128.png"
   },
   "permissions": [
     "alarms",
@@ -54,7 +56,11 @@
   ],
   "action": {
     "default_popup": "src/popup/popup.html",
-    "default_icon": "binger_assets/images/icon.png"
+    "default_icon": {
+      "16": "binger_assets/images/icon16.png",
+      "48": "binger_assets/images/icon48.png",
+      "128": "binger_assets/images/icon128.png"
+    }
   },
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'; frame-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com;"

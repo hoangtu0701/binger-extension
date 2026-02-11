@@ -16,7 +16,35 @@
 
   <!-- View 1: Not on phimbro -->
   <div id="notOnSite" class="popup-view view-not-on-site">
-    <div class="not-on-site-icon">&#127871;</div>
+    <div class="not-on-site-icon">
+      <svg class="binger-logo-filmstrip" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="filmFrame" x1="0" y1="0" x2="100" y2="100">
+            <stop offset="0%" stop-color="#c83848"/>
+            <stop offset="100%" stop-color="#7a1828"/>
+          </linearGradient>
+          <filter id="filmGlow">
+            <feGaussianBlur stdDeviation="2" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <rect x="10" y="5" width="80" height="90" rx="6" fill="#1a0a10" stroke="url(#filmFrame)" stroke-width="2.5"/>
+        <rect x="14" y="12" width="8" height="6" rx="2" fill="none" stroke="rgba(200,100,120,0.4)" stroke-width="1.2"/>
+        <rect x="14" y="26" width="8" height="6" rx="2" fill="none" stroke="rgba(200,100,120,0.4)" stroke-width="1.2"/>
+        <rect x="14" y="40" width="8" height="6" rx="2" fill="none" stroke="rgba(200,100,120,0.4)" stroke-width="1.2"/>
+        <rect x="14" y="54" width="8" height="6" rx="2" fill="none" stroke="rgba(200,100,120,0.4)" stroke-width="1.2"/>
+        <rect x="14" y="68" width="8" height="6" rx="2" fill="none" stroke="rgba(200,100,120,0.4)" stroke-width="1.2"/>
+        <rect x="14" y="82" width="8" height="6" rx="2" fill="none" stroke="rgba(200,100,120,0.4)" stroke-width="1.2"/>
+        <rect x="78" y="12" width="8" height="6" rx="2" fill="none" stroke="rgba(200,100,120,0.4)" stroke-width="1.2"/>
+        <rect x="78" y="26" width="8" height="6" rx="2" fill="none" stroke="rgba(200,100,120,0.4)" stroke-width="1.2"/>
+        <rect x="78" y="40" width="8" height="6" rx="2" fill="none" stroke="rgba(200,100,120,0.4)" stroke-width="1.2"/>
+        <rect x="78" y="54" width="8" height="6" rx="2" fill="none" stroke="rgba(200,100,120,0.4)" stroke-width="1.2"/>
+        <rect x="78" y="68" width="8" height="6" rx="2" fill="none" stroke="rgba(200,100,120,0.4)" stroke-width="1.2"/>
+        <rect x="78" y="82" width="8" height="6" rx="2" fill="none" stroke="rgba(200,100,120,0.4)" stroke-width="1.2"/>
+        <rect x="26" y="20" width="48" height="60" rx="3" fill="none" stroke="rgba(200,100,120,0.2)" stroke-width="1.2"/>
+        <text x="50" y="61" text-anchor="middle" font-family="Playfair Display, serif" font-weight="700" font-size="40" fill="#f5e6d0" filter="url(#filmGlow)">B</text>
+      </svg>
+    </div>
     <p class="not-on-site-heading">You're not on Phimbro</p>
     <p class="not-on-site-sub">Binger only works on <strong>phimbro.com</strong></p>
     <button class="btn-go-phimbro" id="goToPhimbro">Go to phimbro.com</button>
@@ -27,7 +55,43 @@
   <div id="mainUI" class="popup-view view-main">
     <p class="main-greeting">Hey, Binger!</p>
     <p class="main-subtext">Ready for movie night?</p>
-    <div class="main-popcorn">&#127871;</div>
+    <div class="main-popcorn">
+      <svg class="binger-logo-popcorn" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="bucketBody" x1="20" y1="25" x2="80" y2="95">
+            <stop offset="0%" stop-color="#c83848"/>
+            <stop offset="100%" stop-color="#8b1e32"/>
+          </linearGradient>
+          <linearGradient id="bucketStripe" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#e8a060"/>
+            <stop offset="100%" stop-color="#d4874a"/>
+          </linearGradient>
+          <linearGradient id="kernelFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#fff4d6"/>
+            <stop offset="100%" stop-color="#f0d890"/>
+          </linearGradient>
+          <filter id="kernelGlow">
+            <feGaussianBlur stdDeviation="2" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <path d="M28 42 L24 88 C24 92 30 96 50 96 C70 96 76 92 76 88 L72 42 Z" fill="url(#bucketBody)" stroke="rgba(245,230,208,0.12)" stroke-width="1"/>
+        <path d="M30 55 L70 55" stroke="url(#bucketStripe)" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+        <path d="M29 67 L71 67" stroke="url(#bucketStripe)" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+        <path d="M27 79 L73 79" stroke="url(#bucketStripe)" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+        <ellipse cx="50" cy="42" rx="23" ry="6" fill="#a83242" stroke="rgba(245,230,208,0.15)" stroke-width="1"/>
+        <circle cx="38" cy="28" r="8" fill="url(#kernelFill)" filter="url(#kernelGlow)" opacity="0.95"/>
+        <circle cx="54" cy="22" r="9" fill="url(#kernelFill)" filter="url(#kernelGlow)" opacity="0.95"/>
+        <circle cx="46" cy="32" r="7" fill="url(#kernelFill)" filter="url(#kernelGlow)" opacity="0.9"/>
+        <circle cx="62" cy="30" r="7.5" fill="url(#kernelFill)" filter="url(#kernelGlow)" opacity="0.9"/>
+        <circle cx="35" cy="18" r="6" fill="url(#kernelFill)" filter="url(#kernelGlow)" opacity="0.85"/>
+        <circle cx="50" cy="12" r="6.5" fill="url(#kernelFill)" filter="url(#kernelGlow)" opacity="0.85"/>
+        <circle cx="64" cy="18" r="5.5" fill="url(#kernelFill)" filter="url(#kernelGlow)" opacity="0.8"/>
+        <circle cx="39" cy="29" r="5" fill="rgba(200,160,80,0.15)"/>
+        <circle cx="55" cy="23" r="6" fill="rgba(200,160,80,0.12)"/>
+        <circle cx="63" cy="31" r="4.5" fill="rgba(200,160,80,0.1)"/>
+      </svg>
+    </div>
     <div class="main-btn-group">
       <button class="btn-auth btn-signup" id="signupBtn">Sign up</button>
       <button class="btn-auth btn-signin" id="signinBtn">Sign in</button>
@@ -72,7 +136,31 @@
 
   <!-- View 4: Signed in -->
   <div id="signedInUI" class="popup-view view-signed-in">
-    <div class="signed-in-avatar">&#127871;</div>
+    <div class="signed-in-avatar">
+      <svg class="binger-logo-popcorn-sm" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="bucketSm" x1="20" y1="25" x2="80" y2="95">
+            <stop offset="0%" stop-color="#d45868"/>
+            <stop offset="100%" stop-color="#a83242"/>
+          </linearGradient>
+          <linearGradient id="kernelSm" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#fff4d6"/>
+            <stop offset="100%" stop-color="#f0d890"/>
+          </linearGradient>
+        </defs>
+        <path d="M28 42 L24 88 C24 92 30 96 50 96 C70 96 76 92 76 88 L72 42 Z" fill="url(#bucketSm)" stroke="rgba(245,230,208,0.15)" stroke-width="1.5"/>
+        <path d="M31 56 L69 56" stroke="rgba(245,230,208,0.25)" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M29 68 L71 68" stroke="rgba(245,230,208,0.25)" stroke-width="2.5" stroke-linecap="round"/>
+        <ellipse cx="50" cy="42" rx="23" ry="6" fill="#c03050" stroke="rgba(245,230,208,0.2)" stroke-width="1.5"/>
+        <circle cx="38" cy="28" r="8" fill="url(#kernelSm)" opacity="0.95"/>
+        <circle cx="54" cy="22" r="9" fill="url(#kernelSm)" opacity="0.95"/>
+        <circle cx="46" cy="33" r="7" fill="url(#kernelSm)" opacity="0.9"/>
+        <circle cx="62" cy="30" r="7" fill="url(#kernelSm)" opacity="0.9"/>
+        <circle cx="35" cy="18" r="6" fill="url(#kernelSm)" opacity="0.85"/>
+        <circle cx="50" cy="12" r="6.5" fill="url(#kernelSm)" opacity="0.85"/>
+        <circle cx="64" cy="19" r="5.5" fill="url(#kernelSm)" opacity="0.8"/>
+      </svg>
+    </div>
     <p class="signed-in-greeting">Enjoy the show!</p>
     <p class="signed-in-sub">You're all set for movie night</p>
     <button class="btn-signout" id="signOutBtn">Sign out</button>
