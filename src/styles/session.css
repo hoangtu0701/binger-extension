@@ -16,7 +16,7 @@
 }
 
 #bingerOverlay.in-session .bingerChatMsg {
-  background: rgba(30, 55, 95, 0.35) !important;
+  background: rgba(55, 90, 155, 0.4) !important;
   color: white !important;
   border: none !important;
   border-left: 2px solid rgba(80, 140, 220, 0.3) !important;
@@ -25,7 +25,7 @@
 #bingerOverlay.in-session .bingerChatMsg.msg-own {
   border-left: none !important;
   border-right: 2px solid rgba(100, 170, 240, 0.35) !important;
-  background: rgba(50, 80, 140, 0.35) !important;
+  background: rgba(25, 45, 85, 0.4) !important;
 }
 
 #bingerOverlay.in-session #bingerChatLog .bingerChatMsg.bot-reply {
@@ -62,13 +62,13 @@
 }
 
 .theme-pink #bingerOverlay.in-session .bingerChatMsg {
-  background: rgba(70, 110, 70, 0.25) !important;
+  background: rgba(55, 95, 55, 0.3) !important;
   color: #f0f5e8 !important;
   border-left: none !important;
 }
 
 .theme-pink #bingerOverlay.in-session .bingerChatMsg.msg-own {
-  background: rgba(160, 70, 95, 0.3) !important;
+  background: rgba(175, 80, 105, 0.32) !important;
   border: none !important;
   color: #f0dce4 !important;
 }
@@ -112,15 +112,15 @@
 }
 
 .theme-blackwhite #bingerOverlay.in-session .bingerChatMsg {
-  background: rgba(255, 255, 255, 0.03) !important;
-  color: rgba(255, 255, 255, 0.85) !important;
+  background: rgba(255, 255, 255, 0.11) !important;
+  color: #ffffff !important;
   border: none !important;
 }
 
 .theme-blackwhite #bingerOverlay.in-session .bingerChatMsg.msg-own {
-  background: rgba(255, 255, 255, 0.10) !important;
+  background: rgba(255, 255, 255, 0.025) !important;
   border: none !important;
-  color: #ffffff !important;
+  color: rgba(255, 255, 255, 0.8) !important;
 }
 
 .theme-blackwhite #bingerOverlay.in-session #bingerChatLog .bingerChatMsg.bot-reply {
@@ -163,17 +163,17 @@
 }
 
 .theme-ocean #bingerOverlay.in-session .bingerChatMsg {
-  background: rgba(0, 45, 80, 0.35) !important;
-  color: #b8e0ea !important;
+  background: rgba(8, 100, 145, 0.38) !important;
+  color: #d8f4fc !important;
   border: none !important;
   position: relative;
   overflow: hidden;
 }
 
 .theme-ocean #bingerOverlay.in-session .bingerChatMsg.msg-own {
-  background: rgba(5, 90, 130, 0.35) !important;
+  background: rgba(0, 38, 68, 0.4) !important;
   border: none !important;
-  color: #d8f4fc !important;
+  color: #b0d8e4 !important;
 }
 
 .theme-ocean #bingerOverlay.in-session #bingerChatLog .bingerChatMsg.bot-reply {
@@ -227,17 +227,17 @@
 }
 
 .theme-volcano #bingerOverlay.in-session .bingerChatMsg {
-  background: rgba(40, 14, 6, 0.55) !important;
-  color: #e0c0a0 !important;
+  background: rgba(95, 40, 14, 0.48) !important;
+  color: #f4e0c8 !important;
   border: none !important;
   position: relative;
   overflow: hidden;
 }
 
 .theme-volcano #bingerOverlay.in-session .bingerChatMsg.msg-own {
-  background: rgba(85, 35, 12, 0.45) !important;
+  background: rgba(35, 10, 4, 0.6) !important;
   border: none !important;
-  color: #f4e0c8 !important;
+  color: #d8b898 !important;
 }
 
 .theme-volcano #bingerOverlay.in-session #bingerChatLog .bingerChatMsg.bot-reply {
@@ -292,17 +292,17 @@
 }
 
 .theme-forest #bingerOverlay.in-session .bingerChatMsg {
-  background: rgba(22, 42, 15, 0.45) !important;
-  color: #c4e0b4 !important;
+  background: rgba(48, 88, 35, 0.45) !important;
+  color: #e8f8d8 !important;
   border: none !important;
   position: relative;
   overflow: hidden;
 }
 
 .theme-forest #bingerOverlay.in-session .bingerChatMsg.msg-own {
-  background: rgba(42, 78, 30, 0.4) !important;
+  background: rgba(18, 35, 12, 0.5) !important;
   border: none !important;
-  color: #e8f8d8 !important;
+  color: #b8d8a8 !important;
 }
 
 .theme-forest #bingerOverlay.in-session #bingerChatLog .bingerChatMsg.bot-reply {

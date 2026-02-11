@@ -74,6 +74,7 @@
 
                                 const msg = {
                                     sender: "Binger Bot",
+                                    type: "bot",
                                     timestamp: Date.now(),
                                     text: `${sender} cancelled the invite for movie ${movieCode}`
                                 };
@@ -118,6 +119,7 @@
 
                         const msg = {
                             sender: "Binger Bot",
+                            type: "bot",
                             timestamp: Date.now(),
                             text: `${sender} accepted the invite for movie ${movieCode}`
                         };
@@ -155,6 +157,7 @@
 
                         const msg = {
                             sender: "Binger Bot",
+                            type: "bot",
                             timestamp: Date.now(),
                             text: `${sender} declined the invite for movie ${movieCode}`
                         };

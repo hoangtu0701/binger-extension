@@ -484,8 +484,8 @@
   animation: fadeInUp 0.25s ease forwards;
   position: relative;
   overflow: hidden;
-  background: rgba(45, 18, 25, 0.65);
-  color: #e0cbb8;
+  background: rgba(95, 42, 32, 0.55);
+  color: #f5e8d8;
   border-left: 2px solid rgba(200, 140, 80, 0.4);
   backdrop-filter: blur(4px);
 }
@@ -494,8 +494,8 @@
   margin-left: auto;
   border-left: none;
   border-right: 2px solid rgba(220, 130, 60, 0.45);
-  background: rgba(95, 42, 32, 0.55);
-  color: #f5e8d8;
+  background: rgba(45, 18, 25, 0.65);
+  color: #e0cbb8;
 }
 
 .bingerChatMsg.bot-reply {
@@ -649,15 +649,15 @@
 }
 
 .theme-blackwhite .bingerChatMsg {
-  background: rgba(255, 255, 255, 0.03);
-  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.10);
+  color: #ffffff;
   border: none;
   backdrop-filter: blur(4px);
 }
 
 .theme-blackwhite .bingerChatMsg.msg-own {
-  background: rgba(255, 255, 255, 0.10);
-  color: #ffffff;
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.85);
   border: none;
 }
 
@@ -682,15 +682,15 @@
 }
 
 .theme-ocean .bingerChatMsg {
-  background: rgba(0, 45, 80, 0.35);
-  color: #b8e0ea;
+  background: rgba(5, 90, 130, 0.35);
+  color: #d8f4fc;
   border: none;
   backdrop-filter: blur(4px);
 }
 
 .theme-ocean .bingerChatMsg.msg-own {
-  background: rgba(5, 90, 130, 0.35);
-  color: #d8f4fc;
+  background: rgba(0, 45, 80, 0.35);
+  color: #b8e0ea;
   border: none;
 }
 
@@ -714,15 +714,15 @@
 }
 
 .theme-volcano .bingerChatMsg {
-  background: rgba(40, 14, 6, 0.65);
-  color: #e0c0a0;
+  background: rgba(85, 35, 12, 0.55);
+  color: #f4e0c8;
   border: none;
   backdrop-filter: blur(4px);
 }
 
 .theme-volcano .bingerChatMsg.msg-own {
-  background: rgba(85, 35, 12, 0.55);
-  color: #f4e0c8;
+  background: rgba(40, 14, 6, 0.65);
+  color: #e0c0a0;
   border: none;
 }
 
@@ -747,15 +747,15 @@
 }
 
 .theme-forest .bingerChatMsg {
-  background: rgba(22, 42, 15, 0.55);
-  color: #c4e0b4;
+  background: rgba(42, 78, 30, 0.5);
+  color: #e8f8d8;
   border: none;
   backdrop-filter: blur(4px);
 }
 
 .theme-forest .bingerChatMsg.msg-own {
-  background: rgba(42, 78, 30, 0.5);
-  color: #e8f8d8;
+  background: rgba(22, 42, 15, 0.55);
+  color: #c4e0b4;
   border: none;
 }
 
