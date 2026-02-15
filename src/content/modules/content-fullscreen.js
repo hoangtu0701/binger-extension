@@ -97,6 +97,10 @@
                     { type: "restoreCamMic", camOn, micOn },
                     "*"
                 );
+                iframe.contentWindow.postMessage(
+                    { type: "restoreAudioMode", audioMode: window.BINGER.audioMode },
+                    "*"
+                );
             } catch (err) {
                 console.warn("[Binger] Failed to restore cam/mic state:", err);
             }

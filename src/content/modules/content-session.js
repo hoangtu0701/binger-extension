@@ -57,6 +57,8 @@
         }
     };
 
+    window.BINGER.audioMode = "speaker";
+
     window.bingerSetCallIframe = (ref) => {
         state.callIframe = ref;
     };
@@ -146,6 +148,10 @@
             try {
                 iframe.contentWindow.postMessage(
                     { type: "restoreCamMic", camOn, micOn },
+                    "*"
+                );
+                iframe.contentWindow.postMessage(
+                    { type: "restoreAudioMode", audioMode: window.BINGER.audioMode },
                     "*"
                 );
             } catch (err) {
@@ -321,9 +327,12 @@
         removeCamMicListener();
 
         state.camMicMessageListener = (event) => {
-            const { type, camOn, micOn } = event.data || {};
+            const { type, camOn, micOn, audioMode } = event.data || {};
             if (type === "updateCamMic") {
                 window.BINGER.camMicState.set({ camOn, micOn });
+            }
+            if (type === "updateAudioMode" && (audioMode === "speaker" || audioMode === "headphones")) {
+                window.BINGER.audioMode = audioMode;
             }
         };
         window.addEventListener("message", state.camMicMessageListener);
