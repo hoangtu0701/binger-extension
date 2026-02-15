@@ -342,9 +342,26 @@ Theme is sent via `postMessage` at three points: iframe creation, iframe reset (
 | `setTheme` | Parent to Iframe | Apply theme colors |
 | `restoreCamMic` | Parent to Iframe | Restore cam/mic state after recreation |
 | `updateCamMic` | Iframe to Parent | Report cam/mic toggle changes |
+| `restoreAudioMode` | Parent to Iframe | Restore speaker/headphone mode after recreation |
+| `updateAudioMode` | Iframe to Parent | Report audio mode toggle changes |
 | `network-warning` | Iframe to Parent | Notify connection failure |
 | `cleanupCall` | Parent to Iframe | Clean up Firebase entries before destruction |
 | `cleanupDone` | Iframe to Parent | Confirm cleanup complete |
+
+### Audio Mode
+
+A third button in the call controls toggles between Speaker and Headphone modes, adjusting the mic's audio processing constraints via `applyConstraints()` without interrupting the WebRTC connection.
+
+| Mode | echoCancellation | noiseSuppression | autoGainControl |
+|------|-----------------|-----------------|-----------------|
+| Speaker | true | false | true |
+| Headphones | false | false | false |
+
+Speaker mode prevents the mic from echoing film audio back to the other person. Headphone mode disables all processing for raw, unaltered film audio quality. `voiceIsolation` is always false in both modes.
+
+The button shows a hover tooltip with a title ("Audio Mode") and a description that crossfades (300ms) on mode switch. Tooltip uses theme-reactive colors via CSS variables and `backdrop-filter: blur(12px)`.
+
+Audio mode persists across fullscreen toggles using the same `postMessage` pattern as cam/mic state: the parent stores the mode in `window.BINGER.audioMode`, sends `restoreAudioMode` on iframe recreation, and listens for `updateAudioMode` from the iframe. Default mode is Speaker.
 
 ### Room Cleanup
 
