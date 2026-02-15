@@ -445,7 +445,7 @@ Triggered when the bot reply contains `Seeking to the scene where...`
 **Typing Indicators:**
 
 - "Binger Bot is typing..." during response generation
-- "Binger Bot is seeking..." with randomized messages during scene search
+- "Binger Bot is seeking..." with randomized seeking messages during scene search
 - Uses per-query Firebase children (`typing/BINGER_BOT/{queryId}`) instead of a single boolean, so concurrent queries from both users keep the indicator alive until all responses are delivered
 - Same pattern for seek indicator (`typing/BINGER_BOT_SEEK/{seekId}`)
 - All typing/seeking indicators automatically sink to the bottom of the chat log as new messages and notifications arrive
