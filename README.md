@@ -107,7 +107,7 @@ Popup  <--->  Background  <--->  Firebase Realtime Database
 - **Content Scripts** communicate with **Background** via persistent ports
 - **Background** syncs all data through **Firebase Realtime Database**
 - **Background** broadcasts updates to all connected content script ports via `broadcastToTabs`
-- **Content Scripts** send theme and cam/mic state to **Call Iframe** via `postMessage`
+- **Content Scripts** send theme, cam/mic state, and audio mode to **Call Iframe** via `postMessage` and URL parameters
 
 ### Module Load Order
 
@@ -308,15 +308,20 @@ call_app/
 4. ICE candidates exchanged via Firebase
 5. Connected - signaling data cleaned up
 
-### Iframe Reset Flow (Fullscreen Toggle)
+### Iframe Reset Flow
+
+The call iframe is destroyed and recreated whenever either user toggles fullscreen or switches audio mode. This guarantees a fresh `getUserMedia` call with the correct audio constraints.
 
 1. Extension sends `cleanupCall` to old iframe via postMessage
 2. Old iframe removes its Firebase user entry and signals
 3. Old iframe sends `cleanupDone` confirmation
-4. Extension destroys old iframe, creates new one with same `roomId` and `uid`
+4. Extension destroys old iframe, creates new one with same `roomId`, `uid`, and current `audioMode` baked into the URL
 5. New iframe clears remaining signals, registers with same UID key
-6. New iframe determines offerer role (stable - UIDs never change) and starts signaling
-7. Extension sends current theme to new iframe via `setTheme` postMessage
+6. New iframe reads `audioMode` from URL params and sets it before `getUserMedia` runs
+7. New iframe determines offerer role (stable - UIDs never change) and starts signaling
+8. Extension sends current theme and cam/mic state to new iframe via postMessage
+
+When User A triggers a reset, the extension also writes a `resetIframeFlag` to Firebase. User B's listener detects the flag (ignoring flags written by themselves), triggering their own iframe reset. Both users reconnect with fresh WebRTC connections.
 
 ### Call Iframe Theming
 
@@ -333,7 +338,7 @@ The call iframe supports all 6 Binger themes via CSS custom properties:
 | `--call-overlay-bg` | Loading/reconnecting overlay background |
 | `--call-spinner-border` | Spinner circle color |
 
-Theme is sent via `postMessage` at three points: iframe creation, iframe reset (fullscreen toggle or partner's fullscreen toggle), and live theme changes (user or partner switches theme mid-session).
+Theme is sent via `postMessage` at three points: iframe creation, iframe reset (fullscreen toggle, audio mode switch, or partner's reset), and live theme changes (user or partner switches theme mid-session).
 
 ### Parent-Iframe Communication
 
@@ -344,24 +349,25 @@ Theme is sent via `postMessage` at three points: iframe creation, iframe reset (
 | `updateCamMic` | Iframe to Parent | Report cam/mic toggle changes |
 | `restoreAudioMode` | Parent to Iframe | Restore speaker/headphone mode after recreation |
 | `updateAudioMode` | Iframe to Parent | Report audio mode toggle changes |
+| `triggerCallReset` | Iframe to Parent | Request iframe recall after audio mode switch |
 | `network-warning` | Iframe to Parent | Notify connection failure |
 | `cleanupCall` | Parent to Iframe | Clean up Firebase entries before destruction |
 | `cleanupDone` | Iframe to Parent | Confirm cleanup complete |
 
 ### Audio Mode
 
-A third button in the call controls toggles between Speaker and Headphone modes, adjusting the mic's audio processing constraints via `applyConstraints()` without interrupting the WebRTC connection.
+A third button in the call controls toggles between Speaker and Headphone modes. Switching triggers an immediate iframe recall for both users, ensuring the correct audio constraints are applied via a fresh `getUserMedia` call rather than the unreliable `applyConstraints()` on an existing track.
 
 | Mode | echoCancellation | noiseSuppression | autoGainControl |
 |------|-----------------|-----------------|-----------------|
 | Speaker | true | false | true |
 | Headphones | false | false | false |
 
-Speaker mode prevents the mic from echoing film audio back to the other person. Headphone mode disables all processing for raw, unaltered film audio quality. `voiceIsolation` is always false in both modes.
+Speaker mode filters out background noise and echo to prevent the other person from hearing the movie. Headphone mode disables all processing for the cleanest movie audio. `voiceIsolation` is always false in both modes.
 
-The button shows a hover tooltip with a title ("Audio Mode") and a description that crossfades (300ms) on mode switch. Tooltip uses theme-reactive colors via CSS variables and `backdrop-filter: blur(12px)`.
+The button shows a hover tooltip with a dynamic title ("Speaker Mode" or "Headphones Mode") and a description per mode. Tooltip uses theme-reactive colors via CSS variables and `backdrop-filter: blur(12px)`.
 
-Audio mode persists across fullscreen toggles using the same `postMessage` pattern as cam/mic state: the parent stores the mode in `window.BINGER.audioMode`, sends `restoreAudioMode` on iframe recreation, and listens for `updateAudioMode` from the iframe. Default mode is Speaker.
+Audio mode is passed as a URL parameter (`audioMode`) on every iframe creation, guaranteeing the correct constraints are set before `getUserMedia` runs. This eliminates the race condition where `restoreAudioMode` postMessages could arrive after the audio track was already created with default constraints. The mode also persists across all recall triggers (fullscreen toggles, audio mode switches, partner's resets) via `window.BINGER.audioMode` on the parent side. Default mode is Speaker.
 
 ### Room Cleanup
 
@@ -550,7 +556,7 @@ A `binger-call-initial` CSS class applies `display: none` on iframe creation to 
 ### Cleanup on Toggle
 
 - Ephemeral elements (floating emojis, pins) removed
-- Call iframe recreated with pre-cleanup, preserved cam/mic state, and theme forwarding
+- Call iframe recreated with pre-cleanup, preserved cam/mic state, audio mode, and theme forwarding
 - Soundboard repositioned without size change
 
 ---
@@ -616,7 +622,7 @@ Both warning banners use a consistent glassmorphism design with themed variants 
 | Room full | Error message, join prevented |
 | Auth failure | Error displayed in popup form |
 | Firebase disconnect | Auto-reconnection via SDK |
-| Iframe reset | Pre-cleanup prevents ghost users and stale signals, theme re-sent on reload |
+| Iframe reset | Pre-cleanup prevents ghost users and stale signals, audio mode baked into URL to avoid constraint race conditions, theme and cam/mic re-sent on reload |
 | Monitor switch | Resize listener repositions call iframe |
 | Fullscreen exit iframe drift | requestAnimationFrame recalculates position after layout reflow |
 | Bot mode across navigation | Persisted to chrome.storage.local, restored on rejoin |
