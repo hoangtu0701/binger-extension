@@ -138,7 +138,7 @@
         const uid = BingerState.getCurrentUserUid();
 
         const iframe = document.createElement("iframe");
-        iframe.src = chrome.runtime.getURL(`call_app/call.html?roomId=${roomId}&uid=${uid}`);
+        iframe.src = chrome.runtime.getURL(`call_app/call.html?roomId=${roomId}&uid=${uid}&audioMode=${window.BINGER.audioMode || "speaker"}`);
         iframe.className = "binger-call-iframe";
         iframe.allow = "camera; microphone; autoplay; fullscreen";
 

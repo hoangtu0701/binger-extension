@@ -184,7 +184,7 @@
         const iframe = document.createElement("iframe");
         iframe.className = `${CSS_CLASSES.callIframe} ${CSS_CLASSES.callHidden} binger-call-initial`;
         iframe.allow = "camera; microphone; autoplay; fullscreen";
-        iframe.src = chrome.runtime.getURL(`call_app/call.html?roomId=${roomId}&uid=${uid}`);
+        iframe.src = chrome.runtime.getURL(`call_app/call.html?roomId=${roomId}&uid=${uid}&audioMode=${window.BINGER.audioMode}`);
         iframe.style.left = `${calculateIframeLeftPosition()}px`;
 
         restoreCamMicToIframe(iframe);
@@ -269,7 +269,7 @@
         state.callIframe.remove();
 
         const uid = BingerState.getCurrentUserUid();
-        const callUrl = chrome.runtime.getURL(`call_app/call.html?roomId=${roomId}&uid=${uid}`);
+        const callUrl = chrome.runtime.getURL(`call_app/call.html?roomId=${roomId}&uid=${uid}&audioMode=${window.BINGER.audioMode}`);
 
         const fresh = document.createElement("iframe");
         fresh.src = callUrl;
@@ -333,6 +333,21 @@
             }
             if (type === "updateAudioMode" && (audioMode === "speaker" || audioMode === "headphones")) {
                 window.BINGER.audioMode = audioMode;
+            }
+            if (type === "triggerCallReset") {
+                let roomId;
+                try {
+                    roomId = new URL(state.callIframe?.src).searchParams.get("roomId");
+                } catch {}
+
+                resetCallIframe();
+
+                if (roomId) {
+                    BingerConnection.sendMessageAsync({
+                        command: "broadcastCallReset",
+                        roomId
+                    });
+                }
             }
         };
         window.addEventListener("message", state.camMicMessageListener);
