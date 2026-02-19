@@ -210,6 +210,9 @@
         watchTogetherBtn.classList.remove("binge-invitee-accepted");
         watchTogetherBtn.classList.add("binge-invitee-active");
 
+        const tooltip = watchTogetherBtn.parentElement?.querySelector(".binger-bottom-tooltip");
+        if (tooltip) tooltip.textContent = "Click to Accept. Hold to Decline";
+
         clearButtonHandlers(watchTogetherBtn);
 
         const progressBar = document.createElement("div");
@@ -305,6 +308,9 @@
         watchTogetherBtn.classList.remove("binge-invitee-active");
         watchTogetherBtn.classList.remove("binge-inviter-active");
         watchTogetherBtn.classList.remove("binge-invitee-accepted");
+
+        const tooltip = watchTogetherBtn.parentElement?.querySelector(".binger-bottom-tooltip");
+        if (tooltip) tooltip.textContent = "Play a movie with 2 in the room to invite";
 
         watchTogetherBtn.onclick = sendInvite;
 

@@ -417,6 +417,92 @@
 
 #bingerOverlay.in-session #bingerCreateRoom,
 #bingerOverlay.in-session #bingerJoinRoom,
-#bingerOverlay.in-session #watchTogetherBtn {
+#bingerOverlay.in-session #watchTogetherBtn,
+#bingerOverlay.in-session .binger-bottom-btn-wrap:has(#watchTogetherBtn) {
   display: none !important;
+}
+
+.binger-bottom-btn-wrap {
+  position: relative;
+  flex: 1;
+  display: flex;
+}
+
+.binger-bottom-btn-wrap > button {
+  width: 100%;
+}
+
+.binger-bottom-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: 'Segoe UI', sans-serif;
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+  background: rgba(20, 8, 14, 0.95);
+  border: 1px solid rgba(200, 140, 80, 0.2);
+  color: #d4a574;
+}
+
+.binger-bottom-btn-wrap:hover .binger-bottom-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.binger-bottom-btn-wrap:has(button:enabled):not(:has(.binge-invitee-active)) .binger-bottom-tooltip {
+  display: none;
+}
+
+#bingerOverlay.in-session .binger-bottom-tooltip {
+  display: none;
+}
+
+.binger-bottom-btn-wrap:has(.binge-inviter-active) .binger-bottom-tooltip,
+.binger-bottom-btn-wrap:has(.binge-invitee-accepted) .binger-bottom-tooltip {
+  display: none;
+}
+
+#bingerOverlay.binger-minimized:not(.fullscreen) .binger-bottom-tooltip {
+  display: none;
+}
+
+.theme-pink .binger-bottom-tooltip {
+  background: rgba(30, 15, 22, 0.95);
+  border-color: rgba(210, 110, 140, 0.2);
+  color: #e8a0b5;
+}
+
+.theme-blackwhite .binger-bottom-tooltip {
+  background: rgba(10, 10, 10, 0.95);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.theme-ocean .binger-bottom-tooltip {
+  background: rgba(5, 20, 40, 0.95);
+  border-color: rgba(0, 180, 220, 0.2);
+  color: rgba(0, 200, 230, 0.7);
+}
+
+.theme-volcano .binger-bottom-tooltip {
+  background: rgba(20, 8, 4, 0.95);
+  border-color: rgba(255, 100, 30, 0.2);
+  color: rgba(255, 140, 60, 0.7);
+}
+
+.theme-forest .binger-bottom-tooltip {
+  background: rgba(8, 18, 8, 0.95);
+  border-color: rgba(100, 200, 100, 0.2);
+  color: rgba(160, 220, 120, 0.7);
 }

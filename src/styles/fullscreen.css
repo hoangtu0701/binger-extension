@@ -47,6 +47,10 @@
   gap: 12px;
 }
 
+#bingerOverlay.fullscreen .binger-bottom-tooltip {
+  font-size: 13px;
+}
+
 #bingerOverlay.fullscreen.in-session #bingerBottomButtons {
   width: 200px;
   left: 3.5%;
