@@ -174,7 +174,7 @@ The chat header uses a horizontal info strip layout:
 
 Background scripts broadcast structured `{ name, isHost }` objects instead of pre-formatted strings, enabling content-side rendering of avatars with proper host badge placement.
 
-Avatar hover tooltips fade in smoothly (0.2s opacity + 4px upward slide) with a CSS triangle arrow pointing down toward the circle.
+Avatar hover tooltips fade in smoothly (0.2s opacity + 4px upward slide). Usernames truncated at 20 characters with ellipsis.
 
 ### Room System
 
@@ -229,7 +229,7 @@ Uses IntersectionObserver on the chat log to toggle `.paused` class, preventing 
 | Stage | Inviter | Invitee |
 |-------|---------|---------|
 | Idle | "Watch Together" button enabled | Same |
-| Pending | "Cancel" button (red) | "Accept/Decline" with long-press to decline |
+| Pending | "Cancel" button (red), tooltip hidden | "Accept/Decline" with tooltip "Click to Accept. Hold to Decline", long-press to decline |
 | Accepted | Waiting for other user | Grayed out, waiting |
 | Session | Navigates to movie, enters session mode | Same |
 
@@ -241,6 +241,18 @@ Uses IntersectionObserver on the chat log to toggle `.paused` class, preventing 
 - Overlay shows only Leave Room + Camera Toggle
 - Soundboard becomes available
 - Session ends if any user leaves, reloads, or navigates away
+
+### Bottom Button Tooltips
+
+The Invite and Camera buttons each have a hover tooltip that only appears when the button is disabled, explaining why it is unavailable:
+
+| Button | Tooltip Text | Visible When |
+|--------|-------------|--------------|
+| Invite | "Play a movie with 2 in the room to invite" | Disabled (prerequisites not met) |
+| Camera | "Camera will be enabled in-session" | Disabled (not in session) |
+| Invite (invitee) | "Click to Accept. Hold to Decline" | Accept/Decline state |
+
+Tooltips are hidden when: button is enabled, overlay is minimized, in session mode, or during inviter/accepted invite states. Styled per all 6 themes. Font size reduced to 10px in fullscreen mode.
 
 ---
 
