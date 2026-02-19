@@ -139,7 +139,7 @@ Content scripts follow a similar ordered initialization through `main.js`.
 - **Sign Up** creates a Firebase user with `{username}@binger.dev` email
 - **Sign In** authenticates an existing user
 - **Sign Out** signs out, clears storage, and hides the overlay
-- Popup auto-navigates to signed-in screen after success, then auto-closes after 2 seconds
+- Popup auto-navigates to signed-in screen after success, then auto-closes after ~2 seconds. Any click on the signed-in view (Sign Out, theme dots, or empty space) cancels the auto-close.
 
 ---
 
@@ -174,7 +174,7 @@ The chat header uses a horizontal info strip layout:
 
 Background scripts broadcast structured `{ name, isHost }` objects instead of pre-formatted strings, enabling content-side rendering of avatars with proper host badge placement.
 
-Avatar hover tooltips fade in smoothly (0.2s opacity + 4px upward slide). Usernames truncated at 20 characters with ellipsis.
+Avatar hover tooltips fade in smoothly (0.2s opacity + 4px upward slide). Usernames truncated at 15 characters with ellipsis.
 
 ### Room System
 

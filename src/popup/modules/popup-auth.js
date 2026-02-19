@@ -25,6 +25,7 @@ let elements = {
 };
 
 let currentMode = null;
+let autoCloseTimer = null;
 
 export function initAuth() {
     elements.usernameInput = document.getElementById("usernameInput");
@@ -116,7 +117,11 @@ export async function handleAuthSubmit() {
         setTimeout(() => {
             resetAuthForm();
             showSignedInUI();
-            setTimeout(() => window.close(), 1500);
+            autoCloseTimer = setTimeout(() => window.close(), 1500);
+            const signedInView = document.getElementById("signedInUI");
+            if (signedInView) {
+                signedInView.addEventListener("click", cancelAutoClose, { once: true });
+            }
         }, 700);
     } else {
         const errorMessage = AUTH_ERROR_MESSAGES[response?.code] || "Something went wrong. Try again.";
@@ -124,7 +129,16 @@ export async function handleAuthSubmit() {
     }
 }
 
+function cancelAutoClose() {
+    if (autoCloseTimer) {
+        clearTimeout(autoCloseTimer);
+        autoCloseTimer = null;
+    }
+}
+
 export async function handleSignOut() {
+    cancelAutoClose();
+
     const tab = await getActiveTab();
     
     if (tab && isOnPhimbro(tab.url)) {
