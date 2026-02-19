@@ -342,7 +342,7 @@
 
             const tooltip = document.createElement("div");
             tooltip.className = "binger-avatar-tooltip";
-            const fullName = isHost ? `${name} (host)` : name;
+            const fullName = name;
             tooltip.textContent = fullName.length > 20 ? fullName.slice(0, 20) + "..." : fullName;
             avatar.appendChild(tooltip);
 
