@@ -65,7 +65,7 @@ src/
     content-helpers.js        DOM utilities, URL parsing, validation
     content-state.js          Centralized content script state
     content-connection.js     Port connection to background + storage helpers
-    content-navigation.js     SPA navigation handling (history patches + polling)
+    content-navigation.js     Navigation handling (link interception + URL polling)
     content-overlay-dom.js    Overlay UI construction + element caching
     content-theme.js          Theme application + sync + call iframe theme forwarding
     content-chatbox.js        Chat UI + bot mode toggle + animation optimization
@@ -410,7 +410,7 @@ Bot mode state persists across page navigation via `chrome.storage.local` and re
 | Page Type | Context Extracted |
 |-----------|-------------------|
 | `/watch/` | Title, Year, Current Minute |
-| `/movie/` or `/tv/` | Title, Year |
+| `/title/` | Title, Year |
 | Other | None |
 
 ### Response Generation - Two-Call Decision Pipeline
@@ -575,11 +575,10 @@ A `binger-call-initial` CSS class applies `display: none` on iframe creation to 
 
 ## Navigation Handling
 
-- Intercepts `pushState` / `replaceState` for SPA navigation
-- Forces page reload to re-initialize extension state
-- Exception: `/search` pages don't trigger reload
-- URL polling fallback (500ms) for edge cases
-- Handles back/forward via `popstate` and bfcache via `pageshow`
+- Intercepts same-origin link clicks site-wide to set the reload flag before navigating (plain left clicks only; modifier clicks, `target="_blank"`, downloads, hash-only anchors, and clicks already handled by the site pass through untouched)
+- Forces page reload to re-initialize extension state on any SPA-style URL change, detected via URL polling (500ms)
+- Exception: `/search` pages don't trigger reload (search is the site's one remaining SPA surface)
+- Handles bfcache restores via `pageshow` as a defensive fallback
 
 ---
 
