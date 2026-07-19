@@ -264,6 +264,7 @@ Tooltips are hidden when: button is enabled, overlay is minimized, in session mo
 - Seek events synced with current time position
 - 300ms debounce on play/pause prevents echo loops
 - Suppress flag prevents reacting to self-initiated events
+- Auto-resume protection: while playback is locked, foreign seeks (phimbro's saved-checkpoint auto-resume) are snapped back to the room's last synced position, guaranteeing every session starts at 0:00 for both users
 
 ### Buffer Handling
 
