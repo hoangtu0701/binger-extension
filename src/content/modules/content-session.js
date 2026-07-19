@@ -532,6 +532,7 @@
             BingerConnection.sendMessageAsync({ command: "startBufferStatusListener", roomId });
 
             let suppress = false;
+            let lastSyncedTime = 0;
 
             const push = (action) => {
                 if (suppress) return;
@@ -543,6 +544,7 @@
 
                 lastStateSent = action;
                 lastStateTimestamp = now;
+                lastSyncedTime = video.currentTime;
 
                 BingerConnection.sendMessageAsync({
                     command: "syncPlayerState",
@@ -552,10 +554,25 @@
                 });
             };
 
+            const handleLocalSeek = () => {
+                if (!playLockActive) {
+                    push("seek");
+                    return;
+                }
+
+                if (suppress) return;
+
+                if (Math.abs(video.currentTime - lastSyncedTime) > 1) {
+                    suppress = true;
+                    video.currentTime = lastSyncedTime;
+                    suppress = false;
+                }
+            };
+
             const onPlay = () => push("play");
             const onPause = () => push("pause");
-            const onSeeked = () => push("seek");
-            const onSeeking = () => push("seek");
+            const onSeeked = () => handleLocalSeek();
+            const onSeeking = () => handleLocalSeek();
             const onBuffering = () => reportBufferStatus(roomId, userId, "buffering");
             const onCanPlay = () => reportBufferStatus(roomId, userId, "ready");
             const onSeekedCheckReady = () => {
@@ -602,6 +619,10 @@
 
                 const { action, time } = msg.data || {};
                 if (!action) return;
+
+                if (typeof time === "number") {
+                    lastSyncedTime = time;
+                }
 
                 suppress = true;
 
