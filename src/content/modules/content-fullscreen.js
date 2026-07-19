@@ -420,9 +420,7 @@
         vjsContainer.querySelectorAll(".vjs-tech, .vjs-poster")
             .forEach(el => el.removeAttribute("style"));
 
-        if (typeof video.player === "function") {
-            setTimeout(() => video.player().resize?.(), 0);
-        }
+        setTimeout(() => window.dispatchEvent(new Event("resize")), 0);
 
         recreateIframeForNormal();
 

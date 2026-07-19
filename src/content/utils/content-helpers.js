@@ -77,57 +77,73 @@
         if (element) element.remove();
     }
 
+    function findYearNearHeading(heading) {
+        if (!heading) return "Unknown";
+
+        let scope = heading.parentElement;
+
+        for (let depth = 0; depth < 4 && scope; depth++) {
+            const candidates = scope.querySelectorAll("a, span, div");
+
+            for (const el of candidates) {
+                if (el.children.length > 0) continue;
+
+                const text = (el.textContent || "").trim();
+                if (text.length === 0 || text.length > 12) continue;
+
+                const match = text.match(/^\(?((?:19|20)\d{2})\)?$/);
+                if (match) return match[1];
+            }
+
+            scope = scope.parentElement;
+        }
+
+        return "Unknown";
+    }
+
+    function extractYearFromDocumentTitle() {
+        const match = (document.title || "").match(/\(((?:19|20)\d{2})\)/);
+        return match ? match[1] : "Unknown";
+    }
+
     function scrapeMovieContext() {
         const url = location.href;
+        const isWatching = url.includes("/watch/");
+        const isDetailPage = url.includes("/title/");
 
-        if (
-            !url.includes("/watch/") &&
-            !url.includes("/movie/") &&
-            !url.includes("/tv/")
-        ) {
+        if (!isWatching && !isDetailPage) {
             return null;
         }
 
         let title = "Unknown";
         let year = "Unknown";
         let minutes = 0;
-        const isWatching = url.includes("/watch/");
 
-        if (url.includes("/watch/")) {
-            const subtitleElem = document.querySelector("h2[class^='subtitle']");
-            if (subtitleElem) {
-                const rawText = subtitleElem.childNodes[0]?.textContent?.trim() || "";
-                title = rawText.replace(/["]/g, "").trim() || "Unknown";
+        const heading = document.querySelector("h1");
+        const titleAnchor = document.querySelector("h1 a[href^='/title/']");
 
-                const yearElem = subtitleElem.querySelector("a[href*='/year/']");
-                if (yearElem) {
-                    year = (yearElem.textContent || "").trim() || "Unknown";
-                }
-            }
-
-            const video = document.querySelector("video");
-            if (video && typeof video.currentTime === "number") {
-                minutes = Math.floor(video.currentTime / 60);
-            }
-        } else if (url.includes("/movie/") || url.includes("/tv/")) {
-            const titleElem = document.querySelector("h1[class^='title']");
-            if (titleElem) {
-                title = (titleElem.textContent || "").trim() || "Unknown";
-            }
-
-            const subtitleElem = document.querySelector("h2[class^='subtitle']");
-            if (subtitleElem) {
-                const yearElem = subtitleElem.querySelector("a[href*='/year/']");
-                if (yearElem) {
-                    year = (yearElem.textContent || "").trim() || "Unknown";
-                }
-            }
+        if (titleAnchor) {
+            title = (titleAnchor.textContent || "").trim() || "Unknown";
+        } else if (heading) {
+            title = (heading.textContent || "").trim() || "Unknown";
         }
 
         if (title === "Unknown") {
             const fallback = document.querySelector("h1, h2");
             if (fallback) {
                 title = (fallback.textContent || "").trim() || "Unknown";
+            }
+        }
+
+        year = findYearNearHeading(heading);
+        if (year === "Unknown") {
+            year = extractYearFromDocumentTitle();
+        }
+
+        if (isWatching) {
+            const video = document.querySelector("video");
+            if (video && typeof video.currentTime === "number") {
+                minutes = Math.floor(video.currentTime / 60);
             }
         }
 

@@ -5,9 +5,6 @@
 
     let navigationInitialized = false;
     let pollingIntervalId = null;
-    let historyPatched = false;
-    let originalPushState = null;
-    let originalReplaceState = null;
 
     function clearReloadFlag() {
         BingerConnection.getLocal("bingerIsReloading")
@@ -76,37 +73,44 @@
             });
     }
 
-    function patchHistoryNavigation() {
-        if (historyPatched) return;
-
-        originalPushState = history.pushState;
-        originalReplaceState = history.replaceState;
-
-        function createWrapper(originalFn) {
-            return function(...args) {
-                const prevUrl = location.href;
-                const result = originalFn.apply(this, args);
-                const newUrl = location.href;
-
-                if (BingerHelpers.isOnSearchPage()) return result;
-
-                if (prevUrl !== newUrl && newUrl.startsWith(location.origin)) {
-                    reloadWithFlag();
-                }
-
-                return result;
-            };
-        }
-
-        history.pushState = createWrapper(originalPushState);
-        history.replaceState = createWrapper(originalReplaceState);
-        historyPatched = true;
+    function isPlainLeftClick(e) {
+        return e.button === 0 && !e.ctrlKey && !e.metaKey && !e.shiftKey && !e.altKey;
     }
 
-    function setupPopstateListener() {
-        window.addEventListener("popstate", () => {
-            if (BingerHelpers.isOnSearchPage()) return;
-            reloadWithFlag();
+    function isHashOnlyChange(href) {
+        try {
+            const target = new URL(href);
+            return target.origin === location.origin &&
+                   target.pathname === location.pathname &&
+                   target.search === location.search &&
+                   target.hash !== "";
+        } catch {
+            return false;
+        }
+    }
+
+    function setupLinkInterception() {
+        document.addEventListener("click", (e) => {
+            if (e.defaultPrevented) return;
+            if (!isPlainLeftClick(e)) return;
+
+            const anchor = e.target.closest("a");
+            if (!anchor) return;
+            if (anchor.target === "_blank") return;
+            if (anchor.hasAttribute("download")) return;
+
+            const href = anchor.href;
+            const current = location.href;
+
+            if (
+                href &&
+                href.startsWith(location.origin) &&
+                href !== current &&
+                !isHashOnlyChange(href)
+            ) {
+                e.preventDefault();
+                navigateWithFlag(href);
+            }
         });
     }
 
@@ -127,27 +131,6 @@
                     });
 
                 reloadWithFlag();
-            }
-        });
-    }
-
-    function setupLinkInterception() {
-        document.addEventListener("click", (e) => {
-            if (!BingerHelpers.isOnWatchPage()) return;
-
-            const anchor = e.target.closest("a");
-            if (!anchor) return;
-
-            const href = anchor.href;
-            const current = location.href;
-
-            if (
-                href &&
-                href.startsWith(location.origin) &&
-                href !== current
-            ) {
-                e.preventDefault();
-                navigateWithFlag(href);
             }
         });
     }
@@ -186,10 +169,8 @@
 
         clearReloadFlag();
         checkPendingMovieUrl();
-        patchHistoryNavigation();
-        setupPopstateListener();
-        setupPageshowListener();
         setupLinkInterception();
+        setupPageshowListener();
         setupUrlPolling();
 
         navigationInitialized = true;
