@@ -8,7 +8,7 @@ export default async function handler(req, res) {
       return res.status(200).end();
     }
 
-    const { messages, model, temperature, max_tokens } = req.body;
+    const { messages, model, temperature, max_tokens, reasoning } = req.body;
 
     const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
@@ -20,7 +20,8 @@ export default async function handler(req, res) {
         model,
         messages,
         temperature,
-        max_tokens
+        max_tokens,
+        reasoning
       })
     });
 
