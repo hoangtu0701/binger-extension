@@ -7,6 +7,8 @@
     const LLM_TIMEOUT_MS = 30000;
     const EMBED_TIMEOUT_MS = 15000;
 
+    const BOT_ERROR_MESSAGE = "Hmm, something went wrong. Try me again in a sec.";
+
     function validateDependencies() {
         const required = ["BingerBGFirebase", "BingerBGSubtitles", "BingerBGHelpers"];
         const missing = required.filter(dep => typeof self[dep] === "undefined");
@@ -237,7 +239,7 @@
                 ? "x-ai/grok-4.1-fast:online"
                 : "x-ai/grok-4.1-fast";
 
-            let answer = "(no reply)";
+            let answer = BOT_ERROR_MESSAGE;
             try {
                 const response = await fetchWithTimeout(
                     "https://binger-extension.vercel.app/api/openrouter",
@@ -259,13 +261,24 @@
                 );
 
                 const data = await response.json();
-                answer = (data?.choices?.[0]?.message?.content || "(no reply)")
-                    .replace(/\[\[\d+\]\]\([^)]*\)/g, "")
-                    .replace(/\s{2,}/g, " ")
-                    .trim();
+                const content = data?.choices?.[0]?.message?.content;
+
+                if (content) {
+                    const cleaned = content
+                        .replace(/\[\[\d+\]\]\([^)]*\)/g, "")
+                        .replace(/\s{2,}/g, " ")
+                        .trim();
+
+                    if (cleaned) {
+                        answer = cleaned;
+                    } else {
+                        console.error("[Binger] LLM reply was empty after cleanup:", content);
+                    }
+                } else {
+                    console.error("[Binger] LLM returned no usable content:", data);
+                }
             } catch (err) {
                 console.error("[Binger] LLM request failed:", err);
-                answer = "Sorry, I couldn't process that request. Please try again.";
             }
 
             await postBotMessage(roomId, answer);
