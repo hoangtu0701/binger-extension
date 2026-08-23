@@ -59,9 +59,9 @@
 }
 
 .theme-midnight #bingerSoundboard.binger-soundboard {
-  background: rgba(4, 5, 14, 0.88);
-  border: 1px solid rgba(0, 229, 255, 0.12);
-  box-shadow: 0 4px 16px rgba(0, 160, 210, 0.2);
+  background: rgba(10, 7, 3, 0.9);
+  border: 1px solid rgba(93, 75, 55, 0.24);
+  box-shadow: 0 4px 16px rgba(53, 25, 4, 0.35);
 }
 
 .theme-sunset #bingerSoundboard.binger-soundboard {
@@ -115,7 +115,7 @@
 .theme-ocean .binger-divider { background: rgba(0, 180, 220, 0.15); }
 .theme-volcano .binger-divider { background: rgba(255, 100, 30, 0.15); }
 .theme-forest .binger-divider { background: rgba(100, 200, 100, 0.15); }
-.theme-midnight .binger-divider { background: rgba(0, 229, 255, 0.16); }
+.theme-midnight .binger-divider { background: rgba(93, 75, 55, 0.32); }
 .theme-sunset .binger-divider { background: rgba(255, 158, 74, 0.16); }
 .theme-arctic .binger-divider { background: rgba(207, 238, 255, 0.15); }
 .theme-royal .binger-divider { background: rgba(232, 194, 122, 0.15); }

@@ -103,7 +103,7 @@
 .theme-ocean .bingerTypingBubble { color: rgba(0, 200, 230, 0.5); }
 .theme-volcano .bingerTypingBubble { color: rgba(255, 120, 50, 0.5); }
 .theme-forest .bingerTypingBubble { color: rgba(160, 220, 120, 0.5); }
-.theme-midnight .bingerTypingBubble { color: rgba(0, 229, 255, 0.5); }
+.theme-midnight .bingerTypingBubble { color: rgba(199, 152, 104, 0.5); }
 .theme-sunset .bingerTypingBubble { color: rgba(255, 175, 110, 0.55); }
 .theme-arctic .bingerTypingBubble { color: rgba(207, 238, 255, 0.5); }
 .theme-royal .bingerTypingBubble { color: rgba(232, 194, 122, 0.52); }
@@ -289,28 +289,28 @@
 }
 
 .theme-midnight #bingerJoinBubble {
-  background: rgba(6, 8, 20, 0.95);
-  border-color: rgba(0, 229, 255, 0.18);
+  background: rgba(14, 10, 5, 0.96);
+  border-color: rgba(93, 75, 55, 0.32);
 }
 
 .theme-midnight #bingerJoinBubble::before {
-  background: rgba(6, 8, 20, 0.95);
-  border-left-color: rgba(0, 229, 255, 0.18);
-  border-top-color: rgba(0, 229, 255, 0.18);
+  background: rgba(14, 10, 5, 0.96);
+  border-left-color: rgba(93, 75, 55, 0.32);
+  border-top-color: rgba(93, 75, 55, 0.32);
 }
 
 .theme-midnight #bingerJoinBubbleInput {
-  color: #9ff2ff;
-  background: rgba(0, 229, 255, 0.08);
-  border-color: rgba(0, 229, 255, 0.22);
+  color: #e4cbaa;
+  background: rgba(199, 152, 104, 0.07);
+  border-color: rgba(93, 75, 55, 0.34);
 }
 
 .theme-midnight #bingerJoinBubbleInput:focus {
-  border-color: rgba(0, 229, 255, 0.5);
+  border-color: rgba(199, 152, 104, 0.5);
 }
 
 .theme-midnight #bingerJoinBubbleInput::placeholder {
-  color: rgba(0, 229, 255, 0.3);
+  color: rgba(199, 152, 104, 0.3);
 }
 
 .theme-sunset #bingerJoinBubble {
@@ -496,14 +496,14 @@
 }
 
 .theme-midnight #bingerMultiTabWarning {
-  background: linear-gradient(135deg, rgba(10, 16, 40, 0.94), rgba(6, 9, 26, 0.96));
-  border-color: rgba(0, 229, 255, 0.18);
-  color: #9ff2ff;
+  background: linear-gradient(135deg, rgba(42, 30, 14, 0.94), rgba(20, 14, 7, 0.96));
+  border-color: rgba(93, 75, 55, 0.32);
+  color: #e4cbaa;
 }
 
 .theme-midnight .multi-tab-icon {
-  background: rgba(0, 229, 255, 0.14);
-  color: rgba(90, 235, 255, 0.85);
+  background: rgba(199, 152, 104, 0.14);
+  color: rgba(226, 190, 148, 0.88);
 }
 
 .theme-sunset #bingerMultiTabWarning {
@@ -685,14 +685,14 @@
 }
 
 .theme-midnight #bingerNetworkWarning {
-  background: linear-gradient(135deg, rgba(10, 16, 40, 0.95), rgba(6, 9, 26, 0.96));
-  border-color: rgba(0, 229, 255, 0.18);
-  color: #9ff2ff;
+  background: linear-gradient(135deg, rgba(42, 30, 14, 0.95), rgba(20, 14, 7, 0.96));
+  border-color: rgba(93, 75, 55, 0.32);
+  color: #e4cbaa;
 }
 
 .theme-midnight .network-warning-icon {
-  background: rgba(255, 46, 136, 0.16);
-  color: rgba(255, 120, 180, 0.9);
+  background: rgba(214, 152, 74, 0.16);
+  color: rgba(238, 190, 120, 0.9);
 }
 
 .theme-sunset #bingerNetworkWarning {

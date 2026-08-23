@@ -136,21 +136,6 @@
   }
 }
 
-@keyframes neonScan {
-  0% { background-position: 0% 0%; opacity: 0.35; }
-  50% { background-position: 0% 100%; opacity: 0.7; }
-  100% { background-position: 0% 0%; opacity: 0.35; }
-}
-
-@keyframes neonFlicker {
-  0%, 100% { background-position: 0% 50%; opacity: 0.45; }
-  20% { opacity: 0.9; }
-  35% { opacity: 0.55; }
-  50% { background-position: 100% 50%; opacity: 1; }
-  65% { opacity: 0.6; }
-  80% { opacity: 0.95; }
-}
-
 @keyframes sunsetDrift {
   0% { background-position: 0% 100%; opacity: 0.45; }
   50% { background-position: 100% 0%; opacity: 0.8; }
@@ -197,4 +182,22 @@
 @keyframes headerBarBreathe {
   0%, 100% { opacity: 0.35; }
   50% { opacity: 0.9; }
+}
+
+
+@keyframes midnightFog {
+  0% { opacity: 1; background-size: 60% 200%; }
+  55% { opacity: 0.7; }
+  100% { opacity: 0; background-size: 220% 340%; }
+}
+
+@keyframes candleFlicker {
+  0%, 100% { filter: brightness(1); }
+  13% { filter: brightness(1.09); }
+  24% { filter: brightness(0.96); }
+  38% { filter: brightness(1.12); }
+  47% { filter: brightness(1.01); }
+  61% { filter: brightness(0.94); }
+  72% { filter: brightness(1.07); }
+  86% { filter: brightness(0.99); }
 }

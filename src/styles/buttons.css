@@ -259,29 +259,29 @@
 
 .theme-midnight #bingerCreateRoom,
 .theme-midnight #bingerJoinRoom {
-  background: rgba(0, 229, 255, 0.08);
-  color: #7fe9ff;
-  border: 1px solid rgba(0, 229, 255, 0.16);
+  background: rgba(199, 152, 104, 0.07);
+  color: #c79868;
+  border: 1px solid rgba(93, 75, 55, 0.3);
 }
 
 .theme-midnight #bingerCreateRoom:hover,
 .theme-midnight #bingerJoinRoom:hover {
-  background: rgba(0, 229, 255, 0.2);
-  border-color: rgba(0, 240, 255, 0.38);
+  background: rgba(199, 152, 104, 0.16);
+  border-color: rgba(199, 152, 104, 0.4);
   transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(0, 229, 255, 0.18);
+  box-shadow: 0 4px 16px rgba(199, 152, 104, 0.14);
 }
 
 .theme-midnight #bingerLeaveRoom {
-  color: rgba(255, 100, 165, 0.7);
-  border-color: rgba(255, 46, 136, 0.14);
-  background: rgba(255, 46, 136, 0.07);
+  color: rgba(212, 132, 108, 0.72);
+  border-color: rgba(150, 60, 44, 0.22);
+  background: rgba(150, 60, 44, 0.1);
 }
 
 .theme-midnight #bingerLeaveRoom:hover:enabled {
-  background: rgba(255, 46, 136, 0.2);
-  border-color: rgba(255, 80, 160, 0.4);
-  box-shadow: 0 4px 16px rgba(255, 46, 136, 0.18);
+  background: rgba(150, 60, 44, 0.26);
+  border-color: rgba(178, 78, 58, 0.4);
+  box-shadow: 0 4px 16px rgba(150, 60, 44, 0.18);
 }
 
 .theme-midnight #bingerLeaveRoom:disabled {
@@ -673,18 +673,20 @@
 
 .theme-midnight #watchTogetherBtn,
 .theme-midnight #cameraToggleBtn {
-  color: #6fe4ff;
-  background: rgba(0, 229, 255, 0.06);
-  border: 1px solid rgba(0, 229, 255, 0.11);
+  color: #c79868;
+  background: rgba(199, 152, 104, 0.05);
+  border: 1px solid rgba(93, 75, 55, 0.18);
 }
 
 .theme-midnight #watchTogetherBtn:enabled {
-  background: linear-gradient(135deg, rgba(0, 160, 210, 0.18), rgba(160, 30, 110, 0.22));
+  background: linear-gradient(135deg, rgba(120, 94, 64, 0.35), rgba(70, 44, 20, 0.4));
+  border-color: rgba(93, 75, 55, 0.3);
 }
 
 .theme-midnight #watchTogetherBtn:enabled:hover {
-  background: linear-gradient(135deg, rgba(0, 200, 255, 0.32), rgba(220, 40, 140, 0.36));
-  box-shadow: 0 4px 16px rgba(0, 200, 255, 0.2);
+  background: linear-gradient(135deg, rgba(150, 118, 80, 0.48), rgba(92, 58, 26, 0.52));
+  border-color: rgba(199, 152, 104, 0.38);
+  box-shadow: 0 4px 16px rgba(199, 152, 104, 0.16);
   transform: translateY(-1px);
 }
 
@@ -748,9 +750,9 @@
 .theme-royal #watchTogetherBtn:disabled { cursor: default; }
 
 .theme-midnight .binger-bottom-tooltip {
-  background: rgba(6, 8, 20, 0.95);
-  border-color: rgba(0, 229, 255, 0.22);
-  color: rgba(120, 235, 255, 0.75);
+  background: rgba(14, 10, 5, 0.96);
+  border-color: rgba(93, 75, 55, 0.3);
+  color: rgba(216, 176, 132, 0.78);
 }
 
 .theme-sunset .binger-bottom-tooltip {

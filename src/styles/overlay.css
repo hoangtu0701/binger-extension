@@ -85,11 +85,11 @@
 
 .theme-midnight #bingerOverlay {
   background:
-    radial-gradient(ellipse at 20% 0%, rgba(0, 229, 255, 0.10) 0%, transparent 55%),
-    radial-gradient(ellipse at 80% 100%, rgba(255, 46, 136, 0.09) 0%, transparent 50%),
-    linear-gradient(165deg, #05060f, #0b0d20, #05060f);
-  border: 1px solid rgba(74, 140, 175, 0.24);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.75), inset 0 0 70px rgba(0, 160, 200, 0.05);
+    radial-gradient(ellipse at 22% 0%, rgba(199, 152, 104, 0.07) 0%, transparent 55%),
+    radial-gradient(ellipse at 78% 100%, rgba(53, 25, 4, 0.5) 0%, transparent 55%),
+    linear-gradient(165deg, #0e0a04, #1c150a, #0e0a04);
+  border: 1px solid rgba(93, 75, 55, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7), inset 0 0 80px rgba(53, 25, 4, 0.18);
 }
 
 .theme-sunset #bingerOverlay {
@@ -204,23 +204,11 @@
 }
 
 .theme-midnight .bingerHeader {
-  background: linear-gradient(135deg, rgba(14, 18, 42, 0.9), rgba(8, 10, 26, 0.95));
-  color: #9ff2ff;
-  border: 1px solid rgba(74, 140, 175, 0.26);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), inset 0 -1px 0 rgba(0, 229, 255, 0.12);
-  text-shadow: 0 0 12px rgba(0, 229, 255, 0.35);
-}
-
-.theme-midnight .bingerHeader::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 24px;
-  right: 24px;
-  height: 2px;
-  border-radius: 2px;
-  background: linear-gradient(90deg, transparent, rgba(0, 229, 255, 0.55), rgba(255, 46, 136, 0.6), rgba(0, 229, 255, 0.55), transparent);
-  animation: headerBarBreathe 5s ease-in-out infinite;
+  background: linear-gradient(135deg, rgba(42, 30, 14, 0.92), rgba(20, 14, 7, 0.96));
+  color: #d9b892;
+  border: 1px solid rgba(93, 75, 55, 0.32);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(199, 152, 104, 0.08);
+  animation: candleFlicker 7s ease-in-out infinite;
 }
 
 .theme-sunset .bingerHeader {
@@ -273,8 +261,8 @@
 }
 
 .theme-midnight #bingerOverlay.in-session .bingerHeader {
-  background: linear-gradient(135deg, rgba(0, 120, 160, 0.5), rgba(90, 20, 70, 0.55));
-  color: #d8f8ff;
+  background: linear-gradient(135deg, rgba(64, 44, 20, 0.72), rgba(40, 26, 12, 0.8));
+  color: #e4cbaa;
 }
 
 .theme-sunset #bingerOverlay.in-session .bingerHeader {
@@ -430,11 +418,11 @@
 .theme-forest #bingerOverlay.binger-minimized #bingerMinimizeBar { background: rgba(100, 200, 100, 0.35); }
 
 .theme-midnight #bingerUsername {
-  background: rgba(0, 229, 255, 0.06);
-  border-color: rgba(0, 229, 255, 0.08);
+  background: rgba(199, 152, 104, 0.05);
+  border-color: rgba(93, 75, 55, 0.16);
 }
-.theme-midnight .binger-username-dot { background: rgba(0, 229, 255, 0.45); }
-.theme-midnight .binger-username-name { color: rgba(120, 240, 255, 0.7); }
+.theme-midnight .binger-username-dot { background: rgba(199, 152, 104, 0.42); }
+.theme-midnight .binger-username-name { color: rgba(216, 176, 132, 0.68); }
 
 .theme-sunset #bingerUsername {
   background: rgba(255, 158, 74, 0.07);
@@ -457,9 +445,9 @@
 .theme-royal .binger-username-dot { background: rgba(232, 194, 122, 0.45); }
 .theme-royal .binger-username-name { color: rgba(240, 210, 150, 0.7); }
 
-.theme-midnight #bingerMinimizeBar { background: rgba(0, 229, 255, 0.25); }
-.theme-midnight .bingerHeader:hover #bingerMinimizeBar { background: rgba(0, 229, 255, 0.5); }
-.theme-midnight #bingerOverlay.binger-minimized #bingerMinimizeBar { background: rgba(0, 229, 255, 0.42); }
+.theme-midnight #bingerMinimizeBar { background: rgba(93, 75, 55, 0.4); }
+.theme-midnight .bingerHeader:hover #bingerMinimizeBar { background: rgba(199, 152, 104, 0.5); }
+.theme-midnight #bingerOverlay.binger-minimized #bingerMinimizeBar { background: rgba(199, 152, 104, 0.42); }
 
 .theme-sunset #bingerMinimizeBar { background: rgba(255, 158, 74, 0.28); }
 .theme-sunset .bingerHeader:hover #bingerMinimizeBar { background: rgba(255, 158, 74, 0.5); }
