@@ -92,31 +92,40 @@
             return { success: false, error: `Failed to download subtitles: ${err.message}` };
         }
 
-        let srtContent;
+        let subtitleContent;
+        let isAss = false;
         try {
             const zip = await JSZip.loadAsync(zipBuffer);
 
-            let srtPromise = null;
+            let srtFile = null;
+            let assFile = null;
+
             zip.forEach((path, file) => {
-                if (!srtPromise && path.toLowerCase().endsWith(".srt")) {
-                    srtPromise = file.async("string");
+                const lowerPath = path.toLowerCase();
+                if (!srtFile && lowerPath.endsWith(".srt")) {
+                    srtFile = file;
+                } else if (!assFile && (lowerPath.endsWith(".ass") || lowerPath.endsWith(".ssa"))) {
+                    assFile = file;
                 }
             });
 
-            if (!srtPromise) {
-                return { success: false, error: "No SRT file found in subtitle ZIP" };
+            const chosenFile = srtFile || assFile;
+
+            if (!chosenFile) {
+                return { success: false, error: "No usable subtitle file found in ZIP" };
             }
 
-            srtContent = await srtPromise;
+            isAss = !srtFile;
+            subtitleContent = await chosenFile.async("string");
         } catch (err) {
             console.error("[Binger] ZIP extraction failed:", err);
             return { success: false, error: `Failed to extract subtitles: ${err.message}` };
         }
 
-        const entries = parseSrtContent(srtContent);
+        const entries = isAss ? parseAssContent(subtitleContent) : parseSrtContent(subtitleContent);
 
         if (entries.length === 0) {
-            return { success: false, error: "Failed to parse any subtitle entries from SRT" };
+            return { success: false, error: "Failed to parse any subtitle entries" };
         }
 
         return { success: true, entries };
@@ -154,6 +163,60 @@
         }
 
         return entries;
+    }
+
+    function parseAssContent(ass) {
+        const entries = [];
+        const lines = ass.split(/\r?\n/);
+
+        let startIndex = -1;
+        let endIndex = -1;
+        let textIndex = -1;
+
+        for (const line of lines) {
+            if (line.startsWith("Format:") && textIndex === -1) {
+                const fields = line.slice(7).split(",").map(f => f.trim().toLowerCase());
+                startIndex = fields.indexOf("start");
+                endIndex = fields.indexOf("end");
+                textIndex = fields.indexOf("text");
+                continue;
+            }
+
+            if (textIndex === -1 || !line.startsWith("Dialogue:")) continue;
+
+            const parts = line.slice(9).split(",");
+            if (parts.length <= textIndex) continue;
+
+            const start = parseAssTime(parts[startIndex]);
+            const end = parseAssTime(parts[endIndex]);
+            if (start === null || end === null) continue;
+
+            const text = parts.slice(textIndex).join(",")
+                .replace(/\{[^}]*\}/g, "")
+                .replace(/\\[Nnh]/g, " ")
+                .replace(/\s{2,}/g, " ")
+                .trim();
+
+            if (text) {
+                entries.push({ start, end, text });
+            }
+        }
+
+        return entries;
+    }
+
+    function parseAssTime(timeStr) {
+        if (!timeStr) return null;
+
+        const match = timeStr.trim().match(/^(\d+):(\d{2}):(\d{2})\.(\d{2})$/);
+        if (!match) return null;
+
+        return (
+            parseInt(match[1], 10) * 3600 +
+            parseInt(match[2], 10) * 60 +
+            parseInt(match[3], 10) +
+            parseInt(match[4], 10) / 100
+        );
     }
 
     async function buildMovieEmbeddings(movieTitle) {
