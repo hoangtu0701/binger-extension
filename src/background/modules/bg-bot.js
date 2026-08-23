@@ -7,6 +7,8 @@
     const LLM_TIMEOUT_MS = 30000;
     const EMBED_TIMEOUT_MS = 15000;
 
+    const CHAT_MODEL = "x-ai/grok-4.3";
+
     const BOT_ERROR_MESSAGE = "Hmm, something went wrong. Try me again in a sec.";
 
     function validateDependencies() {
@@ -145,51 +147,6 @@
         return { cleanDesc, numerator, denominator };
     }
 
-    async function needsWebSearch(userPrompt, lastMsgs) {
-        try {
-            const response = await fetchWithTimeout(
-                "https://binger-extension.vercel.app/api/openrouter",
-                {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        model: "meta-llama/llama-3.2-3b-instruct",
-                        temperature: 0,
-                        max_tokens: 3,
-                        messages: [
-                            {
-                                role: "system",
-                                content: [
-                                    "You are a classifier. Your ONLY job is to decide whether a question requires up-to-date web information about a movie or TV series to answer properly.",
-                                    "",
-                                    "This message is being sent from a user to Binger Bot, a concise movie expert bot that can chat casually, answer movie questions, and seek to specific scenes in a movie when asked. Your job is ONLY to decide if Binger needs live web search to answer this message.",
-                                    "",
-                                    "Reply YES if the question directly involves knowledge of a movie or series and needs current/factual info (cast, plot, ratings, release dates, reviews) OR if the user wants to.",
-                                    "",
-                                    "Reply NO for everything else: casual chat, greetings, jokes, personal questions, scene-seeking requests, general knowledge, or anything not about specific movies/series.",
-                                    "",
-                                    "Recent chat for context:",
-                                    lastMsgs && lastMsgs.length > 0 ? lastMsgs.join(" | ") : "No recent messages",
-                                    "",
-                                    "Reply with ONLY YES or NO. Nothing else."
-                                ].join("\n")
-                            },
-                            { role: "user", content: userPrompt }
-                        ]
-                    })
-                },
-                LLM_TIMEOUT_MS
-            );
-
-            const data = await response.json();
-            const reply = (data?.choices?.[0]?.message?.content || "").trim().toUpperCase();
-            return reply.startsWith("YES");
-        } catch (err) {
-            console.warn("[Binger] Web search decision failed, defaulting to offline:", err);
-            return false;
-        }
-    }
-
     async function handleBotQuery(msg, sendResponse) {
         if (!validateDependencies()) {
             BingerBGHelpers.safeSendResponse(sendResponse, { error: "missing-dependencies" });
@@ -234,11 +191,6 @@
 
             const { systemMessage, temp } = buildSystemMessage(msg.movieContext, userNames, inSession, lastMsgs);
 
-            const useOnline = await needsWebSearch(msg.prompt, lastMsgs);
-            const chatModel = useOnline
-                ? "x-ai/grok-4.1-fast:online"
-                : "x-ai/grok-4.1-fast";
-
             let answer = BOT_ERROR_MESSAGE;
             try {
                 const response = await fetchWithTimeout(
@@ -247,10 +199,11 @@
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
-                            model: chatModel,
+                            model: CHAT_MODEL,
                             temperature: temp,
                             max_tokens: 80,
                             reasoning: { effort: "none" },
+                            tools: [{ type: "openrouter:web_search" }],
                             messages: [
                                 systemMessage,
                                 { role: "user", content: msg.prompt }
