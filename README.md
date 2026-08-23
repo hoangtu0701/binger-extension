@@ -26,10 +26,10 @@ A Chrome extension that turns your favorite movie streaming site into a synchron
 | Extension | Chrome Extension Manifest V3 |
 | Real-time Sync | Firebase Realtime Database |
 | Auth | Firebase Authentication |
-| Video Calls | WebRTC with STUN/TURN (Google, ExpressTurn, Xirsys) |
-| AI Chat | Grok 4.1 Fast (via OpenRouter) |
-| Scene Seeking | text-embedding-3-large embeddings (via OpenAI) + SubDL subtitles |
-| Decision Routing | Llama 3.2 3B Instruct (via OpenRouter) |
+| Video Calls | WebRTC with STUN/TURN (Google STUN, Xirsys STUN, ExpressTurn TURN) |
+| AI Chat | Grok 4.3 (via OpenRouter) with structured JSON output |
+| Web Search | openrouter:web_search server tool (model-decided) |
+| Scene Seeking | text-embedding-3-large embeddings (via OpenAI) + SubDL subtitles (SRT/ASS/SSA) |
 | API Proxies | Vercel Serverless Functions |
 
 ---
@@ -55,7 +55,7 @@ src/
     bg-soundboard.js          Sound/visual/pin effects
     bg-theme.js               Theme synchronization
     bg-subtitles.js           Subtitle fetching + chunk rewriting + embedding generation
-    bg-bot.js                 AI chatbot + web search routing + scene seeking
+    bg-bot.js                 AI chatbot + structured response parsing + scene seeking
     bg-tab-monitor.js         Multi-tab detection
     bg-connection.js          Port management + keep-alive + cleanup on disconnect
     bg-message-router.js      Routes 50+ commands to handlers
@@ -311,7 +311,6 @@ call_app/
 |------|--------|
 | STUN | Google (stun.l.google.com) |
 | TURN | ExpressTurn relay |
-| TURN | Xirsys (UDP/TCP/TLS) |
 
 ### Connection Flow
 
@@ -422,8 +421,6 @@ Every bot query goes through a routing system that minimizes cost:
 
 | Property | Value |
 |----------|-------|
-| Model | `meta-llama/llama-3.2-3b-instruct` via OpenRouter |
-| Purpose | Classify whether the query needs live web search. Aware that the downstream bot (Binger) handles casual chat, movie questions, and scene seeking without web search. |
 | Input | User prompt + last 10 chat messages for context |
 | Output | YES or NO |
 | Temperature | 0 |
@@ -435,9 +432,7 @@ Replies YES if the question involves a specific movie/series and needs current f
 
 | Condition | Model | Features |
 |-----------|-------|----------|
-| Web search needed | `x-ai/grok-4.1-fast:online` via OpenRouter | Native xAI web + X search |
-| No web search | `x-ai/grok-4.1-fast` via OpenRouter | Offline response |
-
+| All queries | `x-ai/grok-4.3` via OpenRouter | Model decides when to search via openrouter:web_search server tool |
 | Property | Value |
 |----------|-------|
 | Temperature | 0.75 (in session) / 0.85 (outside session) |
@@ -445,16 +440,16 @@ Replies YES if the question involves a specific movie/series and needs current f
 | Reasoning | Disabled |
 | Response style | 2-3 concise sentences, casual tone |
 
-Web search citations are stripped from responses before posting to chat.
+Citations, markdown, and em dashes are stripped from the reply field before posting to chat.
 
 ### Scene Seeking
 
-Triggered when the bot reply contains `Seeking to the scene where...`
+Triggered when the bot's structured JSON response contains a non-null `seek` field.
 
-1. Extract scene description and optional timing fraction
+1. Read scene description from the `seek` field and optional timing from the `fraction` field
 2. Fetch subtitles from SubDL API (filters by year, prefers BluRay sources)
 3. Group subtitles into 60-second chunks
-4. Rewrite chunks with `x-ai/grok-4.1-fast` into concise descriptions
+4. Rewrite chunks with `x-ai/grok-4.3` into concise descriptions
 5. Generate embeddings with `text-embedding-3-large`
 6. Cache embeddings per movie (keyed by name + year)
 7. Embed user's scene description
