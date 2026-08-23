@@ -33,7 +33,7 @@
             document.body.classList.remove(cls);
         });
 
-        document.querySelectorAll(".leaf, .binger-fog").forEach((el) => el.remove());
+        document.querySelectorAll(".leaf, .binger-fog, .binger-frost").forEach((el) => el.remove());
 
         if (currentTheme !== DEFAULT_THEME) {
             document.body.classList.add(`theme-${currentTheme}`);
@@ -144,6 +144,8 @@
                     spawnForestLeaves(msgEl);
                 } else if (theme === "midnight") {
                     spawnMidnightFog(msgEl);
+                } else if (theme === "arctic") {
+                    spawnArcticFrost(msgEl);
                 }
             })
             .catch((err) => {
@@ -201,7 +203,13 @@
             { seed: 19, freq: "0.009 0.026", octaves: 3, scale: 54 },
             { seed: 27, freq: "0.016 0.019", octaves: 4, scale: 34 },
             { seed: 41, freq: "0.012 0.023", octaves: 3, scale: 49 },
-            { seed: 58, freq: "0.018 0.015", octaves: 5, scale: 30 }
+            { seed: 58, freq: "0.018 0.015", octaves: 5, scale: 30 },
+            { seed: 5, freq: "0.09 0.05", octaves: 4, scale: 16 },
+            { seed: 23, freq: "0.11 0.04", octaves: 5, scale: 13 },
+            { seed: 37, freq: "0.07 0.06", octaves: 4, scale: 19 },
+            { seed: 61, freq: "0.13 0.045", octaves: 5, scale: 11 },
+            { seed: 83, freq: "0.08 0.055", octaves: 4, scale: 17 },
+            { seed: 97, freq: "0.1 0.038", octaves: 6, scale: 14 }
         ];
 
         variants.forEach((v, i) => {
@@ -295,6 +303,64 @@
         setTimeout(() => {
             msgEl.querySelectorAll(".binger-fog").forEach((el) => el.remove());
         }, longest);
+    }
+
+    function spawnArcticFrost(msgEl) {
+        ensureFogFilters();
+
+        const total = 7 + Math.floor(Math.random() * 6);
+
+        for (let i = 0; i < total; i++) {
+            const shard = document.createElement("span");
+            shard.className = "binger-frost";
+
+            const edge = Math.floor(Math.random() * 4);
+            const along = 4 + Math.random() * 92;
+
+            let x;
+            let y;
+            let aim;
+
+            if (edge === 0) {
+                x = along; y = 0; aim = 180;
+            } else if (edge === 1) {
+                x = 100; y = along; aim = 270;
+            } else if (edge === 2) {
+                x = along; y = 100; aim = 0;
+            } else {
+                x = 0; y = along; aim = 90;
+            }
+
+            const rot = aim + (Math.random() - 0.5) * 96;
+            const w = 5 + Math.random() * 11;
+            const h = w * (2.4 + Math.random() * 3.6);
+            const grow = 0.62 + Math.random() * 0.62;
+            const dur = 0.7 + Math.random() * 1.1;
+            const delay = Math.random() * 0.85;
+            const alpha = 0.2 + Math.random() * 0.3;
+            const blur = 0.3 + Math.random() * 0.7;
+            const variant = 6 + Math.floor(Math.random() * 6);
+
+            shard.style.left = x + "%";
+            shard.style.top = y + "%";
+            shard.style.width = w + "%";
+            shard.style.height = h + "%";
+            shard.style.filter = `url(#bingerFog${variant}) blur(${blur}px)`;
+
+            shard.style.setProperty("--kr", rot + "deg");
+            shard.style.setProperty("--ks", grow);
+            shard.style.setProperty("--ka", alpha);
+            shard.style.setProperty("--kdur", dur + "s");
+            shard.style.setProperty("--kdelay", delay + "s");
+
+            msgEl.appendChild(shard);
+        }
+
+        setTimeout(() => {
+            msgEl.querySelectorAll(".binger-frost").forEach((el) => {
+                el.style.willChange = "auto";
+            });
+        }, 2400);
     }
 
     function initTheme() {
