@@ -56,6 +56,22 @@
   background: rgba(160, 240, 120, 0.6);
 }
 
+.theme-midnight .binge-invite-progress {
+  background: rgba(120, 240, 255, 0.7);
+}
+
+.theme-sunset .binge-invite-progress {
+  background: rgba(255, 200, 140, 0.7);
+}
+
+.theme-arctic .binge-invite-progress {
+  background: rgba(225, 245, 255, 0.65);
+}
+
+.theme-royal .binge-invite-progress {
+  background: rgba(250, 220, 160, 0.7);
+}
+
 #watchTogetherBtn.binge-invitee-accepted {
   background: rgba(255, 255, 255, 0.06) !important;
   color: rgba(255, 255, 255, 0.3) !important;
@@ -210,6 +226,126 @@
 .theme-forest #watchTogetherBtn.binge-invitee-accepted {
   background: rgba(10, 25, 8, 0.5) !important;
   color: rgba(100, 200, 100, 0.3) !important;
+  box-shadow: none !important;
+  cursor: default !important;
+  pointer-events: none !important;
+}
+
+.theme-midnight #watchTogetherBtn.binge-inviter-active {
+  background: linear-gradient(135deg, rgba(200, 30, 110, 0.45), rgba(160, 20, 90, 0.55)) !important;
+  color: #ffd0e6 !important;
+  border: 1px solid rgba(255, 46, 136, 0.28) !important;
+}
+
+.theme-midnight #watchTogetherBtn.binge-inviter-active:hover {
+  background: linear-gradient(135deg, rgba(230, 40, 130, 0.55), rgba(190, 25, 105, 0.65)) !important;
+  box-shadow: 0 4px 16px rgba(255, 46, 136, 0.28) !important;
+}
+
+.theme-midnight #watchTogetherBtn.binge-invitee-active {
+  background: linear-gradient(135deg, rgba(0, 130, 175, 0.35), rgba(0, 95, 135, 0.45)) !important;
+  color: #9ff2ff !important;
+  border: 1px solid rgba(0, 229, 255, 0.22) !important;
+}
+
+.theme-midnight #watchTogetherBtn.binge-invitee-active:hover {
+  background: linear-gradient(135deg, rgba(0, 170, 220, 0.45), rgba(0, 125, 175, 0.55)) !important;
+  box-shadow: 0 4px 16px rgba(0, 200, 255, 0.25) !important;
+}
+
+.theme-midnight #watchTogetherBtn.binge-invitee-accepted {
+  background: rgba(5, 10, 24, 0.55) !important;
+  color: rgba(0, 229, 255, 0.3) !important;
+  box-shadow: none !important;
+  cursor: default !important;
+  pointer-events: none !important;
+}
+
+.theme-sunset #watchTogetherBtn.binge-inviter-active {
+  background: linear-gradient(135deg, rgba(200, 60, 90, 0.45), rgba(160, 42, 70, 0.55)) !important;
+  color: #ffd6dc !important;
+  border: 1px solid rgba(255, 107, 138, 0.28) !important;
+}
+
+.theme-sunset #watchTogetherBtn.binge-inviter-active:hover {
+  background: linear-gradient(135deg, rgba(230, 75, 108, 0.55), rgba(185, 50, 82, 0.65)) !important;
+  box-shadow: 0 4px 16px rgba(255, 107, 138, 0.28) !important;
+}
+
+.theme-sunset #watchTogetherBtn.binge-invitee-active {
+  background: linear-gradient(135deg, rgba(215, 110, 52, 0.38), rgba(170, 82, 38, 0.48)) !important;
+  color: #ffe8d0 !important;
+  border: 1px solid rgba(255, 158, 74, 0.24) !important;
+}
+
+.theme-sunset #watchTogetherBtn.binge-invitee-active:hover {
+  background: linear-gradient(135deg, rgba(245, 135, 65, 0.48), rgba(200, 100, 48, 0.58)) !important;
+  box-shadow: 0 4px 16px rgba(255, 140, 70, 0.26) !important;
+}
+
+.theme-sunset #watchTogetherBtn.binge-invitee-accepted {
+  background: rgba(26, 10, 26, 0.55) !important;
+  color: rgba(255, 158, 74, 0.3) !important;
+  box-shadow: none !important;
+  cursor: default !important;
+  pointer-events: none !important;
+}
+
+.theme-arctic #watchTogetherBtn.binge-inviter-active {
+  background: linear-gradient(135deg, rgba(150, 60, 80, 0.42), rgba(115, 42, 60, 0.52)) !important;
+  color: #ffd8e0 !important;
+  border: 1px solid rgba(220, 130, 155, 0.26) !important;
+}
+
+.theme-arctic #watchTogetherBtn.binge-inviter-active:hover {
+  background: linear-gradient(135deg, rgba(180, 75, 98, 0.52), rgba(140, 52, 72, 0.62)) !important;
+  box-shadow: 0 4px 16px rgba(200, 90, 115, 0.25) !important;
+}
+
+.theme-arctic #watchTogetherBtn.binge-invitee-active {
+  background: linear-gradient(135deg, rgba(120, 175, 215, 0.32), rgba(80, 130, 172, 0.42)) !important;
+  color: #eaf7ff !important;
+  border: 1px solid rgba(207, 238, 255, 0.24) !important;
+}
+
+.theme-arctic #watchTogetherBtn.binge-invitee-active:hover {
+  background: linear-gradient(135deg, rgba(155, 205, 240, 0.42), rgba(105, 160, 200, 0.52)) !important;
+  box-shadow: 0 4px 16px rgba(180, 225, 250, 0.24) !important;
+}
+
+.theme-arctic #watchTogetherBtn.binge-invitee-accepted {
+  background: rgba(8, 18, 28, 0.55) !important;
+  color: rgba(207, 238, 255, 0.3) !important;
+  box-shadow: none !important;
+  cursor: default !important;
+  pointer-events: none !important;
+}
+
+.theme-royal #watchTogetherBtn.binge-inviter-active {
+  background: linear-gradient(135deg, rgba(150, 45, 70, 0.45), rgba(115, 30, 52, 0.55)) !important;
+  color: #ffd4dc !important;
+  border: 1px solid rgba(215, 105, 130, 0.28) !important;
+}
+
+.theme-royal #watchTogetherBtn.binge-inviter-active:hover {
+  background: linear-gradient(135deg, rgba(182, 58, 88, 0.55), rgba(140, 38, 64, 0.65)) !important;
+  box-shadow: 0 4px 16px rgba(200, 70, 100, 0.26) !important;
+}
+
+.theme-royal #watchTogetherBtn.binge-invitee-active {
+  background: linear-gradient(135deg, rgba(120, 72, 185, 0.38), rgba(88, 48, 140, 0.48)) !important;
+  color: #f0dcae !important;
+  border: 1px solid rgba(232, 194, 122, 0.24) !important;
+}
+
+.theme-royal #watchTogetherBtn.binge-invitee-active:hover {
+  background: linear-gradient(135deg, rgba(150, 95, 215, 0.48), rgba(110, 62, 175, 0.58)) !important;
+  box-shadow: 0 4px 16px rgba(166, 120, 224, 0.28) !important;
+}
+
+.theme-royal #watchTogetherBtn.binge-invitee-accepted {
+  background: rgba(17, 8, 28, 0.55) !important;
+  color: rgba(232, 194, 122, 0.3) !important;
   box-shadow: none !important;
   cursor: default !important;
   pointer-events: none !important;

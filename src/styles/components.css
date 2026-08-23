@@ -103,6 +103,10 @@
 .theme-ocean .bingerTypingBubble { color: rgba(0, 200, 230, 0.5); }
 .theme-volcano .bingerTypingBubble { color: rgba(255, 120, 50, 0.5); }
 .theme-forest .bingerTypingBubble { color: rgba(160, 220, 120, 0.5); }
+.theme-midnight .bingerTypingBubble { color: rgba(0, 229, 255, 0.5); }
+.theme-sunset .bingerTypingBubble { color: rgba(255, 175, 110, 0.55); }
+.theme-arctic .bingerTypingBubble { color: rgba(207, 238, 255, 0.5); }
+.theme-royal .bingerTypingBubble { color: rgba(232, 194, 122, 0.52); }
 
 #bingerJoinBubble {
   display: none;
@@ -284,6 +288,106 @@
   color: rgba(100, 200, 100, 0.3);
 }
 
+.theme-midnight #bingerJoinBubble {
+  background: rgba(6, 8, 20, 0.95);
+  border-color: rgba(0, 229, 255, 0.18);
+}
+
+.theme-midnight #bingerJoinBubble::before {
+  background: rgba(6, 8, 20, 0.95);
+  border-left-color: rgba(0, 229, 255, 0.18);
+  border-top-color: rgba(0, 229, 255, 0.18);
+}
+
+.theme-midnight #bingerJoinBubbleInput {
+  color: #9ff2ff;
+  background: rgba(0, 229, 255, 0.08);
+  border-color: rgba(0, 229, 255, 0.22);
+}
+
+.theme-midnight #bingerJoinBubbleInput:focus {
+  border-color: rgba(0, 229, 255, 0.5);
+}
+
+.theme-midnight #bingerJoinBubbleInput::placeholder {
+  color: rgba(0, 229, 255, 0.3);
+}
+
+.theme-sunset #bingerJoinBubble {
+  background: rgba(32, 12, 30, 0.95);
+  border-color: rgba(255, 158, 74, 0.2);
+}
+
+.theme-sunset #bingerJoinBubble::before {
+  background: rgba(32, 12, 30, 0.95);
+  border-left-color: rgba(255, 158, 74, 0.2);
+  border-top-color: rgba(255, 158, 74, 0.2);
+}
+
+.theme-sunset #bingerJoinBubbleInput {
+  color: #ffe8d0;
+  background: rgba(255, 158, 74, 0.09);
+  border-color: rgba(255, 158, 74, 0.24);
+}
+
+.theme-sunset #bingerJoinBubbleInput:focus {
+  border-color: rgba(255, 158, 74, 0.5);
+}
+
+.theme-sunset #bingerJoinBubbleInput::placeholder {
+  color: rgba(255, 158, 74, 0.32);
+}
+
+.theme-arctic #bingerJoinBubble {
+  background: rgba(10, 20, 30, 0.95);
+  border-color: rgba(207, 238, 255, 0.18);
+}
+
+.theme-arctic #bingerJoinBubble::before {
+  background: rgba(10, 20, 30, 0.95);
+  border-left-color: rgba(207, 238, 255, 0.18);
+  border-top-color: rgba(207, 238, 255, 0.18);
+}
+
+.theme-arctic #bingerJoinBubbleInput {
+  color: #dff2ff;
+  background: rgba(207, 238, 255, 0.08);
+  border-color: rgba(207, 238, 255, 0.22);
+}
+
+.theme-arctic #bingerJoinBubbleInput:focus {
+  border-color: rgba(207, 238, 255, 0.5);
+}
+
+.theme-arctic #bingerJoinBubbleInput::placeholder {
+  color: rgba(207, 238, 255, 0.3);
+}
+
+.theme-royal #bingerJoinBubble {
+  background: rgba(20, 10, 32, 0.95);
+  border-color: rgba(232, 194, 122, 0.2);
+}
+
+.theme-royal #bingerJoinBubble::before {
+  background: rgba(20, 10, 32, 0.95);
+  border-left-color: rgba(232, 194, 122, 0.2);
+  border-top-color: rgba(232, 194, 122, 0.2);
+}
+
+.theme-royal #bingerJoinBubbleInput {
+  color: #f0dcae;
+  background: rgba(232, 194, 122, 0.08);
+  border-color: rgba(232, 194, 122, 0.24);
+}
+
+.theme-royal #bingerJoinBubbleInput:focus {
+  border-color: rgba(232, 194, 122, 0.5);
+}
+
+.theme-royal #bingerJoinBubbleInput::placeholder {
+  color: rgba(232, 194, 122, 0.32);
+}
+
 #bingerMultiTabWarning {
   position: fixed;
   top: 0;
@@ -389,6 +493,50 @@
 .theme-forest .multi-tab-icon {
   background: rgba(100, 200, 100, 0.12);
   color: rgba(140, 220, 100, 0.8);
+}
+
+.theme-midnight #bingerMultiTabWarning {
+  background: linear-gradient(135deg, rgba(10, 16, 40, 0.94), rgba(6, 9, 26, 0.96));
+  border-color: rgba(0, 229, 255, 0.18);
+  color: #9ff2ff;
+}
+
+.theme-midnight .multi-tab-icon {
+  background: rgba(0, 229, 255, 0.14);
+  color: rgba(90, 235, 255, 0.85);
+}
+
+.theme-sunset #bingerMultiTabWarning {
+  background: linear-gradient(135deg, rgba(150, 62, 58, 0.94), rgba(90, 30, 52, 0.96));
+  border-color: rgba(255, 158, 74, 0.2);
+  color: #ffe8d0;
+}
+
+.theme-sunset .multi-tab-icon {
+  background: rgba(255, 158, 74, 0.16);
+  color: rgba(255, 200, 140, 0.88);
+}
+
+.theme-arctic #bingerMultiTabWarning {
+  background: linear-gradient(135deg, rgba(30, 56, 78, 0.94), rgba(16, 32, 48, 0.96));
+  border-color: rgba(207, 238, 255, 0.2);
+  color: #dff2ff;
+}
+
+.theme-arctic .multi-tab-icon {
+  background: rgba(207, 238, 255, 0.14);
+  color: rgba(225, 245, 255, 0.88);
+}
+
+.theme-royal #bingerMultiTabWarning {
+  background: linear-gradient(135deg, rgba(52, 24, 82, 0.94), rgba(30, 13, 48, 0.96));
+  border-color: rgba(232, 194, 122, 0.2);
+  color: #f0dcae;
+}
+
+.theme-royal .multi-tab-icon {
+  background: rgba(232, 194, 122, 0.15);
+  color: rgba(245, 215, 155, 0.88);
 }
 
 #bingerNetworkWarning {
@@ -534,4 +682,48 @@
 .theme-forest .network-warning-icon {
   background: rgba(100, 200, 100, 0.12);
   color: rgba(140, 220, 100, 0.8);
+}
+
+.theme-midnight #bingerNetworkWarning {
+  background: linear-gradient(135deg, rgba(10, 16, 40, 0.95), rgba(6, 9, 26, 0.96));
+  border-color: rgba(0, 229, 255, 0.18);
+  color: #9ff2ff;
+}
+
+.theme-midnight .network-warning-icon {
+  background: rgba(255, 46, 136, 0.16);
+  color: rgba(255, 120, 180, 0.9);
+}
+
+.theme-sunset #bingerNetworkWarning {
+  background: linear-gradient(135deg, rgba(150, 62, 58, 0.95), rgba(90, 30, 52, 0.96));
+  border-color: rgba(255, 158, 74, 0.2);
+  color: #ffe8d0;
+}
+
+.theme-sunset .network-warning-icon {
+  background: rgba(255, 200, 120, 0.16);
+  color: rgba(255, 215, 160, 0.9);
+}
+
+.theme-arctic #bingerNetworkWarning {
+  background: linear-gradient(135deg, rgba(30, 56, 78, 0.95), rgba(16, 32, 48, 0.96));
+  border-color: rgba(207, 238, 255, 0.2);
+  color: #dff2ff;
+}
+
+.theme-arctic .network-warning-icon {
+  background: rgba(255, 210, 130, 0.14);
+  color: rgba(255, 220, 150, 0.88);
+}
+
+.theme-royal #bingerNetworkWarning {
+  background: linear-gradient(135deg, rgba(52, 24, 82, 0.95), rgba(30, 13, 48, 0.96));
+  border-color: rgba(232, 194, 122, 0.2);
+  color: #f0dcae;
+}
+
+.theme-royal .network-warning-icon {
+  background: rgba(232, 194, 122, 0.16);
+  color: rgba(250, 220, 160, 0.9);
 }

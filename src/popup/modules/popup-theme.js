@@ -1,6 +1,9 @@
 import { setStorageSync, getStorageSync } from "../utils/popup-helpers.js";
 
-const THEMES = ["burgundy", "pink", "blackwhite", "ocean", "volcano", "forest"];
+const THEMES = [
+    "burgundy", "pink", "blackwhite", "ocean", "volcano", "forest",
+    "midnight", "sunset", "arctic", "royal"
+];
 const DEFAULT_THEME = "burgundy";
 
 function highlightActiveDot(themeName) {

@@ -135,3 +135,66 @@
     transform: translateX(-50%) translateY(0);
   }
 }
+
+@keyframes neonScan {
+  0% { background-position: 0% 0%; opacity: 0.35; }
+  50% { background-position: 0% 100%; opacity: 0.7; }
+  100% { background-position: 0% 0%; opacity: 0.35; }
+}
+
+@keyframes neonFlicker {
+  0%, 100% { background-position: 0% 50%; opacity: 0.45; }
+  20% { opacity: 0.9; }
+  35% { opacity: 0.55; }
+  50% { background-position: 100% 50%; opacity: 1; }
+  65% { opacity: 0.6; }
+  80% { opacity: 0.95; }
+}
+
+@keyframes sunsetDrift {
+  0% { background-position: 0% 100%; opacity: 0.45; }
+  50% { background-position: 100% 0%; opacity: 0.8; }
+  100% { background-position: 0% 100%; opacity: 0.45; }
+}
+
+@keyframes sunsetHorizon {
+  0% { background-position: 0% 100%, 100% 0%, 0% 0%; }
+  50% { background-position: 60% 40%, 40% 60%, 0% 100%; }
+  100% { background-position: 0% 100%, 100% 0%, 0% 0%; }
+}
+
+@keyframes frostShimmer {
+  0% { background-position: 0% 50%; opacity: 0.3; }
+  50% { background-position: 100% 50%; opacity: 0.65; }
+  100% { background-position: 0% 50%; opacity: 0.3; }
+}
+
+@keyframes frostGlow {
+  0% {
+    box-shadow:
+      0 0 20px rgba(160, 215, 245, 0.12),
+      0 0 40px rgba(200, 235, 255, 0.08) inset;
+  }
+  100% {
+    box-shadow:
+      0 0 35px rgba(190, 230, 255, 0.22),
+      0 0 80px rgba(220, 245, 255, 0.13) inset;
+  }
+}
+
+@keyframes velvetSheen {
+  0% { background-position: 0% 50%; opacity: 0.4; }
+  50% { background-position: 100% 50%; opacity: 0.75; }
+  100% { background-position: 0% 50%; opacity: 0.4; }
+}
+
+@keyframes goldSheen {
+  0% { background-position: 0% 0%; opacity: 0.5; }
+  50% { opacity: 0.95; }
+  100% { background-position: 100% 0%; opacity: 0.5; }
+}
+
+@keyframes headerBarBreathe {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.9; }
+}

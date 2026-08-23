@@ -58,6 +58,30 @@
   box-shadow: 0 4px 16px rgba(60, 140, 60, 0.15);
 }
 
+.theme-midnight #bingerSoundboard.binger-soundboard {
+  background: rgba(4, 5, 14, 0.88);
+  border: 1px solid rgba(0, 229, 255, 0.12);
+  box-shadow: 0 4px 16px rgba(0, 160, 210, 0.2);
+}
+
+.theme-sunset #bingerSoundboard.binger-soundboard {
+  background: rgba(26, 10, 26, 0.87);
+  border: 1px solid rgba(255, 158, 74, 0.14);
+  box-shadow: 0 4px 16px rgba(200, 90, 50, 0.2);
+}
+
+.theme-arctic #bingerSoundboard.binger-soundboard {
+  background: rgba(7, 16, 26, 0.86);
+  border: 1px solid rgba(207, 238, 255, 0.13);
+  box-shadow: 0 4px 16px rgba(120, 180, 220, 0.18);
+}
+
+.theme-royal #bingerSoundboard.binger-soundboard {
+  background: rgba(16, 7, 27, 0.87);
+  border: 1px solid rgba(232, 194, 122, 0.13);
+  box-shadow: 0 4px 16px rgba(120, 70, 180, 0.2);
+}
+
 .binger-sound-section {
   display: grid;
   grid-template-rows: repeat(5, 50px);
@@ -91,6 +115,10 @@
 .theme-ocean .binger-divider { background: rgba(0, 180, 220, 0.15); }
 .theme-volcano .binger-divider { background: rgba(255, 100, 30, 0.15); }
 .theme-forest .binger-divider { background: rgba(100, 200, 100, 0.15); }
+.theme-midnight .binger-divider { background: rgba(0, 229, 255, 0.16); }
+.theme-sunset .binger-divider { background: rgba(255, 158, 74, 0.16); }
+.theme-arctic .binger-divider { background: rgba(207, 238, 255, 0.15); }
+.theme-royal .binger-divider { background: rgba(232, 194, 122, 0.15); }
 
 .binger-sound-btn,
 .binger-visual-btn {

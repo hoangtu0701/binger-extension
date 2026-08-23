@@ -1,14 +1,21 @@
 (function() {
     "use strict";
 
-    const VALID_THEMES = ["burgundy", "pink", "blackwhite", "ocean", "volcano", "forest"];
+    const VALID_THEMES = [
+        "burgundy", "pink", "blackwhite", "ocean", "volcano", "forest",
+        "midnight", "sunset", "arctic", "royal"
+    ];
 
     const THEME_CLASSES = [
         "theme-pink",
         "theme-blackwhite",
         "theme-ocean",
         "theme-volcano",
-        "theme-forest"
+        "theme-forest",
+        "theme-midnight",
+        "theme-sunset",
+        "theme-arctic",
+        "theme-royal"
     ];
 
     const DEFAULT_THEME = "burgundy";
