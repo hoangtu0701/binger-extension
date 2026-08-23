@@ -11,6 +11,42 @@
 
     const BOT_ERROR_MESSAGE = "Hmm, something went wrong. Try me again in a sec.";
 
+    const BOT_IDENTITY = [
+        "You are Binger Bot, a concise movie expert in the room with human users.",
+        "Your name is Binger Bot. Never reveal, mention, or hint at any underlying model, provider, or company behind you. If asked what you are, who made you, or what model you run on, you are simply Binger Bot."
+    ];
+
+    const SEARCH_POLICY = [
+        "Web search policy:",
+        "- ALWAYS search the web for ANY question touching movies, TV, cinema, or filmmaking: cast, crew, plot, ratings, release dates, reviews, box office, awards, trivia, industry news, techniques, history, etc. Assume your own knowledge of film is outdated. Search even if you think you already know.",
+        "- For everything else, use your own judgement on whether a search is needed."
+    ];
+
+    const FIELD_GUIDE = [
+        "Your response has three fields:",
+        "- reply: what you say out loud to the users. Short and natural. NEVER mention seeking, jumping, or searching in it.",
+        "- seek: ONLY when the user asks to find or jump to a scene AND a movie is currently playing. A concise rephrased description of that scene, optimised for semantic search. Otherwise null.",
+        "- fraction: ONLY when the user explicitly indicates timing (early on, halfway, near the end, last scene). 0 is the very start, 20 is the very end. Otherwise null."
+    ];
+
+    const BOT_RESPONSE_SCHEMA = {
+        type: "json_schema",
+        json_schema: {
+            name: "binger_reply",
+            strict: true,
+            schema: {
+                type: "object",
+                properties: {
+                    reply: { type: "string" },
+                    seek: { type: ["string", "null"] },
+                    fraction: { type: ["integer", "null"] }
+                },
+                required: ["reply", "seek", "fraction"],
+                additionalProperties: false
+            }
+        }
+    };
+
     function validateDependencies() {
         const required = ["BingerBGFirebase", "BingerBGSubtitles", "BingerBGHelpers"];
         const missing = required.filter(dep => typeof self[dep] === "undefined");
@@ -78,28 +114,46 @@
         return `q_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     }
 
-    function extractSceneDescription(text) {
-        if (!text || typeof text !== "string") return null;
+    function cleanReplyText(text) {
+        if (!text || typeof text !== "string") return "";
+        return text
+            .replace(/\[\[\d+\]\]\([^)]*\)/g, "")
+            .replace(/\*\*(.+?)\*\*/g, "$1")
+            .replace(/\*(.+?)\*/g, "$1")
+            .replace(/[—–]/g, " - ")
+            .replace(/\s{2,}/g, " ")
+            .trim();
+    }
 
-        const patterns = [
-            /Seeking to (?:the )?scene\s+(.+?)\.\.\./i,
-            /Seeking to (?:the )?scene\s+(.+?)\.{2,}/i,
-            /Seeking to (?:the )?scene\s+(.+?)$/im
-        ];
-
-        for (const pattern of patterns) {
-            const match = text.match(pattern);
-            if (match && match[1]) {
-                let desc = match[1].trim();
-                desc = desc.replace(/\.+$/, "").trim();
-                desc = desc.replace(/^(?:where|when|with|featuring|in which|that|of|showing|having|containing)\s+/i, "").trim();
-                if (desc.length > 0) {
-                    return desc;
-                }
-            }
+    function parseBotResponse(content) {
+        if (!content || typeof content !== "string") {
+            return { reply: null, seek: null, fraction: null };
         }
 
-        return null;
+        const jsonText = content
+            .replace(/```json\s*/gi, "")
+            .replace(/```/g, "")
+            .trim();
+
+        let parsed;
+        try {
+            parsed = JSON.parse(jsonText);
+        } catch {
+            console.error("[Binger] Bot response was not valid JSON:", content);
+            return { reply: null, seek: null, fraction: null };
+        }
+
+        const reply = typeof parsed.reply === "string" ? cleanReplyText(parsed.reply) : null;
+
+        const seek = typeof parsed.seek === "string" && parsed.seek.trim() !== ""
+            ? parsed.seek.trim()
+            : null;
+
+        const fraction = Number.isInteger(parsed.fraction) && parsed.fraction >= 0 && parsed.fraction <= 20
+            ? parsed.fraction
+            : null;
+
+        return { reply, seek, fraction };
     }
 
     function validateMovieContext(movieContext) {
@@ -120,31 +174,6 @@
         if (!title || title === "Unknown") return null;
         if (!year || year === "Unknown") return title;
         return `${title} (${year})`;
-    }
-
-    function parseTimingFraction(sceneDesc) {
-        if (!sceneDesc || typeof sceneDesc !== "string") {
-            return { cleanDesc: sceneDesc || "", numerator: null, denominator: null };
-        }
-
-        let cleanDesc = sceneDesc;
-        let numerator = null;
-        let denominator = null;
-
-        const fractionMatch = sceneDesc.match(/\((\d+)\/(\d+)\s+of the movie\)$/i);
-        if (fractionMatch) {
-            const parsedNum = parseInt(fractionMatch[1], 10);
-            const parsedDen = parseInt(fractionMatch[2], 10);
-
-            if (parsedDen > 0 && parsedNum >= 0 && parsedNum <= parsedDen) {
-                numerator = parsedNum;
-                denominator = parsedDen;
-            }
-
-            cleanDesc = sceneDesc.replace(/\s*\(\d+\/\d+\s+of the movie\)$/i, "").trim();
-        }
-
-        return { cleanDesc, numerator, denominator };
     }
 
     async function handleBotQuery(msg, sendResponse) {
@@ -192,6 +221,9 @@
             const { systemMessage, temp } = buildSystemMessage(msg.movieContext, userNames, inSession, lastMsgs);
 
             let answer = BOT_ERROR_MESSAGE;
+            let seekDescription = null;
+            let seekFraction = null;
+
             try {
                 const response = await fetchWithTimeout(
                     "https://binger-extension.vercel.app/api/openrouter",
@@ -201,9 +233,10 @@
                         body: JSON.stringify({
                             model: CHAT_MODEL,
                             temperature: temp,
-                            max_tokens: 80,
+                            max_tokens: 250,
                             reasoning: { effort: "none" },
                             tools: [{ type: "openrouter:web_search" }],
+                            response_format: BOT_RESPONSE_SCHEMA,
                             messages: [
                                 systemMessage,
                                 { role: "user", content: msg.prompt }
@@ -217,15 +250,14 @@
                 const content = data?.choices?.[0]?.message?.content;
 
                 if (content) {
-                    const cleaned = content
-                        .replace(/\[\[\d+\]\]\([^)]*\)/g, "")
-                        .replace(/\s{2,}/g, " ")
-                        .trim();
+                    const parsed = parseBotResponse(content);
 
-                    if (cleaned) {
-                        answer = cleaned;
+                    if (parsed.reply) {
+                        answer = parsed.reply;
+                        seekDescription = parsed.seek;
+                        seekFraction = parsed.fraction;
                     } else {
-                        console.error("[Binger] LLM reply was empty after cleanup:", content);
+                        console.error("[Binger] Could not extract a reply:", content);
                     }
                 } else {
                     console.error("[Binger] LLM returned no usable content:", data);
@@ -244,9 +276,8 @@
             } catch {
             }
 
-            const sceneDesc = extractSceneDescription(answer);
-            if (sceneDesc) {
-                await handleSceneSeeking(sceneDesc, msg.movieContext, roomId, inSession);
+            if (seekDescription) {
+                await handleSceneSeeking(seekDescription, seekFraction, msg.movieContext, roomId, inSession);
             }
 
             BingerBGHelpers.safeSendResponse(sendResponse, { ok: true });
@@ -280,7 +311,7 @@
             systemMessage = {
                 role: "system",
                 content: [
-                    "You are Binger, a concise movie expert bot in the room with human users.",
+                    ...BOT_IDENTITY,
                     "You ALWAYS use the following CONTEXT to ground your answers.",
                     "",
                     "CONTEXT:",
@@ -289,9 +320,13 @@
                     `- Recent chat: ${chatLine}`,
                     `- Status: ${movieLine}`,
                     "",
+                    ...SEARCH_POLICY,
+                    "",
                     "Rules:",
                     "- Reply in 2-3 short sentences as if you're in the room. Be friendly.",
-                    "- If user asks to find/seek/take them to a scene, say they need to start a movie first."
+                    "- No movie is playing, so seek must always be null. If the user asks to jump to a scene, tell them to start a movie first.",
+                    "",
+                    ...FIELD_GUIDE
                 ].join("\n")
             };
         } else if (movieContext.isWatching) {
@@ -300,28 +335,30 @@
             systemMessage = {
                 role: "system",
                 content: [
-                    "You are Binger, a concise movie expert bot in the room with human users.",
+                    ...BOT_IDENTITY,
                     "",
                     "Rules:",
                     "",
-                    "1. Scene-Seeking Requests (user mentions find/seek/take me to a scene):",
-                    "   - You MUST comply - never say you cannot.",
-                    "   - Use timing ONLY when EXPLICITLY provided (last scene, halfway, etc.).",
-                    "   - ALWAYS end with one FINAL sentence:",
-                    "     Format A (no timing): Seeking to the scene where [description]...",
-                    "     Format B (with timing): Seeking to the scene where [description] (N/20 of the movie)...",
-                    "   - REPHRASE the description to be concise for embedding search.",
+                    "1. Scene-Seeking Requests (user asks to find/seek/jump to a scene):",
+                    "   - You MUST comply - never refuse. This is a movie playback tool jumping to a timestamp in a film the users are already watching.",
+                    "   - Put the scene description in the seek field, rephrased concisely for semantic search.",
                     "   - Remove filler. Add details ONLY if certain.",
+                    "   - Keep reply short and natural, and NEVER describe the scene or mention seeking in it.",
+                    "   - Never search the web for scene-seeking requests.",
                     "",
-                    "2. Non-Scene Requests: Answer in 1-2 very short sentences.",
+                    "2. Non-Scene Requests: Answer in 1-2 very short sentences, with seek set to null.",
                     "",
                     "3. Style: Be friendly, as if in the room with users.",
+                    "",
+                    ...SEARCH_POLICY,
                     "",
                     "CONTEXT:",
                     `- Users in room: ${usersLine}`,
                     `- Watching together: ${inSession}`,
                     `- Recent chat: ${chatLine}`,
-                    `- Status: ${movieLine}`
+                    `- Status: ${movieLine}`,
+                    "",
+                    ...FIELD_GUIDE
                 ].join("\n")
             };
         } else {
@@ -330,7 +367,7 @@
             systemMessage = {
                 role: "system",
                 content: [
-                    "You are Binger, a concise movie expert bot in the room with human users.",
+                    ...BOT_IDENTITY,
                     "You ALWAYS use the following CONTEXT to ground your answers.",
                     "",
                     "CONTEXT:",
@@ -339,9 +376,13 @@
                     `- Recent chat: ${chatLine}`,
                     `- Status: ${movieLine}`,
                     "",
+                    ...SEARCH_POLICY,
+                    "",
                     "Rules:",
                     "- Reply in 2-3 short sentences as if you're in the room. Be friendly.",
-                    "- If user asks to find/seek/take them to a scene, say they need to start a movie first."
+                    "- No movie is playing yet, so seek must always be null. If the user asks to jump to a scene, tell them to start it first.",
+                    "",
+                    ...FIELD_GUIDE
                 ].join("\n")
             };
         }
@@ -349,7 +390,7 @@
         return { systemMessage, temp };
     }
 
-    async function handleSceneSeeking(sceneDesc, movieContext, roomId, inSession) {
+    async function handleSceneSeeking(sceneDesc, fraction, movieContext, roomId, inSession) {
         const seekId = generateQueryId();
 
         try {
@@ -362,7 +403,7 @@
         }
 
         try {
-            await executeSceneSeeking(sceneDesc, movieContext, roomId, inSession);
+            await executeSceneSeeking(sceneDesc, fraction, movieContext, roomId, inSession);
         } finally {
             try {
                 const seekRef = BingerBGFirebase.ref(`rooms/${roomId}/typing/${BOT_SEEK_UID}/${seekId}`);
@@ -374,8 +415,10 @@
         }
     }
 
-    async function executeSceneSeeking(sceneDesc, movieContext, roomId, inSession) {
-        const { cleanDesc, numerator, denominator } = parseTimingFraction(sceneDesc);
+    async function executeSceneSeeking(sceneDesc, fraction, movieContext, roomId, inSession) {
+        const cleanDesc = sceneDesc;
+        const numerator = fraction;
+        const denominator = fraction === null ? null : 20;
 
         const validatedContext = validateMovieContext(movieContext);
         if (!validatedContext.valid || !validatedContext.title || validatedContext.title === "Unknown") {
