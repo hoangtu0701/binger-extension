@@ -11,7 +11,7 @@ A Chrome extension that turns your favorite movie streaming site into a synchron
 - **Video Calls** - WebRTC-based video/audio calls while watching
 - **Private Rooms** - Create or join rooms with 6-digit codes (max 2 users per room)
 - **Soundboard** - Sound effects and floating/pinned emoji reactions
-- **6 Themes** - Burgundy, Pink, Black & White, Ocean, Volcano, Forest (applied to all components including call iframe)
+- **10 Themes** - Burgundy, Pink, Volcano, Ocean, Sunset, Black & White, Royal, Forest, Arctic, Midnight (applied to all components including call iframe)
 - **Fullscreen Support** - Connected panel layout with smooth slide animations
 - **Minimize Mode** - Collapsible overlay with smooth transitions, auto-expands for pending invites
 - **Join/Leave Notifications** - Real-time debounced notifications when users join or leave rooms
@@ -150,7 +150,7 @@ Content scripts follow a similar ordered initialization through `main.js`.
 - Appears automatically when signed in on phimbro.com
 - Persists across page reloads and SPA navigation
 - Displays current user info and room status
-- All 6 themes apply to every overlay element
+- All 10 themes apply to every overlay element
 - A drag bar indicator below the header signals the toggle affordance, themed per color scheme.
 - `overscroll-behavior: contain` prevents scroll chaining to the host page
 - Clicking the header banner toggles minimized mode (header + chatbox only). State persists via `chrome.storage.local`. Fullscreen always shows standard layout; exiting restores previous mode. Pending invites auto-expand the minimized overlay to show action buttons.
@@ -196,13 +196,13 @@ Avatar hover tooltips fade in smoothly (0.2s opacity + 4px upward slide). Userna
 - Send button disabled when input is empty, re-enabled on typing, re-disabled after successful send
 - Own messages right-aligned, other user's messages left-aligned, both with dynamic fit-content width (max 90%)
 - Three distinct message color tones per theme: other user, own, and Binger Bot (all within the same palette)
-- Bot reply messages styled with italic text and distinct avatar color; bordered on Black & White, Ocean, Volcano, and Forest themes
+- Bot reply messages styled with italic text and distinct avatar color; bordered on Black & White, Ocean, Volcano, Forest, Midnight, Sunset, Arctic, and Royal themes.
 - Smart message grouping: consecutive same-sender messages within 2 minutes share one timestamp (above first message) and one avatar (below last message, left-side only). A different sender or a gap over 2 minutes breaks the group. System notifications also break grouping.
 - Typing and seeking indicators always appear at the bottom of the chat log, re-sinking below new messages and notifications as they arrive, retaining their relative order
 
 ### Bot Query Indicator
 
-Bot query messages display a 16px glowing borderless "B" circle badge. Positioned at top-right for left-side messages and top-left for right-side own messages. Uses `overflow: hidden` with extra padding on the badge side to keep it visible while containing theme animations (e.g. Forest leaves). Themed per all 6 color schemes with gradient backgrounds and matching glow colors. Font-size locked with `!important` for fullscreen safety.
+Bot query messages display a 16px glowing borderless "B" circle badge. Positioned at top-right for left-side messages and top-left for right-side own messages. Uses `overflow: hidden` with extra padding on the badge side to keep it visible while containing theme animations (e.g. Forest leaves). Themed per all 10 color schemes with gradient backgrounds and matching glow colors. Font-size locked with `!important` for fullscreen safety.
 
 ### Message Animation System
 
@@ -252,7 +252,7 @@ The Invite and Camera buttons each have a hover tooltip that only appears when t
 | Camera | "Camera will be enabled in-session" | Disabled (not in session) |
 | Invite (invitee) | "Click to Accept. Hold to Decline" | Accept/Decline state |
 
-Tooltips are hidden when: button is enabled, overlay is minimized, in session mode, or during inviter/accepted invite states. Styled per all 6 themes. Font size reduced to 10px in fullscreen mode.
+Tooltips are hidden when: button is enabled, overlay is minimized, in session mode, or during inviter/accepted invite states. Styled per all 10 themes. Font size reduced to 10px in fullscreen mode.
 
 ---
 
@@ -337,7 +337,7 @@ When User A triggers a reset, the extension also writes a `resetIframeFlag` to F
 
 ### Call Iframe Theming
 
-The call iframe supports all 6 Binger themes via CSS custom properties:
+The call iframe supports all 10 Binger themes via CSS custom properties:
 
 | Variable | Controls |
 |----------|----------|
@@ -506,21 +506,42 @@ Triggered when the bot's structured JSON response contains a non-null `seek` fie
 
 ## Themes
 
-| Theme | Primary Colors |
-|-------|----------------|
-| Burgundy | Dark red, warm white |
-| Pink | Pink (own), green (other), magenta (bot) |
-| Black & White | Animated star field |
-| Ocean | Blue gradient, sand textures |
-| Volcano | Red/orange with lava effects |
-| Forest | Green with floating leaves |
+| Theme | Primary Colors | Signature |
+|-------|----------------|-----------|
+| Burgundy | Dark red, warm white | Ambient glow |
+| Pink | Pink (own), green (other), magenta (bot) | Sakura drift texture |
+| Volcano | Red/orange with lava effects | Animated lava bar under header |
+| Ocean | Blue gradient, sand textures | Bioluminescent pulse |
+| Sunset | Amber and dusk violet | Hazy horizon sun with light rays |
+| Black & White | Animated star field | 12-layer parallax starfield |
+| Royal | Deep violet and antique gold | Velvet weave, vignette, gold sheen, recessed frame |
+| Forest | Green with floating leaves | Emoji leaf particles per new message |
+| Arctic | Deep slate and pale ice | Dendritic frost crystals grow per new message |
+| Midnight | Warm brown, moonlight gold | Candle glow, hover fire with embers, smoke per new message |
 
 - Theme saved to `chrome.storage.sync`
 - Host's theme applied to room on creation
 - Theme changes broadcast to all room members in real-time
 - Theme propagated to call iframe via `postMessage` on change, creation, and reset
+- Popup selector is a 2x5 grid; warm reds spaced apart so adjacent dots stay distinguishable
 
 ---
+
+## Particle System
+
+Three themes spawn real DOM particles per new message via `spawnLeaves()` in `content-theme.js`, dispatched by active theme. Only genuinely-new messages trigger them (`timestamp >= activationTimestamp`).
+
+| Theme | Particles | Behavior |
+|-------|-----------|----------|
+| Forest | 4-8 emoji leaves | Drift and rotate outward, removed after 10s |
+| Midnight | 5-8 smoke puffs | Turbulence-warped, curved wind-biased paths, dissipate and self-remove |
+| Arctic | 7-12 frost crystals | Grow inward from random perimeter points, persist for the session |
+
+Realism comes from `feTurbulence` plus `feDisplacementMap` warping each particle's silhouette. Twelve filter variants are injected once into the DOM by `ensureFogFilters()`: six low-frequency for smoke (soft billows) and six high-frequency for frost (fine crystalline detail). Every particle picks a variant at random.
+
+Each particle randomizes size, position, drift vector, rotation, duration, delay, opacity, and blur, so no two messages produce the same effect. Smoke additionally derives a per-message `wind` bias that all its puffs deviate from, giving each message a prevailing direction.
+
+Only `transform` and `opacity` are animated. `will-change` is cleared once growth completes, and the existing `.paused` IntersectionObserver rule freezes offscreen particles.
 
 ## Fullscreen Mode
 
@@ -580,7 +601,7 @@ A `binger-call-initial` CSS class applies `display: none` on iframe creation to 
 
 ## Warning Banners
 
-Both warning banners use a consistent glassmorphism design with themed variants for all 6 color schemes, slide-in animations from the top, and CSS-only styling (no inline styles).
+Both warning banners use a consistent glassmorphism design with themed variants for all 10 color schemes, slide-in animations from the top, and CSS-only styling (no inline styles).
 
 ### Multi-Tab Warning
 
@@ -613,7 +634,9 @@ Both warning banners use a consistent glassmorphism design with themed variants 
 | Bot mode persistence | chrome.storage.local preserves toggle across navigation |
 | Scroll containment | `overscroll-behavior: contain` on overlay and chatlog prevents scroll bleed to host page |
 | CSS-driven animations | Iframe slide in/out uses pure CSS transitions (no JS animation loops) |
-| Theme switch cleanup | Stale forest leaf DOM elements removed instantly on theme change |
+| Theme switch cleanup | Stale `.leaf`, `.binger-fog`, and `.binger-frost` particles removed instantly on theme change |
+| One-shot particle effects | Midnight smoke and Arctic frost animate once per message then stop, unlike the looping textures on the original six themes |
+| SVG filter reuse | Twelve shared `feTurbulence` filter defs injected once, referenced by every particle |
 | Typing indicator sink | Typing bubbles re-appended to chat log bottom on every message and notification render |
 | Minimize persistence | chrome.storage.local preserves minimized state across navigations and restarts |
 
