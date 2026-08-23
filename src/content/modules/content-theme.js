@@ -33,7 +33,7 @@
             document.body.classList.remove(cls);
         });
 
-        document.querySelectorAll(".leaf").forEach((leaf) => leaf.remove());
+        document.querySelectorAll(".leaf, .binger-fog").forEach((el) => el.remove());
 
         if (currentTheme !== DEFAULT_THEME) {
             document.body.classList.add(`theme-${currentTheme}`);
@@ -138,43 +138,163 @@
 
         BingerConnection.getSync("theme")
             .then((theme) => {
-                if (theme !== "forest") return;
                 if (!document.contains(msgEl)) return;
 
-                const total = 4 + Math.floor(Math.random() * 5);
-
-                for (let i = 0; i < total; i++) {
-                    const leaf = document.createElement("span");
-                    leaf.className = "leaf";
-
-                    const r = Math.random();
-                    if (r < 0.7) {
-                        leaf.textContent = String.fromCodePoint(0x1F343);
-                    } else if (r < 0.9) {
-                        leaf.textContent = String.fromCodePoint(0x1F342);
-                    } else {
-                        leaf.textContent = String.fromCodePoint(0x1F341);
-                    }
-
-                    leaf.style.left = Math.random() * 80 + 10 + "%";
-                    leaf.style.bottom = "-20px";
-                    leaf.style.fontSize = (14 + Math.random() * 10) + "px";
-
-                    const x = (Math.random() - 0.5) * 300;
-                    const y = -80 - Math.random() * 200;
-                    leaf.style.setProperty("--tx", x + "px");
-                    leaf.style.setProperty("--ty", y + "px");
-                    leaf.style.setProperty("--dur", (4 + Math.random() * 4) + "s");
-                    leaf.style.setProperty("--delay", (Math.random() * 0.5) + "s");
-
-                    msgEl.appendChild(leaf);
-
-                    setTimeout(() => leaf.remove(), 10000);
+                if (theme === "forest") {
+                    spawnForestLeaves(msgEl);
+                } else if (theme === "midnight") {
+                    spawnMidnightFog(msgEl);
                 }
             })
             .catch((err) => {
-                console.warn("[Binger] Failed to check theme for leaves:", err);
+                console.warn("[Binger] Failed to check theme for particles:", err);
             });
+    }
+
+    function spawnForestLeaves(msgEl) {
+        const total = 4 + Math.floor(Math.random() * 5);
+
+        for (let i = 0; i < total; i++) {
+            const leaf = document.createElement("span");
+            leaf.className = "leaf";
+
+            const r = Math.random();
+            if (r < 0.7) {
+                leaf.textContent = String.fromCodePoint(0x1F343);
+            } else if (r < 0.9) {
+                leaf.textContent = String.fromCodePoint(0x1F342);
+            } else {
+                leaf.textContent = String.fromCodePoint(0x1F341);
+            }
+
+            leaf.style.left = Math.random() * 80 + 10 + "%";
+            leaf.style.bottom = "-20px";
+            leaf.style.fontSize = (14 + Math.random() * 10) + "px";
+
+            const x = (Math.random() - 0.5) * 300;
+            const y = -80 - Math.random() * 200;
+            leaf.style.setProperty("--tx", x + "px");
+            leaf.style.setProperty("--ty", y + "px");
+            leaf.style.setProperty("--dur", (4 + Math.random() * 4) + "s");
+            leaf.style.setProperty("--delay", (Math.random() * 0.5) + "s");
+
+            msgEl.appendChild(leaf);
+
+            setTimeout(() => leaf.remove(), 10000);
+        }
+    }
+
+    function ensureFogFilters() {
+        if (document.getElementById("bingerFogDefs")) return;
+
+        const svgNS = "http://www.w3.org/2000/svg";
+        const svg = document.createElementNS(svgNS, "svg");
+        svg.id = "bingerFogDefs";
+        svg.setAttribute("width", "0");
+        svg.setAttribute("height", "0");
+        svg.style.position = "absolute";
+        svg.style.pointerEvents = "none";
+
+        const variants = [
+            { seed: 3, freq: "0.011 0.021", octaves: 3, scale: 46 },
+            { seed: 11, freq: "0.014 0.017", octaves: 4, scale: 38 },
+            { seed: 19, freq: "0.009 0.026", octaves: 3, scale: 54 },
+            { seed: 27, freq: "0.016 0.019", octaves: 4, scale: 34 },
+            { seed: 41, freq: "0.012 0.023", octaves: 3, scale: 49 },
+            { seed: 58, freq: "0.018 0.015", octaves: 5, scale: 30 }
+        ];
+
+        variants.forEach((v, i) => {
+            const filter = document.createElementNS(svgNS, "filter");
+            filter.id = `bingerFog${i}`;
+            filter.setAttribute("x", "-60%");
+            filter.setAttribute("y", "-60%");
+            filter.setAttribute("width", "220%");
+            filter.setAttribute("height", "220%");
+            filter.setAttribute("color-interpolation-filters", "sRGB");
+
+            const turb = document.createElementNS(svgNS, "feTurbulence");
+            turb.setAttribute("type", "fractalNoise");
+            turb.setAttribute("baseFrequency", v.freq);
+            turb.setAttribute("numOctaves", String(v.octaves));
+            turb.setAttribute("seed", String(v.seed));
+            turb.setAttribute("result", "noise");
+
+            const disp = document.createElementNS(svgNS, "feDisplacementMap");
+            disp.setAttribute("in", "SourceGraphic");
+            disp.setAttribute("in2", "noise");
+            disp.setAttribute("scale", String(v.scale));
+            disp.setAttribute("xChannelSelector", "R");
+            disp.setAttribute("yChannelSelector", "G");
+
+            filter.appendChild(turb);
+            filter.appendChild(disp);
+            svg.appendChild(filter);
+        });
+
+        document.body.appendChild(svg);
+    }
+
+    function spawnMidnightFog(msgEl) {
+        ensureFogFilters();
+
+        const total = 5 + Math.floor(Math.random() * 6);
+        const wind = (Math.random() - 0.5) * 90;
+        let longest = 0;
+
+        for (let i = 0; i < total; i++) {
+            const puff = document.createElement("span");
+            puff.className = "binger-fog";
+
+            const startX = 4 + Math.random() * 88;
+            const startY = 40 + Math.random() * 52;
+            const w = 13 + Math.random() * 21;
+            const h = w * (1.1 + Math.random() * 1.1);
+
+            const gust = wind + (Math.random() - 0.5) * 130;
+            const endX = gust;
+            const endY = -58 - Math.random() * 104;
+            const midX = gust * (0.44 + Math.random() * 0.18);
+            const midY = endY * (0.4 + Math.random() * 0.16);
+
+            const midScale = 1.5 + Math.random() * 1.1;
+            const endScale = 3.1 + Math.random() * 2.8;
+            const midRot = (Math.random() - 0.5) * 46;
+            const endRot = midRot * (1.7 + Math.random());
+
+            const dur = 2.2 + Math.random() * 2.6;
+            const delay = Math.random() * 0.72;
+            const alpha = 0.16 + Math.random() * 0.28;
+            const blur = 2.5 + Math.random() * 3.5;
+            const variant = Math.floor(Math.random() * 6);
+
+            puff.style.left = startX + "%";
+            puff.style.top = startY + "%";
+            puff.style.width = w + "%";
+            puff.style.height = h + "%";
+            puff.style.filter = `url(#bingerFog${variant}) blur(${blur}px)`;
+
+            puff.style.setProperty("--fmx", midX + "%");
+            puff.style.setProperty("--fmy", midY + "%");
+            puff.style.setProperty("--fms", midScale);
+            puff.style.setProperty("--fmr", midRot + "deg");
+            puff.style.setProperty("--fx", endX + "%");
+            puff.style.setProperty("--fy", endY + "%");
+            puff.style.setProperty("--fs", endScale);
+            puff.style.setProperty("--fr", endRot + "deg");
+            puff.style.setProperty("--fa", alpha);
+            puff.style.setProperty("--fdur", dur + "s");
+            puff.style.setProperty("--fdelay", delay + "s");
+
+            msgEl.appendChild(puff);
+
+            const life = (dur + delay) * 1000 + 200;
+            if (life > longest) longest = life;
+        }
+
+        setTimeout(() => {
+            msgEl.querySelectorAll(".binger-fog").forEach((el) => el.remove());
+        }, longest);
     }
 
     function initTheme() {

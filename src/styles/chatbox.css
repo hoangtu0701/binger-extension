@@ -1039,21 +1039,23 @@
   border: 2px solid rgba(199, 152, 104, 0.2);
 }
 
-.theme-midnight .bingerChatMsg::before {
-  content: "";
+.theme-midnight .binger-fog {
   position: absolute;
-  inset: 0;
-  border-radius: 12px;
-  background: radial-gradient(ellipse at 50% 60%,
-    rgba(206, 190, 170, 0.5) 0%,
-    rgba(180, 164, 146, 0.32) 42%,
-    transparent 72%);
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 60% 200%;
-  opacity: 0;
-  animation: midnightFog 0.75s ease-out;
+  border-radius: 50%;
   pointer-events: none;
+  opacity: 0;
+  will-change: transform, opacity;
+  background: radial-gradient(ellipse at 42% 58%,
+    rgba(226, 216, 202, 0.78) 0%,
+    rgba(192, 182, 168, 0.44) 38%,
+    rgba(152, 144, 134, 0.17) 62%,
+    transparent 80%);
+  animation: fogPuff var(--fdur, 2.8s) cubic-bezier(0.32, 0.24, 0.52, 0.86) var(--fdelay, 0s) forwards;
+}
+
+.theme-midnight .bingerChatMsg .binger-fog-c,
+.theme-midnight .bingerChatMsg::marker {
+  display: none;
 }
 
 .theme-sunset .bingerChatMsg {
@@ -1113,12 +1115,16 @@
   position: absolute;
   inset: 0;
   border-radius: 12px;
-  background: linear-gradient(115deg,
-    transparent 32%,
-    rgba(207, 238, 255, 0.11) 50%,
-    transparent 68%);
-  background-size: 250% 100%;
-  animation: frostShimmer 7s ease-in-out infinite;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(226, 244, 255, 0.3) 0%, rgba(178, 218, 242, 0.13) 34%, transparent 68%),
+    radial-gradient(circle at 100% 0%, rgba(226, 244, 255, 0.26) 0%, rgba(178, 218, 242, 0.11) 34%, transparent 68%),
+    radial-gradient(circle at 0% 100%, rgba(226, 244, 255, 0.26) 0%, rgba(178, 218, 242, 0.11) 34%, transparent 68%),
+    radial-gradient(circle at 100% 100%, rgba(226, 244, 255, 0.3) 0%, rgba(178, 218, 242, 0.13) 34%, transparent 68%);
+  background-repeat: no-repeat;
+  background-position: 0% 0%, 100% 0%, 0% 100%, 100% 100%;
+  background-size: 0% 0%, 0% 0%, 0% 0%, 0% 0%;
+  opacity: 0;
+  animation: frostCreep 0.9s ease-out forwards;
   pointer-events: none;
 }
 
@@ -1821,17 +1827,18 @@
   animation: dappledLight 7s ease-in-out infinite;
 }
 
-.theme-midnight .bingerChatMsg.no-entrance::before {
-  animation: none;
-  opacity: 0;
+.theme-midnight .bingerChatMsg.paused .binger-fog {
+  animation-play-state: paused;
 }
 
 .theme-sunset .bingerChatMsg.no-entrance:not(.paused)::before {
   animation: sunsetDrift 9s ease-in-out infinite;
 }
 
-.theme-arctic .bingerChatMsg.no-entrance:not(.paused)::before {
-  animation: frostShimmer 7s ease-in-out infinite;
+.theme-arctic .bingerChatMsg.no-entrance::before {
+  animation: none;
+  opacity: 1;
+  background-size: 82% 82%, 82% 82%, 82% 82%, 82% 82%;
 }
 
 .theme-royal .bingerChatMsg.no-entrance:not(.paused)::before {
