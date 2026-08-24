@@ -1935,3 +1935,21 @@
   color: #2a1608;
   box-shadow: 0 0 8px rgba(232, 194, 122, 0.28);
 }
+
+.binger-msg-avatar {
+  position: relative;
+}
+
+.binger-msg-avatar .binger-avatar-tooltip {
+  position: fixed;
+  bottom: auto;
+  left: auto;
+  transform: translateY(4px);
+  z-index: 2147483647;
+}
+
+.binger-msg-avatar:hover .binger-avatar-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}

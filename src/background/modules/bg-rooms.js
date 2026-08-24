@@ -1,7 +1,7 @@
 (function() {
     "use strict";
 
-    const MAX_USERS_PER_ROOM = 2;
+    const MAX_USERS_PER_ROOM = 3;
     const REJOIN_WINDOW_MS = 60000;
 
     function validateDependencies() {

@@ -334,6 +334,15 @@
             }
             const initial = safeSender.charAt(0).toUpperCase();
             avatarEl.textContent = initial;
+
+            const tooltipEl = document.createElement("div");
+            tooltipEl.className = "binger-avatar-tooltip";
+            tooltipEl.textContent = safeSender.length > 15
+                ? safeSender.slice(0, 15) + "..."
+                : safeSender;
+            avatarEl.appendChild(tooltipEl);
+            avatarEl.addEventListener("mouseenter", () => positionAvatarTooltip(avatarEl));
+
             chatLog.appendChild(avatarEl);
         }
 
@@ -614,5 +623,14 @@
 
         resetBotMode
     };
+
+    function positionAvatarTooltip(avatarEl) {
+        const tooltipEl = avatarEl.querySelector(".binger-avatar-tooltip");
+        if (!tooltipEl) return;
+
+        const rect = avatarEl.getBoundingClientRect();
+        tooltipEl.style.left = `${rect.left}px`;
+        tooltipEl.style.bottom = `${window.innerHeight - rect.top + 4}px`;
+    }
 
 })();

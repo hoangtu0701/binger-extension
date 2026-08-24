@@ -5,6 +5,7 @@
     let overlayInitialized = false;
 
     const STORAGE_KEY = "bingerOverlayMinimized";
+    const MAX_ROOM_CAPACITY = 3;
 
     function createMinimizeButton() {
         const bar = document.createElement("div");
@@ -316,14 +317,14 @@
 
         if (!Array.isArray(users) || users.length === 0) {
             elements.avatarGroup.innerHTML = "";
-            const slot1 = document.createElement("div");
-            slot1.className = "binger-avatar binger-avatar--empty";
-            slot1.textContent = "?";
-            const slot2 = document.createElement("div");
-            slot2.className = "binger-avatar binger-avatar--empty";
-            slot2.textContent = "?";
-            elements.avatarGroup.appendChild(slot1);
-            elements.avatarGroup.appendChild(slot2);
+
+            for (let i = 0; i < MAX_ROOM_CAPACITY; i++) {
+                const slot = document.createElement("div");
+                slot.className = "binger-avatar binger-avatar--empty";
+                slot.textContent = "?";
+                elements.avatarGroup.appendChild(slot);
+            }
+
             elements.userCount.textContent = "";
             header?.classList.add("binger-strip--empty");
             return;
@@ -356,7 +357,7 @@
             elements.avatarGroup.appendChild(avatar);
         });
 
-        elements.userCount.textContent = `${users.length}/2`;
+        elements.userCount.textContent = `${users.length}/${MAX_ROOM_CAPACITY}`;
     }
 
     function showMultiTabWarning() {
