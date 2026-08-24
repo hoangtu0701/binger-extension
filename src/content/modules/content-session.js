@@ -19,8 +19,7 @@
     };
 
     const CONFIG = {
-        iframeWidth: 700,
-        iframeMargin: 8,
+        iframeMargin: 20,
         playPauseDebounce: 300,
         bufferReportDelay: 200,
         videoWaitInterval: 500,
@@ -112,19 +111,25 @@
         }
     }
 
-    function calculateIframeLeftPosition() {
+    function calculateIframeRightOffset() {
         const overlay = document.querySelector(SELECTORS.overlay);
-        if (!overlay) return 0;
+        if (!overlay) return CONFIG.iframeMargin;
 
         const overlayRect = overlay.getBoundingClientRect();
-        return overlayRect.left - CONFIG.iframeWidth - CONFIG.iframeMargin;
+        return window.innerWidth - overlayRect.left + CONFIG.iframeMargin;
+    }
+
+    function applyIframeAnchor(iframe) {
+        if (!iframe) return;
+        iframe.style.left = "";
+        iframe.style.right = `${calculateIframeRightOffset()}px`;
     }
 
     function updateIframePosition() {
         if (!state.callIframe) return;
         if (state.callIframe.classList.contains(CSS_CLASSES.fullscreen)) return;
 
-        state.callIframe.style.left = `${calculateIframeLeftPosition()}px`;
+        applyIframeAnchor(state.callIframe);
     }
 
     function startResizeListener() {
@@ -184,7 +189,8 @@
         iframe.className = `${CSS_CLASSES.callIframe} ${CSS_CLASSES.callHidden} binger-call-initial`;
         iframe.allow = "camera; microphone; autoplay; fullscreen";
         iframe.src = BingerHelpers.buildCallIframeUrl(roomId);
-        iframe.style.left = `${calculateIframeLeftPosition()}px`;
+        BingerHelpers.applyCallIframeWidth(iframe);
+        applyIframeAnchor(iframe);
 
         restoreCamMicToIframe(iframe);
         sendThemeToIframe(iframe);
@@ -276,9 +282,11 @@
 
         if (wasHidden) fresh.classList.add(CSS_CLASSES.callHidden);
         if (wasFullscreen) fresh.classList.add(CSS_CLASSES.fullscreen);
+        BingerHelpers.applyCallIframeWidth(fresh);
 
         restoreCamMicToIframe(fresh);
         sendThemeToIframe(fresh);
+        BingerHelpers.notifyCallIframeFullscreen(fresh, wasFullscreen);
 
         const fullscreenRow = document.querySelector(SELECTORS.fullscreenRow);
         if (wasFullscreen && fullscreenRow) {
@@ -287,7 +295,7 @@
             if (oldStyle) {
                 fresh.setAttribute("style", oldStyle);
             } else {
-                fresh.style.left = `${calculateIframeLeftPosition()}px`;
+                applyIframeAnchor(fresh);
             }
             document.body.appendChild(fresh);
         }

@@ -153,8 +153,11 @@
             iframe.setAttribute("style", originalStyles);
         }
 
+        BingerHelpers.applyCallIframeWidth(iframe);
+
         restoreCamMicState(iframe);
         sendThemeToIframe(iframe);
+        BingerHelpers.notifyCallIframeFullscreen(iframe, isFullscreen);
 
         return iframe;
     }
@@ -486,8 +489,8 @@
                 const overlay = document.querySelector(SELECTORS.overlay);
                 if (overlay) {
                     const overlayRect = overlay.getBoundingClientRect();
-                    const iframeWidth = state.iframe.offsetWidth || 700;
-                    state.iframe.style.left = `${overlayRect.left - iframeWidth - 8}px`;
+                    state.iframe.style.left = "";
+                    state.iframe.style.right = `${window.innerWidth - overlayRect.left + 20}px`;
                 }
             }
         });
@@ -584,6 +587,7 @@
         state.iframe.removeAttribute("style");
         state.iframe.classList.add(CSS_CLASSES.fullscreen);
 
+        BingerHelpers.notifyCallIframeFullscreen(state.iframe, true);
         syncIframeReference(state.iframe);
         return true;
     }
@@ -612,6 +616,7 @@
             state.iframe.removeAttribute("style");
         }
 
+        BingerHelpers.notifyCallIframeFullscreen(state.iframe, false);
         syncIframeReference(state.iframe);
         clearIframePosition();
         return true;

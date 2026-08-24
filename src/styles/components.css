@@ -12,6 +12,11 @@
   transform: translateX(0);
 }
 
+.binger-call-iframe.binger-call-wide:not(.fullscreen) {
+  width: 880px;
+  height: 400px;
+}
+
 .binger-call-iframe.binger-call-hidden {
   opacity: 0;
   transform: translateX(50px);
@@ -25,6 +30,7 @@
 .binger-call-iframe.fullscreen {
   position: static !important;
   left: unset !important;
+  right: unset !important;
   aspect-ratio: 5/2;
   height: 100%;
   border-radius: 16px 0 0 16px;

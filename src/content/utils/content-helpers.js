@@ -161,10 +161,47 @@
         const uid = BingerState.getCurrentUserUid();
         const displayName = encodeURIComponent(BingerState.getCurrentUsername() || "");
         const audioMode = window.BINGER?.audioMode || "speaker";
+        const users = getRoomUserCount();
 
         return chrome.runtime.getURL(
-            `call_app/call.html?roomId=${roomId}&uid=${uid}&name=${displayName}&audioMode=${audioMode}`
+            `call_app/call.html?roomId=${roomId}&uid=${uid}&name=${displayName}&audioMode=${audioMode}&users=${users}`
         );
+    }
+
+    const WIDE_CALL_MIN_USERS = 3;
+    const WIDE_CALL_CLASS = "binger-call-wide";
+
+    function getRoomUserCount() {
+        const users = BingerState.getCurrentUsersInRoom();
+        return Array.isArray(users) ? users.length : 0;
+    }
+
+    function shouldUseWideCall() {
+        return getRoomUserCount() >= WIDE_CALL_MIN_USERS;
+    }
+
+    function applyCallIframeWidth(iframe) {
+        if (!iframe) return;
+        iframe.classList.toggle(WIDE_CALL_CLASS, shouldUseWideCall());
+    }
+
+    function notifyCallIframeFullscreen(iframe, isFullscreen) {
+        if (!iframe) return;
+
+        const post = () => {
+            try {
+                iframe.contentWindow.postMessage(
+                    { type: "setFullscreen", fullscreen: isFullscreen === true },
+                    "*"
+                );
+            } catch {}
+        };
+
+        post();
+
+        if (iframe.contentDocument?.readyState !== "complete") {
+            iframe.addEventListener("load", post, { once: true });
+        }
     }
 
     window.BingerHelpers = {
@@ -183,7 +220,10 @@
 
         isValidRoomCode,
 
-        buildCallIframeUrl
+        buildCallIframeUrl,
+        shouldUseWideCall,
+        applyCallIframeWidth,
+        notifyCallIframeFullscreen
     };
 
 })();
