@@ -180,11 +180,10 @@
     }
 
     function createCallIframe(roomId) {
-        const uid = BingerState.getCurrentUserUid();
         const iframe = document.createElement("iframe");
         iframe.className = `${CSS_CLASSES.callIframe} ${CSS_CLASSES.callHidden} binger-call-initial`;
         iframe.allow = "camera; microphone; autoplay; fullscreen";
-        iframe.src = chrome.runtime.getURL(`call_app/call.html?roomId=${roomId}&uid=${uid}&audioMode=${window.BINGER.audioMode}`);
+        iframe.src = BingerHelpers.buildCallIframeUrl(roomId);
         iframe.style.left = `${calculateIframeLeftPosition()}px`;
 
         restoreCamMicToIframe(iframe);
@@ -268,8 +267,7 @@
 
         state.callIframe.remove();
 
-        const uid = BingerState.getCurrentUserUid();
-        const callUrl = chrome.runtime.getURL(`call_app/call.html?roomId=${roomId}&uid=${uid}&audioMode=${window.BINGER.audioMode}`);
+        const callUrl = BingerHelpers.buildCallIframeUrl(roomId);
 
         const fresh = document.createElement("iframe");
         fresh.src = callUrl;

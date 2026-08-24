@@ -157,6 +157,16 @@
         return /^\d{6}$/.test(String(code));
     }
 
+    function buildCallIframeUrl(roomId) {
+        const uid = BingerState.getCurrentUserUid();
+        const displayName = encodeURIComponent(BingerState.getCurrentUsername() || "");
+        const audioMode = window.BINGER?.audioMode || "speaker";
+
+        return chrome.runtime.getURL(
+            `call_app/call.html?roomId=${roomId}&uid=${uid}&name=${displayName}&audioMode=${audioMode}`
+        );
+    }
+
     window.BingerHelpers = {
         isOnPhimbro,
         isOnWatchPage,
@@ -171,7 +181,9 @@
 
         scrapeMovieContext,
 
-        isValidRoomCode
+        isValidRoomCode,
+
+        buildCallIframeUrl
     };
 
 })();
