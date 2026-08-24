@@ -550,7 +550,8 @@
                     command: "syncPlayerState",
                     roomId,
                     action,
-                    time: video.currentTime
+                    time: video.currentTime,
+                    userId
                 });
             };
 
@@ -619,6 +620,8 @@
 
                 const { action, time } = msg.data || {};
                 if (!action) return;
+
+                if (msg.data.by === userId) return;
 
                 if (typeof time === "number") {
                     lastSyncedTime = time;

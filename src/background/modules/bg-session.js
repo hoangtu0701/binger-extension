@@ -149,7 +149,13 @@
         const ref = BingerBGFirebase.ref(`rooms/${roomId}/playerState`);
         if (!ref) return;
 
-        ref.set({ action: msg.action, time: msg.time })
+        const payload = { action: msg.action, time: msg.time };
+
+        if (typeof msg.userId === "string" && msg.userId.trim() !== "") {
+            payload.by = msg.userId.trim();
+        }
+
+        ref.set(payload)
             .catch((err) => {
                 console.error("[Binger] Failed to sync player state:", err);
             });
