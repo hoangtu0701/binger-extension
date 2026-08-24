@@ -624,3 +624,8 @@
   opacity: 1;
   pointer-events: auto;
 }
+
+#bingerOverlay.binger-fs-transition-lock,
+#bingerOverlay.binger-fs-transition-lock * {
+  transition: none !important;
+}

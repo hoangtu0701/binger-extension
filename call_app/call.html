@@ -16,21 +16,36 @@
   </head>
 
   <body>
-    <div class="videos">
-      <video id="localVideo" autoplay muted></video>
-      <video id="remoteVideo" autoplay></video>
-    </div>
+    <div class="call-stage">
+      <div class="feed feed-local">
+        <video id="localVideo" autoplay muted></video>
+        <div class="feed-placeholder" data-initial=""></div>
+        <div class="feed-mic" data-muted="true"></div>
+      </div>
 
-    <div class="controls">
-      <button id="btnToggleMic" disabled><span class="spinner">⏳</span> Mic</button>
-      <button id="btnToggleCam" disabled><span class="spinner">⏳</span> Cam</button>
-      <button id="btnToggleAudio" disabled>
-        <span class="audio-label"><span class="spinner">⏳</span> Audio</span>
-        <span class="audio-tooltip">
-          <div class="audio-tooltip-title"></div>
-          <div class="audio-tooltip-desc"></div>
-        </span>
-      </button>
+      <div class="feed feed-remote" data-slot="1">
+        <video id="remoteVideo" autoplay></video>
+        <div class="feed-placeholder" data-initial=""></div>
+        <div class="feed-mic" data-muted="true"></div>
+      </div>
+
+      <div class="feed feed-remote" data-slot="2" hidden>
+        <video id="remoteVideo2" autoplay></video>
+        <div class="feed-placeholder" data-initial=""></div>
+        <div class="feed-mic" data-muted="true"></div>
+      </div>
+
+      <div class="controls">
+        <button id="btnToggleMic" disabled><span class="spinner">⏳</span> Mic</button>
+        <button id="btnToggleCam" disabled><span class="spinner">⏳</span> Cam</button>
+        <button id="btnToggleAudio" disabled>
+          <span class="audio-label"><span class="spinner">⏳</span> Audio</span>
+          <span class="audio-tooltip">
+            <div class="audio-tooltip-title"></div>
+            <div class="audio-tooltip-desc"></div>
+          </span>
+        </button>
+      </div>
     </div>
   </body>
 </html>

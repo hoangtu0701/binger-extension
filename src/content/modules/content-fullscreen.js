@@ -360,12 +360,38 @@
         vjsContainer.appendChild(fsRow);
 
         saveIframePosition();
-        recreateIframeForFullscreen(fsRow);
+
+        if (!canMoveElements() || !moveIframeToFullscreen(fsRow)) {
+            recreateIframeForFullscreen(fsRow);
+        }
 
         state.wrapper = createOverlayWrapper();
         fsRow.appendChild(state.wrapper);
-        state.wrapper.appendChild(overlay);
+        saveChatScroll();
+        lockOverlayTransitions(overlay);
+
+        let overlayMovedIn = false;
+
+        if (canMoveElements()) {
+            try {
+                state.wrapper.moveBefore(overlay, null);
+                overlayMovedIn = true;
+            } catch (err) {
+                console.warn("[Binger] Overlay move to fullscreen failed:", err);
+            }
+        }
+
+        if (!overlayMovedIn) {
+            state.wrapper.appendChild(overlay);
+        }
+
         overlay.classList.add(CSS_CLASSES.fullscreen);
+
+        if (!overlayMovedIn) {
+            restoreChatScroll();
+        }
+
+        unlockOverlayTransitions(overlay);
 
         moveSoundboardToFullscreen(fsRow);
 
@@ -378,11 +404,41 @@
     }
 
     function restoreNormalLayout(vjsContainer, video, overlay) {
+        const iframeMoved = canMoveElements() && moveIframeToNormal();
+
+        saveChatScroll();
+        lockOverlayTransitions(overlay);
+
+        let overlayMoved = false;
+
         if (state.overlayOriginalParent) {
-            const insertBefore = skipEphemeralSiblings(state.overlayNextSibling);
-            state.overlayOriginalParent.insertBefore(overlay, insertBefore);
+            let target = skipEphemeralSiblings(state.overlayNextSibling);
+
+            if (target && target.parentNode !== state.overlayOriginalParent) {
+                target = null;
+            }
+
+            if (canMoveElements()) {
+                try {
+                    state.overlayOriginalParent.moveBefore(overlay, target);
+                    overlayMoved = true;
+                } catch (err) {
+                    console.warn("[Binger] Overlay move to normal failed:", err);
+                }
+            }
+
+            if (!overlayMoved) {
+                state.overlayOriginalParent.insertBefore(overlay, target);
+            }
         }
+
         overlay.classList.remove(CSS_CLASSES.fullscreen);
+
+        if (!overlayMoved) {
+            restoreChatScroll();
+        }
+
+        unlockOverlayTransitions(overlay);
 
         restoreSoundboardPosition();
 
@@ -422,7 +478,11 @@
 
         setTimeout(() => window.dispatchEvent(new Event("resize")), 0);
 
-        recreateIframeForNormal();
+        if (!canMoveElements() || !moveIframeToNormal()) {
+            if (!iframeMoved) {
+            recreateIframeForNormal();
+        }
+        }
 
         requestAnimationFrame(() => {
             if (state.iframe && !state.iframe.classList.contains(CSS_CLASSES.fullscreen)) {
@@ -510,4 +570,89 @@
         init: attachFullscreenListener
     };
 
+    function canMoveElements() {
+        return typeof Element.prototype.moveBefore === "function";
+    }
+
+    function moveIframeToFullscreen(fsRow) {
+        if (!state.iframe || !fsRow) return false;
+
+        try {
+            fsRow.moveBefore(state.iframe, fsRow.firstChild);
+        } catch (err) {
+            console.warn("[Binger] Iframe move to fullscreen failed:", err);
+            return false;
+        }
+
+        state.iframe.removeAttribute("style");
+        state.iframe.classList.add(CSS_CLASSES.fullscreen);
+
+        syncIframeReference(state.iframe);
+        return true;
+    }
+
+    function moveIframeToNormal() {
+        if (!state.iframe || !state.iframeOriginalParent) return false;
+
+        let target = skipEphemeralSiblings(state.iframeNextSibling);
+
+        if (target && target.parentNode !== state.iframeOriginalParent) {
+            target = null;
+        }
+
+        try {
+            state.iframeOriginalParent.moveBefore(state.iframe, target);
+        } catch (err) {
+            console.warn("[Binger] Iframe move to normal failed:", err);
+            return false;
+        }
+
+        state.iframe.classList.remove(CSS_CLASSES.fullscreen);
+
+        if (state.iframeOriginalStyles) {
+            state.iframe.setAttribute("style", state.iframeOriginalStyles);
+        } else {
+            state.iframe.removeAttribute("style");
+        }
+
+        syncIframeReference(state.iframe);
+        clearIframePosition();
+        return true;
+    }
+
+    let savedChatScrollTop = 0;
+
+    function saveChatScroll() {
+        const chatLog = document.getElementById("bingerChatLog");
+        savedChatScrollTop = chatLog ? chatLog.scrollTop : 0;
+    }
+
+    const CHAT_SCROLL_SETTLE_MS = 420;
+
+    function applyChatScroll() {
+        const el = document.getElementById("bingerChatLog");
+        if (el) el.scrollTop = savedChatScrollTop;
+    }
+
+    function restoreChatScroll() {
+        applyChatScroll();
+        requestAnimationFrame(applyChatScroll);
+        setTimeout(applyChatScroll, CHAT_SCROLL_SETTLE_MS);
+    }
+    const FS_TRANSITION_LOCK = "binger-fs-transition-lock";
+
+    function lockOverlayTransitions(overlay) {
+        if (!overlay) return;
+        overlay.classList.add(FS_TRANSITION_LOCK);
+    }
+
+    function unlockOverlayTransitions(overlay) {
+        if (!overlay) return;
+
+        void overlay.offsetHeight;
+
+        requestAnimationFrame(() => {
+            overlay.classList.remove(FS_TRANSITION_LOCK);
+        });
+    }
 })();
