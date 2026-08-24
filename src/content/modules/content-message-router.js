@@ -93,6 +93,10 @@
         BingerState.setCurrentUsersInRoom(msg.users);
         BingerRoom.checkWatchTogetherEligibility();
         BingerOverlayDOM.setUserListDisplay(msg.users);
+
+        if (window.BingerSession?.syncCallIframeUserCount) {
+            window.BingerSession.syncCallIframeUserCount();
+        }
     }
 
     function handleStartSession(msg) {

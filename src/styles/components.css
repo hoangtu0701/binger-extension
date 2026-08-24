@@ -14,7 +14,7 @@
 
 .binger-call-iframe.binger-call-wide:not(.fullscreen) {
   width: 880px;
-  height: 400px;
+  height: 460px;
 }
 
 .binger-call-iframe.binger-call-hidden {
@@ -42,6 +42,12 @@
               opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   max-width: 1000px;
   opacity: 1;
+}
+
+.binger-call-iframe.binger-call-wide.fullscreen {
+  aspect-ratio: auto;
+  width: calc(84vh - 16px);
+  max-width: 1400px;
 }
 
 .binger-call-iframe.fullscreen.binger-call-hidden {

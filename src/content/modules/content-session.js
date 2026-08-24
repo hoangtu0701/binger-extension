@@ -184,6 +184,13 @@
         } catch {}
     }
 
+    function syncCallIframeUserCount() {
+        if (!state.callIframe) return;
+
+        BingerHelpers.applyCallIframeWidth(state.callIframe);
+        BingerHelpers.notifyCallIframeUsers(state.callIframe);
+    }
+
     function createCallIframe(roomId) {
         const iframe = document.createElement("iframe");
         iframe.className = `${CSS_CLASSES.callIframe} ${CSS_CLASSES.callHidden} binger-call-initial`;
@@ -761,7 +768,8 @@
     window.BingerSession = {
         inSessionMode,
         outSessionMode,
-        sendThemeToCallIframe
+        sendThemeToCallIframe,
+        syncCallIframeUserCount
     };
 
 })();

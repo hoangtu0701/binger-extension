@@ -204,6 +204,25 @@
         }
     }
 
+    function notifyCallIframeUsers(iframe) {
+        if (!iframe) return;
+
+        const post = () => {
+            try {
+                iframe.contentWindow.postMessage(
+                    { type: "setUserCount", users: getRoomUserCount() },
+                    "*"
+                );
+            } catch {}
+        };
+
+        post();
+
+        if (iframe.contentDocument?.readyState !== "complete") {
+            iframe.addEventListener("load", post, { once: true });
+        }
+    }
+
     window.BingerHelpers = {
         isOnPhimbro,
         isOnWatchPage,
@@ -223,7 +242,8 @@
         buildCallIframeUrl,
         shouldUseWideCall,
         applyCallIframeWidth,
-        notifyCallIframeFullscreen
+        notifyCallIframeFullscreen,
+        notifyCallIframeUsers
     };
 
 })();
