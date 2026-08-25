@@ -4,8 +4,8 @@
 
 .binger-room-lock {
   position: relative;
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -29,8 +29,8 @@
 }
 
 .binger-lock-icon {
-  width: 14px;
-  height: 14px;
+  width: 17px;
+  height: 17px;
   overflow: visible;
   fill: none;
   stroke: rgba(212, 165, 116, 0.5);
@@ -133,6 +133,17 @@
   line-height: 1;
 }
 
+.binger-lock-tip.tip-flip .binger-lock-tip-label {
+  animation: bingerLabelSwap 0.34s ease;
+}
+
+@keyframes bingerLabelSwap {
+  0% { opacity: 1; transform: translateY(0); }
+  38% { opacity: 0; transform: translateY(-3px); }
+  39% { opacity: 0; transform: translateY(3px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
 .binger-lock-tip-input {
   width: 62px;
   padding: 2px 0;
@@ -150,11 +161,20 @@
   cursor: text;
   user-select: text;
   pointer-events: auto;
-  transition: border-color 0.25s ease;
+  max-height: 22px;
+  opacity: 1;
+  overflow: hidden;
+  transition: border-color 0.25s ease,
+              max-height 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.24s ease,
+              margin-top 0.32s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .binger-lock-tip:not(.is-private) .binger-lock-tip-input {
-  display: none;
+  max-height: 0;
+  opacity: 0;
+  margin-top: -3px;
+  pointer-events: none;
 }
 
 .binger-lock-tip.is-editable .binger-lock-tip-input:hover,

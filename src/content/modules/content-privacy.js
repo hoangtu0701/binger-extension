@@ -3,18 +3,23 @@
 
     const TIP_GAP = 10;
     const TIP_CLOSE_DELAY = 130;
+    const LABEL_SWAP_MS = 130;
+    const LABEL_FLIP_MS = 360;
 
     const state = {
         roomId: null,
         isPrivate: false,
         password: "",
         editing: false,
+        pointerInside: false,
         initialized: false
     };
 
     let tipEl = null;
     let closeTimer = null;
     let outsideHandler = null;
+    let labelSwapTimer = null;
+    let labelFlipTimer = null;
 
     function getLock() {
         return BingerOverlayDOM.getElement("roomLock");
@@ -41,6 +46,16 @@
             clearTimeout(closeTimer);
             closeTimer = null;
         }
+    }
+
+    function ensureTipParent() {
+        const lock = getLock();
+        if (!tipEl || !lock) return;
+
+        const target = document.fullscreenElement || lock;
+        if (tipEl.parentNode === target) return;
+
+        target.appendChild(tipEl);
     }
 
     function findFixedContainer(node) {
@@ -72,7 +87,7 @@
         const tipRect = tipEl.getBoundingClientRect();
         const half = tipRect.width / 2;
 
-        const container = findFixedContainer(lock);
+        const container = findFixedContainer(tipEl);
 
         let left = rect.left + rect.width / 2;
         left = Math.max(half + 6, Math.min(left, window.innerWidth - half - 6));
@@ -91,7 +106,9 @@
     }
 
     function isTipHeld() {
-        return state.editing || document.activeElement === getTipInput();
+        return state.editing
+            || state.pointerInside
+            || document.activeElement === getTipInput();
     }
 
     function openTip() {
@@ -99,21 +116,18 @@
         if (!lock || !tipEl || lock.hidden) return;
 
         cancelCloseTimer();
+        ensureTipParent();
+        positionTip();
 
-        if (tipEl.classList.contains("tip-open")) {
-            positionTip();
-            return;
-        }
+        if (tipEl.classList.contains("tip-open")) return;
 
         tipEl.classList.add("tip-open");
-        positionTip();
         requestAnimationFrame(positionTip);
     }
 
     function scheduleClose() {
-        if (isTipHeld()) return;
-
         cancelCloseTimer();
+
         closeTimer = setTimeout(() => {
             closeTimer = null;
             if (isTipHeld()) return;
@@ -123,7 +137,35 @@
 
     function forceCloseTip() {
         cancelCloseTimer();
+        state.pointerInside = false;
         tipEl?.classList.remove("tip-open");
+    }
+
+    function updateLabel() {
+        const label = getTipLabel();
+        if (!label || !tipEl) return;
+
+        const nextText = state.isPrivate ? "Room password" : "Room is public";
+        if (label.textContent === nextText) return;
+
+        if (labelSwapTimer) clearTimeout(labelSwapTimer);
+        if (labelFlipTimer) clearTimeout(labelFlipTimer);
+
+        tipEl.classList.remove("tip-flip");
+        void tipEl.offsetWidth;
+        tipEl.classList.add("tip-flip");
+
+        labelSwapTimer = setTimeout(() => {
+            label.textContent = nextText;
+            labelSwapTimer = null;
+            if (tipEl.classList.contains("tip-open")) positionTip();
+        }, LABEL_SWAP_MS);
+
+        labelFlipTimer = setTimeout(() => {
+            tipEl.classList.remove("tip-flip");
+            labelFlipTimer = null;
+            if (tipEl.classList.contains("tip-open")) positionTip();
+        }, LABEL_FLIP_MS);
     }
 
     function render() {
@@ -146,12 +188,9 @@
         tipEl.classList.toggle("is-private", state.isPrivate);
         tipEl.classList.toggle("is-editable", canEdit());
 
-        const label = getTipLabel();
-        const input = getTipInput();
+        updateLabel();
 
-        if (label) {
-            label.textContent = state.isPrivate ? "Room password" : "Room is public";
-        }
+        const input = getTipInput();
 
         if (input) {
             input.readOnly = !canEdit();
@@ -197,9 +236,7 @@
 
     function stopEditing(save) {
         if (!state.editing) {
-            getTipInput()?.blur();
             detachOutsideHandler();
-            forceCloseTip();
             return;
         }
 
@@ -257,6 +294,10 @@
             });
     }
 
+    function isInsideTip(node) {
+        return Boolean(tipEl && node && tipEl.contains(node));
+    }
+
     function initPrivacy() {
         if (state.initialized) return;
 
@@ -266,21 +307,35 @@
         tipEl = lock.querySelector(".binger-lock-tip");
         if (!tipEl) return;
 
-        lock.addEventListener("mouseenter", openTip);
-        lock.addEventListener("mouseleave", scheduleClose);
+        lock.addEventListener("mouseenter", () => {
+            state.pointerInside = true;
+            openTip();
+        });
 
-        window.addEventListener("scroll", () => {
-            if (tipEl?.classList.contains("tip-open")) positionTip();
-        }, true);
+        lock.addEventListener("mouseleave", () => {
+            state.pointerInside = false;
+            scheduleClose();
+        });
 
         lock.addEventListener("mousedown", (event) => {
+            if (isInsideTip(event.target)) return;
             event.preventDefault();
         });
 
-        lock.addEventListener("click", togglePrivacy);
+        lock.addEventListener("click", (event) => {
+            if (isInsideTip(event.target)) return;
+            togglePrivacy();
+        });
 
-        tipEl.addEventListener("mouseenter", cancelCloseTimer);
-        tipEl.addEventListener("mouseleave", scheduleClose);
+        tipEl.addEventListener("mouseenter", () => {
+            state.pointerInside = true;
+            cancelCloseTimer();
+        });
+
+        tipEl.addEventListener("mouseleave", () => {
+            state.pointerInside = false;
+            scheduleClose();
+        });
 
         const input = getTipInput();
 
@@ -323,10 +378,15 @@
             if (tipEl?.classList.contains("tip-open")) positionTip();
         });
 
+        window.addEventListener("scroll", () => {
+            if (tipEl?.classList.contains("tip-open")) positionTip();
+        }, true);
+
         document.addEventListener("fullscreenchange", () => {
             forceCloseTip();
             state.editing = false;
             detachOutsideHandler();
+            ensureTipParent();
         });
 
         state.initialized = true;
