@@ -192,6 +192,33 @@
   border-bottom-color: rgba(150, 96, 60, 0.45);
 }
 
+.binger-lock-tip.tip-fullscreen {
+  gap: 4px;
+  padding: 8px 13px;
+  border-radius: 10px;
+}
+
+.binger-lock-tip.tip-fullscreen .binger-lock-tip-label {
+  font-size: 10px;
+  letter-spacing: 0.7px;
+}
+
+.binger-lock-tip.tip-fullscreen.is-private .binger-lock-tip-input {
+  width: 72px;
+  font-size: 16px;
+  letter-spacing: 5px;
+  padding: 2px 0;
+  max-height: 26px;
+}
+
+.binger-lock-tip.tip-fullscreen:not(.is-private) .binger-lock-tip-input {
+  margin-top: -4px;
+}
+
+.binger-lock-tip.tip-fullscreen::before {
+  height: 14px;
+}
+
 /* ========================================================================
    JOIN BUBBLE - focus ring, password mode, swap, error
    ======================================================================== */

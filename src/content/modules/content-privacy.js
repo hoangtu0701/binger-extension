@@ -54,6 +54,9 @@
         if (!tipEl || !lock) return;
 
         const target = document.fullscreenElement || lock;
+
+        tipEl.classList.toggle("tip-fullscreen", Boolean(document.fullscreenElement));
+
         if (tipEl.parentNode === target) return;
 
         target.appendChild(tipEl);
@@ -299,8 +302,15 @@
             });
     }
 
-    function isInsideTip(node) {
-        return Boolean(tipEl && node && tipEl.contains(node));
+    function isOnTipSurface(event) {
+        if (!tipEl || !tipEl.classList.contains("tip-open")) return false;
+
+        const rect = tipEl.getBoundingClientRect();
+
+        return event.clientX >= rect.left
+            && event.clientX <= rect.right
+            && event.clientY >= rect.top
+            && event.clientY <= rect.bottom;
     }
 
     function initPrivacy() {
@@ -323,12 +333,12 @@
         });
 
         lock.addEventListener("mousedown", (event) => {
-            if (isInsideTip(event.target)) return;
+            if (isOnTipSurface(event)) return;
             event.preventDefault();
         });
 
         lock.addEventListener("click", (event) => {
-            if (isInsideTip(event.target)) return;
+            if (isOnTipSurface(event)) return;
 
             endEditing(true, false);
             togglePrivacy();
