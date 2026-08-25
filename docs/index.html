@@ -1704,13 +1704,18 @@
 
       .reveal {
         opacity: 0;
-        transform: translateY(22px);
-        transition: opacity 0.75s ease, transform 0.75s cubic-bezier(0.2, 0.7, 0.3, 1);
+        translate: 0 22px;
+        transition: opacity 0.75s ease,
+                    translate 0.75s cubic-bezier(0.2, 0.7, 0.3, 1),
+                    transform 0.45s cubic-bezier(0.34, 1.28, 0.64, 1),
+                    background 0.6s ease,
+                    border-color 0.45s ease,
+                    box-shadow 0.45s ease;
       }
 
       .reveal.shown {
         opacity: 1;
-        transform: none;
+        translate: 0 0;
       }
 
       .d1 { transition-delay: 0.07s; }
@@ -1790,18 +1795,6 @@
         .step:hover img { transform: none; }
       }
 
-      @media (prefers-reduced-motion: reduce) {
-        html { scroll-behavior: auto; }
-
-        *, *::before, *::after {
-          animation-duration: 0.001ms !important;
-          animation-iteration-count: 1 !important;
-          transition-duration: 0.001ms !important;
-        }
-
-        .reveal { opacity: 1; transform: none; }
-        .mote, .beam { display: none; }
-      }
     </style>
   </head>
   <body>
@@ -1863,7 +1856,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           Download Binger
         </a>
-        <p class="hero-version">version v8.0.2</p>
+        <p id="version-text" class="hero-version">version v8.0.2</p>
 
         <div class="scroll-hint" aria-hidden="true">
           <span>Scroll</span>
@@ -2277,14 +2270,13 @@
         "use strict";
 
         var root = document.documentElement;
-        var calmQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
         var hoverQuery = window.matchMedia("(hover: hover) and (pointer: fine)");
 
         /* ---------- scroll reveal ---------- */
 
         var reveals = document.querySelectorAll(".reveal");
 
-        if (calmQuery.matches || !("IntersectionObserver" in window)) {
+        if (!("IntersectionObserver" in window)) {
           Array.prototype.forEach.call(reveals, function (el) {
             el.classList.add("shown");
           });
@@ -2292,8 +2284,14 @@
           var revealObserver = new IntersectionObserver(function (entries) {
             entries.forEach(function (entry) {
               if (!entry.isIntersecting) return;
-              entry.target.classList.add("shown");
-              revealObserver.unobserve(entry.target);
+
+              var el = entry.target;
+              el.classList.add("shown");
+              revealObserver.unobserve(el);
+
+              window.setTimeout(function () {
+                el.style.transitionDelay = "0s";
+              }, 1100);
             });
           }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
 
@@ -2394,7 +2392,7 @@
           window.requestAnimationFrame(clockFrame);
         }
 
-        if (syncBand && fills.length && !calmQuery.matches && "IntersectionObserver" in window) {
+        if (syncBand && fills.length && "IntersectionObserver" in window) {
           new IntersectionObserver(function (entries) {
             entries.forEach(function (entry) {
               if (entry.isIntersecting && !clockOn) {
@@ -2433,10 +2431,7 @@
             if (!target) return;
 
             event.preventDefault();
-            target.scrollIntoView({
-              behavior: calmQuery.matches ? "auto" : "smooth",
-              block: "start"
-            });
+            target.scrollIntoView({ behavior: "smooth", block: "start" });
           });
         });
 
@@ -2544,7 +2539,7 @@
                 return;
               }
 
-              if (!calmQuery.matches) sendFloat(btn);
+              sendFloat(btn);
             }
 
             btn.addEventListener("pointerup", finish);
@@ -2561,14 +2556,14 @@
             btn.addEventListener("keydown", function (event) {
               if (event.key !== "Enter" && event.key !== " ") return;
               event.preventDefault();
-              if (!calmQuery.matches) sendFloat(btn);
+              sendFloat(btn);
             });
           });
         }
 
         /* ---------- card spotlight, pointer devices only ---------- */
 
-        if (hoverQuery.matches && !calmQuery.matches) {
+        if (hoverQuery.matches) {
           var cards = document.querySelectorAll(".card");
 
           Array.prototype.forEach.call(cards, function (card) {
