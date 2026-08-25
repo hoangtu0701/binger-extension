@@ -194,6 +194,7 @@
 
       .rail {
         position: fixed;
+        will-change: transform;
         top: 0;
         left: 0;
         height: 2px;
@@ -231,6 +232,7 @@
 
       .mark {
         display: inline-flex;
+        transition: color 0.4s ease;
         align-items: center;
         gap: 0.6rem;
         font-family: "Playfair Display", serif;
@@ -238,6 +240,11 @@
         font-weight: 700;
         letter-spacing: -0.01em;
         text-decoration: none;
+      }
+
+      .mark:hover .mark-cell {
+        border-color: var(--brass);
+        transform: rotate(-6deg);
       }
 
       .mark-cell {
@@ -250,7 +257,7 @@
         background: var(--surface);
         border: 1.5px solid var(--accent);
         color: var(--paper);
-        transition: background 0.5s ease, border-color 0.5s ease;
+        transition: background 0.5s ease, border-color 0.4s ease, transform 0.45s cubic-bezier(0.34, 1.4, 0.64, 1);
       }
 
       .masthead-links {
@@ -265,12 +272,28 @@
       }
 
       .masthead-links a {
+        position: relative;
         color: var(--text-2);
         text-decoration: none;
-        transition: color 0.25s ease;
+        padding-bottom: 3px;
+        transition: color 0.4s ease;
+      }
+
+      .masthead-links a::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 1px;
+        background: var(--brass);
+        transform: scaleX(0);
+        transform-origin: 0 50%;
+        transition: transform 0.45s cubic-bezier(0.62, 0.05, 0.2, 1);
       }
 
       .masthead-links a:hover { color: var(--brass); }
+      .masthead-links a:hover::after { transform: scaleX(1); }
 
       .mini-cta {
         display: inline-flex;
@@ -284,7 +307,7 @@
         color: var(--paper);
         background: color-mix(in srgb, var(--accent) 22%, transparent);
         border: 1px solid var(--line);
-        transition: background 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
+        transition: background 0.4s ease, transform 0.4s cubic-bezier(0.34, 1.35, 0.64, 1), border-color 0.4s ease, color 0.4s ease;
       }
 
       .mini-cta:hover {
@@ -375,6 +398,8 @@
         font-weight: 700;
         line-height: 0.95;
         letter-spacing: -0.035em;
+        padding-bottom: 0.16em;
+        margin-bottom: -0.16em;
         background: linear-gradient(105deg, var(--paper) 20%, var(--brass) 50%, var(--paper) 80%);
         background-size: 220% 100%;
         -webkit-background-clip: text;
@@ -447,7 +472,10 @@
         border: 1px solid color-mix(in srgb, var(--brass) 32%, transparent);
         position: relative;
         overflow: hidden;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        transition: transform 0.4s cubic-bezier(0.34, 1.3, 0.64, 1),
+                    box-shadow 0.45s ease,
+                    background 0.6s ease,
+                    border-color 0.45s ease;
         animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.3, 1) 0.32s both;
       }
 
@@ -566,7 +594,8 @@
         background:
           radial-gradient(ellipse at 15% 0%, var(--wash) 0%, transparent 62%),
           linear-gradient(165deg, color-mix(in srgb, var(--surface) 85%, transparent), color-mix(in srgb, var(--raised) 42%, transparent));
-        transition: background 0.6s ease, border-color 0.35s ease, transform 0.35s ease, box-shadow 0.35s ease;
+        transition: background 0.6s ease, border-color 0.45s ease,
+                    transform 0.45s cubic-bezier(0.34, 1.28, 0.64, 1), box-shadow 0.45s ease;
       }
 
       /* ==========================================================
@@ -601,7 +630,7 @@
       }
 
       .card:hover {
-        transform: translateY(-4px);
+        transform: translateY(-6px);
         border-color: color-mix(in srgb, var(--brass) 38%, transparent);
         box-shadow: 0 16px 44px rgba(0, 0, 0, 0.42);
       }
@@ -643,6 +672,8 @@
       /* ==========================================================
          SPLIT LAYOUT
          ========================================================== */
+
+      .split > * { min-width: 0; }
 
       .split {
         display: grid;
@@ -761,7 +792,7 @@
         background: transparent;
         cursor: pointer;
         position: relative;
-        transition: background 0.25s ease;
+        transition: background 0.4s ease;
       }
 
       .lock:hover { background: var(--wash); }
@@ -776,7 +807,7 @@
         stroke-linecap: round;
         stroke-linejoin: round;
         pointer-events: none;
-        transition: stroke 0.35s ease, transform 0.14s ease-out;
+        transition: stroke 0.45s ease, transform 0.24s cubic-bezier(0.34, 1.4, 0.64, 1);
       }
 
       .lock:active svg { transform: scale(0.86); }
@@ -877,7 +908,7 @@
         display: flex;
         align-items: center;
         gap: 3px;
-        margin-left: 2px;
+        margin-left: auto;
       }
 
       .host-tag {
@@ -914,7 +945,7 @@
 
 
       .strip-count {
-        margin-left: auto;
+        margin-left: 11px;
         font-family: "JetBrains Mono", monospace;
         font-size: 0.7rem;
         font-weight: 600;
@@ -1122,11 +1153,11 @@
         color: var(--text-2);
         background: color-mix(in srgb, var(--paper) 4%, transparent);
         border: 1px solid color-mix(in srgb, var(--paper) 8%, transparent);
-        transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+        transition: transform 0.42s cubic-bezier(0.34, 1.4, 0.64, 1), background 0.45s ease, border-color 0.45s ease, color 0.4s ease;
       }
 
       .swatch:hover {
-        transform: translateY(-2px);
+        transform: translateY(-4px);
         color: var(--paper);
         background: color-mix(in srgb, var(--paper) 8%, transparent);
       }
@@ -1145,6 +1176,7 @@
         border: 2px solid rgba(255, 255, 255, 0.12);
         position: relative;
         overflow: hidden;
+        transition: box-shadow 0.45s cubic-bezier(0.34, 1.3, 0.64, 1), transform 0.45s ease;
       }
 
       .swatch[aria-pressed="true"] .chip {
@@ -1285,12 +1317,19 @@
       .reactions {
         position: relative;
         margin-top: 3rem;
-        min-height: 260px;
+        min-height: 330px;
         display: flex;
         flex-direction: column;
         justify-content: flex-end;
         padding: 2rem 1.5rem 1.7rem;
         overflow: hidden;
+        touch-action: none;
+      }
+
+      .react-field {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
       }
 
       .react-row {
@@ -1299,7 +1338,7 @@
         justify-content: center;
         gap: 0.55rem;
         position: relative;
-        z-index: 2;
+        z-index: 3;
       }
 
       .react-btn {
@@ -1308,32 +1347,141 @@
         border-radius: 13px;
         font-size: 1.28rem;
         line-height: 1;
-        cursor: pointer;
+        cursor: grab;
+        touch-action: none;
         background: color-mix(in srgb, var(--ink) 55%, transparent);
         border: 1px solid var(--line);
-        transition: transform 0.2s ease, background 0.25s ease, border-color 0.25s ease;
+        transition: transform 0.28s cubic-bezier(0.34, 1.4, 0.64, 1),
+                    background 0.35s ease,
+                    border-color 0.35s ease,
+                    box-shadow 0.35s ease;
       }
 
       .react-btn:hover {
-        transform: translateY(-4px) scale(1.06);
+        transform: translateY(-5px) scale(1.07);
         border-color: var(--brass);
         background: var(--wash);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
       }
 
-      .react-btn:active { transform: translateY(-1px) scale(0.95); }
+      .react-btn.lifting {
+        transform: translateY(-2px) scale(0.9);
+        opacity: 0.45;
+        cursor: grabbing;
+      }
+
+      .react-ghost {
+        position: absolute;
+        z-index: 4;
+        font-size: 2.1rem;
+        line-height: 1;
+        pointer-events: none;
+        filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.5));
+        transition: opacity 0.25s ease;
+      }
 
       .float-emoji {
         position: absolute;
         font-size: 1.7rem;
         pointer-events: none;
-        z-index: 1;
-        animation: lift 2s cubic-bezier(0.3, 0, 0.5, 1) forwards;
+        z-index: 2;
       }
 
-      @keyframes lift {
-        0%   { opacity: 0; transform: translate(0, 10px) scale(0.5) rotate(0deg); }
-        18%  { opacity: 1; transform: translate(0, 0) scale(1.1) rotate(4deg); }
-        100% { opacity: 0; transform: translate(var(--dx), -150px) scale(1.25) rotate(var(--rot)); }
+      .float-emoji.drift { animation: floatDrift 2s cubic-bezier(0.3, 0, 0.5, 1) forwards; }
+      .float-emoji.pop   { animation: floatPop 2s cubic-bezier(0.3, 0, 0.5, 1) forwards; }
+      .float-emoji.spiral{ animation: floatSpiral 2s cubic-bezier(0.3, 0, 0.5, 1) forwards; }
+
+      @keyframes floatDrift {
+        0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+        50%  { transform: translate(var(--dx), -75px) scale(1.2); opacity: 0.8; }
+        100% { transform: translate(calc(var(--dx) * 2), -150px) scale(1); opacity: 0; }
+      }
+
+      @keyframes floatPop {
+        0%   { transform: translateY(0) scale(0.8); opacity: 0; }
+        20%  { transform: translateY(-30px) scale(1.3); opacity: 1; }
+        80%  { transform: translateY(-120px) scale(1); opacity: 0.8; }
+        100% { transform: translateY(-150px) scale(0.9); opacity: 0; }
+      }
+
+      @keyframes floatSpiral {
+        0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+        100% { transform: translateY(-180px) rotate(360deg); opacity: 0; }
+      }
+
+      .pin-emoji {
+        position: absolute;
+        z-index: 2;
+        font-size: 2.6rem;
+        line-height: 1;
+        pointer-events: none;
+        opacity: 1;
+        transition: opacity 0.5s ease;
+      }
+
+      .pin-emoji.fading { opacity: 0; }
+
+      .pin-emoji[data-fx="mad"]      { animation: madGlowShake 0.8s infinite; }
+      .pin-emoji[data-fx="poop"]     { animation: poopBounce 1s infinite; }
+      .pin-emoji[data-fx="sadtears"] { animation: sadTearsDrop 1.2s infinite; }
+      .pin-emoji[data-fx="laugh"]    { animation: laughShake 0.6s infinite; }
+      .pin-emoji[data-fx="hammer"]   { animation: hammerSlam 0.8s ease-in-out infinite; }
+      .pin-emoji[data-fx="hearts"]   { animation: heartPulse 1s ease-in-out infinite; }
+      .pin-emoji[data-fx="smile"]    { animation: smilePop 0.8s ease-in-out; }
+      .pin-emoji[data-fx="disguise"] { animation: disguiseWiggle 1s infinite; }
+      .pin-emoji[data-fx="pleading"] { animation: pleadingTilt 2s ease-in-out infinite; }
+      .pin-emoji[data-fx="shock"]    { animation: shockTremble 0.6s infinite; }
+
+      @keyframes madGlowShake {
+        0%, 100% { transform: translateX(0); filter: drop-shadow(0 0 0 red); }
+        25% { transform: translateX(-5px) rotate(-5deg); filter: drop-shadow(0 0 8px red); }
+        50% { transform: translateX(5px) rotate(5deg); filter: drop-shadow(0 0 12px orange); }
+        75% { transform: translateX(-3px) rotate(-3deg); filter: drop-shadow(0 0 8px red); }
+      }
+      @keyframes poopBounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
+      }
+      @keyframes sadTearsDrop {
+        0% { transform: translateY(0); opacity: 1; }
+        50% { transform: translateY(10px); opacity: 0.7; }
+        100% { transform: translateY(20px); opacity: 0; }
+      }
+      @keyframes laughShake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-6px) rotate(-5deg); }
+        75% { transform: translateX(6px) rotate(5deg); }
+      }
+      @keyframes hammerSlam {
+        0% { transform: rotate(0deg) translateY(0); }
+        25% { transform: rotate(-90deg) translateY(-10px); }
+        50% { transform: rotate(0deg) translateY(0); }
+        75% { transform: rotate(-90deg) translateY(-10px); }
+        100% { transform: rotate(0deg) translateY(0); }
+      }
+      @keyframes heartPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+      }
+      @keyframes smilePop {
+        0% { transform: scale(0.8); opacity: 0.5; }
+        50% { transform: scale(1.3); opacity: 1; }
+        100% { transform: scale(1); opacity: 1; }
+      }
+      @keyframes disguiseWiggle {
+        0%, 100% { transform: rotate(0deg); }
+        25% { transform: rotate(5deg); }
+        50% { transform: rotate(-5deg); }
+        75% { transform: rotate(5deg); }
+      }
+      @keyframes pleadingTilt {
+        0%, 100% { transform: rotate(0deg); }
+        50% { transform: rotate(15deg); }
+      }
+      @keyframes shockTremble {
+        0%, 100% { transform: translateX(0) rotate(0); }
+        25% { transform: translateX(-3px) rotate(-2deg); }
+        75% { transform: translateX(3px) rotate(2deg); }
       }
 
       .react-hint {
@@ -1345,7 +1493,8 @@
         text-transform: uppercase;
         color: var(--text-3);
         position: relative;
-        z-index: 2;
+        z-index: 3;
+        transition: color 0.4s ease;
       }
 
       /* ==========================================================
@@ -1383,10 +1532,10 @@
         border: 1px solid var(--line);
         object-fit: cover;
         flex-shrink: 0;
-        transition: transform 0.35s ease;
+        transition: transform 0.55s cubic-bezier(0.2, 0.7, 0.3, 1), border-color 0.45s ease;
       }
 
-      .step:hover img { transform: scale(1.025); }
+      .step:hover img { transform: scale(1.04); }
 
       .step-body { flex: 1; text-align: center; }
 
@@ -1428,7 +1577,15 @@
         gap: 0.7rem;
       }
 
-      .qa { border-radius: 13px; }
+      .qa {
+        border-radius: 13px;
+        transition: background 0.6s ease, border-color 0.45s ease, box-shadow 0.45s ease;
+      }
+
+      .qa.open {
+        border-color: color-mix(in srgb, var(--brass) 30%, transparent);
+        box-shadow: 0 10px 34px rgba(0, 0, 0, 0.3);
+      }
 
       .q {
         width: 100%;
@@ -1436,7 +1593,7 @@
         border: none;
         background: none;
         cursor: pointer;
-        color: var(--paper);
+        color: var(--text-2);
         font-family: "DM Sans", sans-serif;
         font-size: 0.95rem;
         font-weight: 600;
@@ -1446,74 +1603,99 @@
         justify-content: space-between;
         gap: 1rem;
         border-radius: 13px;
+        transition: color 0.4s ease, letter-spacing 0.4s ease;
       }
 
-      .q svg {
+      .q:hover { color: var(--paper); }
+      .qa.open .q { color: var(--paper); }
+
+      /* marker: a plus that unwinds into a minus and keeps turning */
+      .q-mark {
+        position: relative;
         width: 15px;
         height: 15px;
         flex-shrink: 0;
-        color: var(--text-3);
-        transition: transform 0.35s cubic-bezier(0.34, 1.3, 0.64, 1), color 0.3s ease;
+        transform: rotate(0deg);
+        transition: transform 0.55s cubic-bezier(0.62, 0.05, 0.2, 1);
       }
 
-      .qa.open .q svg {
-        transform: rotate(135deg);
-        color: var(--brass);
+      .q-mark::before,
+      .q-mark::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 15px;
+        height: 1.7px;
+        border-radius: 2px;
+        background: var(--text-3);
+        transform: translate(-50%, -50%);
+        transition: transform 0.55s cubic-bezier(0.62, 0.05, 0.2, 1),
+                    background 0.4s ease,
+                    opacity 0.4s ease;
       }
 
+      .q-mark::after { transform: translate(-50%, -50%) rotate(90deg); }
+
+      .q:hover .q-mark::before,
+      .q:hover .q-mark::after { background: var(--brass); }
+
+      .qa.open .q-mark { transform: rotate(180deg); }
+      .qa.open .q-mark::before { background: var(--brass); }
+      .qa.open .q-mark::after {
+        transform: translate(-50%, -50%) rotate(0deg);
+        opacity: 0;
+      }
+
+      /* the reel unrolls */
       .a {
         display: grid;
         grid-template-rows: 0fr;
-        transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: grid-template-rows 0.55s cubic-bezier(0.62, 0.05, 0.2, 1);
       }
 
       .qa.open .a { grid-template-rows: 1fr; }
 
-      .a > div { overflow: hidden; }
+      .a-in {
+        overflow: hidden;
+        min-height: 0;
+      }
 
       .a p {
-        padding: 0 1.3rem 1.15rem;
-        margin-left: 0.2rem;
-        border-left: 2px solid var(--accent);
-        padding-left: 1.1rem;
+        position: relative;
+        margin-left: 1.5rem;
+        padding: 0 1.3rem 1.2rem 1.1rem;
         font-size: 0.9rem;
         color: var(--text-2);
-        transition: border-color 0.6s ease;
+        opacity: 0;
+        transform: translateY(-9px);
+        transition: opacity 0.4s ease, transform 0.5s cubic-bezier(0.2, 0.7, 0.3, 1);
       }
 
-      /* ==========================================================
-         CLOSING
-         ========================================================== */
-
-      .closing {
-        position: relative;
-        text-align: center;
-        padding: var(--step) 1.5rem calc(var(--step) * 0.7);
-        overflow: hidden;
+      .qa.open .a p {
+        opacity: 1;
+        transform: translateY(0);
+        transition-delay: 0.14s;
       }
 
-      .closing .cta { animation: none; }
-
-      .closing-title {
-        font-family: "Playfair Display", serif;
-        font-style: italic;
-        font-size: clamp(1.7rem, 4.4vw, 2.5rem);
-        font-weight: 600;
-        margin-bottom: 2rem;
-        letter-spacing: -0.01em;
+      /* the rule draws itself downward as the answer unrolls */
+      .a p::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 1.2rem;
+        width: 2px;
+        border-radius: 2px;
+        background: linear-gradient(180deg, var(--brass), var(--accent));
+        transform: scaleY(0);
+        transform-origin: 50% 0;
+        transition: transform 0.55s cubic-bezier(0.62, 0.05, 0.2, 1);
       }
 
-      footer {
-        text-align: center;
-        padding: 2.2rem 1.5rem 2.6rem;
-        border-top: 1px solid var(--line);
-      }
-
-      footer p {
-        font-family: "JetBrains Mono", monospace;
-        font-size: 0.68rem;
-        letter-spacing: 1.4px;
-        color: var(--text-3);
+      .qa.open .a p::before {
+        transform: scaleY(1);
+        transition-delay: 0.08s;
       }
 
       /* ==========================================================
@@ -1589,9 +1771,17 @@
         html { --shell: min(1120px, 100% - 1.75rem); }
 
         .cta { padding: 15px 30px; font-size: 0.95rem; }
-        .strip { gap: 6px; padding: 8px 9px; }
-        .strip-count { font-size: 0.64rem; }
-        .pip, .track-tag { width: 21px; height: 21px; font-size: 9px; }
+
+        .strip { gap: 5px; padding: 8px; }
+        .strip-code { font-size: 0.7rem; letter-spacing: 1px; padding: 3px 6px; }
+        .strip-count { font-size: 0.62rem; margin-left: 6px; }
+        .host-tag { display: none; }
+        .pips { gap: 2px; }
+        .pip, .track-tag { width: 20px; height: 20px; font-size: 8.5px; }
+
+        .join-demo { padding: 10px; font-size: 0.8rem; letter-spacing: 3px; }
+        .join-demo em { font-size: 0.62rem; }
+        .stage-cap { font-size: 0.58rem; }
       }
 
       @media (hover: none) {
@@ -1629,12 +1819,8 @@
         <a href="#themes">Themes</a>
         <a href="#bot">Bot</a>
         <a href="#install">Install</a>
-        <a href="#faq">FAQ</a>
       </nav>
-      <a class="mini-cta" href="Binger v8.0.1.zip" download>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Download
-      </a>
+      <a class="mini-cta" href="#faq">FAQ</a>
     </header>
 
     <main class="shell" id="top">
@@ -1760,20 +1946,20 @@
           </div>
 
           <div class="split-copy reveal d1">
-            <h3>Nobody drifts</h3>
-            <p>Every play, pause, and seek is stamped with who did it, so the person who clicked never gets yanked around by the echo of their own action.</p>
+            <h3>Everyone lands on the same frame</h3>
+            <p>One person scrubs and the whole room moves with them. Rewind for a line somebody missed, skip the bit nobody likes, pause to argue about it. You all stay on the same second of the film.</p>
             <ul class="notes">
               <li>
                 <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-                <span><b>Buffering pauses the room</b>When one person stalls, everyone holds until all three report ready.</span>
+                <span><b>The film waits for slow connections</b>If one person stalls, everybody pauses until they catch up.</span>
               </li>
               <li>
                 <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-                <span><b>Every session starts at zero</b>The site's saved checkpoint gets overridden, so no one opens mid-film by accident.</span>
+                <span><b>You all start together</b>Press play and the film begins from the top for everyone at the same moment.</span>
               </li>
               <li>
                 <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-                <span><b>Deadlocks get broken</b>Four separate guards stop the room from freezing if a ready signal goes missing.</span>
+                <span><b>Jump around freely</b>Scrub anywhere in the film and the room follows without missing a beat.</span>
               </li>
             </ul>
           </div>
@@ -1788,19 +1974,15 @@
         <div class="split">
           <div class="split-copy reveal">
             <h3>The host holds the key</h3>
-            <p>Rooms start open so a friend can drop in with just the code. Flip the lock and Binger starts asking newcomers for a four digit password instead.</p>
+            <p>A room opens with nothing but its code, so a friend can drop straight in. Flip the lock and Binger starts asking for a four digit password at the door instead.</p>
             <ul class="notes">
               <li>
                 <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-                <span><b>Locking never kicks anyone</b>People already in the room stay in the room, session and all.</span>
+                <span><b>Locking never kicks anyone</b>Everyone already inside carries on, mid-film and all.</span>
               </li>
               <li>
                 <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-                <span><b>Change it whenever</b>Only the host can flip the lock or edit the password, and it lands on every screen instantly.</span>
-              </li>
-              <li>
-                <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-                <span><b>A wrong guess costs nothing</b>Type the wrong password and the field just shakes. You stay exactly where you were.</span>
+                <span><b>Change it whenever you like</b>The host flips the lock or picks a new password, and every screen catches up the moment they do.</span>
               </li>
             </ul>
           </div>
@@ -1870,19 +2052,15 @@
 
           <div class="split-copy reveal d1">
             <h3>Straight between browsers</h3>
-            <p>Video and audio travel directly from each person to each other person. Nothing is routed through a server unless your network refuses to cooperate, and then a relay quietly steps in.</p>
+            <p>Your camera and mic go directly to the people you are watching with, browser to browser. If a network gets awkward about it, a relay quietly takes over and the call carries on.</p>
             <ul class="notes">
               <li>
                 <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-                <span><b>Fullscreen keeps the call alive</b>Toggling fullscreen moves the call panel instead of rebuilding it, so nobody reconnects.</span>
+                <span><b>Fullscreen keeps the call alive</b>Go fullscreen and the call comes with you. Your camera stays on and nobody else has to reconnect.</span>
               </li>
               <li>
                 <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-                <span><b>Speaker or headphones</b>Speaker mode strips echo so nobody hears the film twice. Headphone mode turns all filtering off for the cleanest audio.</span>
-              </li>
-              <li>
-                <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-                <span><b>Camera off is still a face</b>Mute or go dark and your tile shows your initial and a muted mic badge rather than a black box.</span>
+                <span><b>Speaker or headphones</b>On speakers, Binger strips the echo so the film does not bounce back into the call. On headphones it drops the filtering entirely for the cleanest audio.</span>
               </li>
             </ul>
           </div>
@@ -1959,22 +2137,23 @@
       <section class="band" id="reactions">
         <p class="eyebrow reveal">React together</p>
         <h2 class="band-title reveal">Sounds, reactions, and pins</h2>
-        <p class="band-lede reveal">Everything fires on every screen at once. Reactions float for two seconds. Pins stick to the exact spot on the frame for five, each with its own animation.</p>
+        <p class="band-lede reveal">Everything lands on every screen at once. Reactions drift up and fade. Pins stick to the exact spot on the frame you dropped them, each with its own little performance.</p>
 
         <div class="panel reactions reveal d1" id="reactStage">
+          <div class="react-field" id="reactField"></div>
           <div class="react-row">
-            <button class="react-btn" type="button" aria-label="Send a reaction">&#129324;</button>
-            <button class="react-btn" type="button" aria-label="Send a reaction">&#128169;</button>
-            <button class="react-btn" type="button" aria-label="Send a reaction">&#129394;</button>
-            <button class="react-btn" type="button" aria-label="Send a reaction">&#129315;</button>
-            <button class="react-btn" type="button" aria-label="Send a reaction">&#128296;</button>
-            <button class="react-btn" type="button" aria-label="Send a reaction">&#129392;</button>
-            <button class="react-btn" type="button" aria-label="Send a reaction">&#128512;</button>
-            <button class="react-btn" type="button" aria-label="Send a reaction">&#129496;</button>
-            <button class="react-btn" type="button" aria-label="Send a reaction">&#129402;</button>
-            <button class="react-btn" type="button" aria-label="Send a reaction">&#129768;</button>
+            <button class="react-btn" type="button" data-fx="mad" aria-label="Send a reaction">&#129324;</button>
+            <button class="react-btn" type="button" data-fx="poop" aria-label="Send a reaction">&#128169;</button>
+            <button class="react-btn" type="button" data-fx="sadtears" aria-label="Send a reaction">&#129394;</button>
+            <button class="react-btn" type="button" data-fx="laugh" aria-label="Send a reaction">&#129315;</button>
+            <button class="react-btn" type="button" data-fx="hammer" aria-label="Send a reaction">&#128296;</button>
+            <button class="react-btn" type="button" data-fx="hearts" aria-label="Send a reaction">&#129392;</button>
+            <button class="react-btn" type="button" data-fx="smile" aria-label="Send a reaction">&#128512;</button>
+            <button class="react-btn" type="button" data-fx="disguise" aria-label="Send a reaction">&#129496;</button>
+            <button class="react-btn" type="button" data-fx="pleading" aria-label="Send a reaction">&#129402;</button>
+            <button class="react-btn" type="button" data-fx="shock" aria-label="Send a reaction">&#129768;</button>
           </div>
-          <p class="react-hint">Try one</p>
+          <p class="react-hint">Tap one to send it. Drag one anywhere to pin it.</p>
         </div>
       </section>
 
@@ -1982,7 +2161,7 @@
       <section class="band" id="install">
         <p class="eyebrow reveal">Get started</p>
         <h2 class="band-title reveal">Installed in under a minute</h2>
-        <p class="band-lede reveal">No email, no account beyond a username and a password, no fees. Everyone watching together needs it installed.</p>
+        <p class="band-lede reveal">Pick a username, pick a password, and you are in. Everyone at the movie night needs Binger installed.</p>
 
         <div class="steps">
           <article class="panel step reveal">
@@ -2036,83 +2215,60 @@
           <div class="panel qa reveal">
             <button class="q" type="button" aria-expanded="false">
               How many people fit in a room?
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span class="q-mark" aria-hidden="true"></span>
             </button>
-            <div class="a"><div><p>Three. Two of you can start a session without waiting for a third, and the third can walk in later.</p></div></div>
+            <div class="a"><div class="a-in"><p>Three. You do not have to wait for all three though. Two of you can get going and the last one joins whenever they turn up.</p></div></div>
           </div>
 
           <div class="panel qa reveal">
             <button class="q" type="button" aria-expanded="false">
               Does everyone need the extension?
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span class="q-mark" aria-hidden="true"></span>
             </button>
-            <div class="a"><div><p>Yes. Playback sync, chat, and the video call all run through the extension, so everyone watching together needs it installed.</p></div></div>
+            <div class="a"><div class="a-in"><p>Yes. The syncing, the chat and the call all run through Binger, so everyone at the movie night needs it installed.</p></div></div>
           </div>
 
           <div class="panel qa reveal">
             <button class="q" type="button" aria-expanded="false">
               What does locking a room actually do?
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span class="q-mark" aria-hidden="true"></span>
             </button>
-            <div class="a"><div><p>It puts a four digit password in front of the door. Anyone already inside is untouched, and only the host can flip the lock or change the password. It stops someone who guessed your room code, not a determined attacker.</p></div></div>
+            <div class="a"><div class="a-in"><p>It puts a four digit password on the door. Everyone already inside carries on undisturbed, and only the host can change the lock or the password. Treat it as a deterrent against someone guessing your room code rather than a vault.</p></div></div>
           </div>
 
           <div class="panel qa reveal">
             <button class="q" type="button" aria-expanded="false">
               Do I need to make an account?
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span class="q-mark" aria-hidden="true"></span>
             </button>
-            <div class="a"><div><p>Sort of. You pick a username and a password the first time you open Binger. No email, nothing to confirm.</p></div></div>
-          </div>
-
-          <div class="panel qa reveal">
-            <button class="q" type="button" aria-expanded="false">
-              Does the video call survive fullscreen?
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            </button>
-            <div class="a"><div><p>It does. Going in and out of fullscreen moves the call panel rather than tearing it down, so your camera stays on and nobody else has to reconnect.</p></div></div>
+            <div class="a"><div class="a-in"><p>Sort of. You pick a username and a password the first time you open Binger, and that is the whole signup.</p></div></div>
           </div>
 
           <div class="panel qa reveal">
             <button class="q" type="button" aria-expanded="false">
               How does scene seeking work?
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span class="q-mark" aria-hidden="true"></span>
             </button>
-            <div class="a"><div><p>Binger fetches the film's subtitles, cuts them into one minute chunks, rewrites each chunk into a plain description of what happens, and compares your description against all of them. The closest match wins and the room seeks there. Results are cached per film, so a second seek is instant.</p></div></div>
+            <div class="a"><div class="a-in"><p>Describe the moment you are thinking of and Binger reads the film's subtitles, works out what happens across each stretch of it, and finds the part that matches you best. Then it takes the whole room there. It remembers each film afterwards, so asking again is instant.</p></div></div>
           </div>
 
           <div class="panel qa reveal">
             <button class="q" type="button" aria-expanded="false">
               Something feels out of sync. What now?
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span class="q-mark" aria-hidden="true"></span>
             </button>
-            <div class="a"><div><p>Check that everyone is on the same version of the extension. Mismatched versions are the usual cause.</p></div></div>
+            <div class="a"><div class="a-in"><p>Nine times out of ten somebody is running an older build. Get everyone onto the same version and it sorts itself out.</p></div></div>
           </div>
 
           <div class="panel qa reveal">
             <button class="q" type="button" aria-expanded="false">
               Is Binger free?
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span class="q-mark" aria-hidden="true"></span>
             </button>
-            <div class="a"><div><p>Always. No fees, no tiers, no ads. Movies and vibes.</p></div></div>
+            <div class="a"><div class="a-in"><p>Yes, and it always will be. Binger is a passion project, not a product.</p></div></div>
           </div>
         </div>
       </section>
-
-      <!-- ================= CLOSING ================= -->
-      <section class="closing">
-        <h2 class="closing-title reveal">The good part is watching it with someone.</h2>
-        <div class="reveal d1">
-          <a class="cta" href="Binger v8.0.1.zip" download>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Download Binger
-          </a>
-        </div>
-      </section>
-
-      <footer>
-        <p>Binger &middot; v8.0.0 &middot; built for movie nights</p>
-      </footer>
 
     </main>
 
@@ -2266,32 +2422,147 @@
           });
         });
 
-        /* ---------- reactions ---------- */
+        /* ---------- smooth anchor scrolling ---------- */
+
+        var jumpers = document.querySelectorAll('a[href^="#"]');
+
+        Array.prototype.forEach.call(jumpers, function (link) {
+          link.addEventListener("click", function (event) {
+            var id = link.getAttribute("href").slice(1);
+            var target = id ? document.getElementById(id) : null;
+            if (!target) return;
+
+            event.preventDefault();
+            target.scrollIntoView({
+              behavior: calmQuery.matches ? "auto" : "smooth",
+              block: "start"
+            });
+          });
+        });
+
+        /* ---------- reactions: tap to float, drag to pin ---------- */
 
         var reactStage = document.getElementById("reactStage");
+        var reactField = document.getElementById("reactField");
+        var DRAG_THRESHOLD = 7;
+        var FLOATS = ["drift", "pop", "spiral"];
+        var PIN_LIFE = 5000;
+        var PIN_FADE = 500;
 
-        if (reactStage) {
-          reactStage.addEventListener("click", function (event) {
-            var btn = event.target.closest(".react-btn");
-            if (!btn || calmQuery.matches) return;
+        function stagePoint(event) {
+          var box = reactStage.getBoundingClientRect();
+          return { x: event.clientX - box.left, y: event.clientY - box.top, box: box };
+        }
 
-            var stageBox = reactStage.getBoundingClientRect();
-            var btnBox = btn.getBoundingClientRect();
+        function sendFloat(btn) {
+          var box = reactStage.getBoundingClientRect();
+          var btnBox = btn.getBoundingClientRect();
+          var puff = document.createElement("span");
 
-            var puff = document.createElement("span");
-            puff.className = "float-emoji";
-            puff.setAttribute("aria-hidden", "true");
-            puff.textContent = btn.textContent.trim();
-            puff.style.left = (btnBox.left - stageBox.left + btnBox.width / 2 - 14) + "px";
-            puff.style.bottom = (stageBox.bottom - btnBox.top + 4) + "px";
-            puff.style.setProperty("--dx", (Math.random() * 90 - 45).toFixed(1) + "px");
-            puff.style.setProperty("--rot", (Math.random() * 60 - 30).toFixed(1) + "deg");
+          puff.className = "float-emoji " + FLOATS[Math.floor(Math.random() * FLOATS.length)];
+          puff.setAttribute("aria-hidden", "true");
+          puff.textContent = btn.textContent.trim();
+          puff.style.left = (btnBox.left - box.left + btnBox.width / 2 - 14) + "px";
+          puff.style.bottom = (box.bottom - btnBox.top + 4) + "px";
+          puff.style.setProperty("--dx", (Math.random() * 80 - 40).toFixed(1) + "px");
 
-            reactStage.appendChild(puff);
+          reactField.appendChild(puff);
+          window.setTimeout(function () {
+            if (puff.parentNode) puff.parentNode.removeChild(puff);
+          }, 2100);
+        }
 
+        function dropPin(btn, x, y) {
+          var pin = document.createElement("span");
+
+          pin.className = "pin-emoji";
+          pin.setAttribute("aria-hidden", "true");
+          pin.dataset.fx = btn.dataset.fx || "";
+          pin.textContent = btn.textContent.trim();
+          pin.style.left = (x - 21) + "px";
+          pin.style.top = (y - 21) + "px";
+
+          reactField.appendChild(pin);
+
+          window.setTimeout(function () {
+            pin.classList.add("fading");
             window.setTimeout(function () {
-              if (puff.parentNode) puff.parentNode.removeChild(puff);
-            }, 2100);
+              if (pin.parentNode) pin.parentNode.removeChild(pin);
+            }, PIN_FADE);
+          }, PIN_LIFE);
+        }
+
+        if (reactStage && reactField) {
+          Array.prototype.forEach.call(reactStage.querySelectorAll(".react-btn"), function (btn) {
+            var origin = null;
+            var ghost = null;
+
+            btn.addEventListener("pointerdown", function (event) {
+              if (event.button !== 0 && event.pointerType === "mouse") return;
+
+              origin = { x: event.clientX, y: event.clientY };
+              btn.setPointerCapture(event.pointerId);
+            });
+
+            btn.addEventListener("pointermove", function (event) {
+              if (!origin) return;
+
+              var travelled = Math.hypot(event.clientX - origin.x, event.clientY - origin.y);
+              if (travelled < DRAG_THRESHOLD) return;
+
+              if (!ghost) {
+                ghost = document.createElement("span");
+                ghost.className = "react-ghost";
+                ghost.setAttribute("aria-hidden", "true");
+                ghost.textContent = btn.textContent.trim();
+                reactField.appendChild(ghost);
+                btn.classList.add("lifting");
+              }
+
+              var here = stagePoint(event);
+              ghost.style.left = (here.x - 17) + "px";
+              ghost.style.top = (here.y - 20) + "px";
+            });
+
+            function finish(event) {
+              if (!origin) return;
+
+              var travelled = Math.hypot(event.clientX - origin.x, event.clientY - origin.y);
+              var here = stagePoint(event);
+              var inside = here.x >= 0 && here.y >= 0 &&
+                           here.x <= here.box.width && here.y <= here.box.height;
+
+              if (ghost) {
+                ghost.remove();
+                ghost = null;
+              }
+              btn.classList.remove("lifting");
+              origin = null;
+
+              if (travelled >= DRAG_THRESHOLD) {
+                if (inside) dropPin(btn, here.x, here.y);
+                return;
+              }
+
+              if (!calmQuery.matches) sendFloat(btn);
+            }
+
+            btn.addEventListener("pointerup", finish);
+
+            btn.addEventListener("pointercancel", function () {
+              if (ghost) {
+                ghost.remove();
+                ghost = null;
+              }
+              btn.classList.remove("lifting");
+              origin = null;
+            });
+
+            btn.addEventListener("keydown", function (event) {
+              if (event.key !== "Enter" && event.key !== " ") return;
+              event.preventDefault();
+              if (!calmQuery.matches) sendFloat(btn);
+            });
           });
         }
 
