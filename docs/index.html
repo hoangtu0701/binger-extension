@@ -1,70 +1,144 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="burgundy">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Binger - Watch Together</title>
+    <meta name="description" content="A Chrome extension that turns phimbro.com into a synchronized cinema for up to three friends. Synced playback, live chat, video calls, an AI bot, and 10 themes." />
+    <meta name="theme-color" content="#0a0408" />
     <link rel="icon" href="icon.png" type="image/png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,600&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
     <style>
+      /* ==========================================================
+         RESET
+         ========================================================== */
+
       *, *::before, *::after {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
       }
 
-      :root {
-        --bg-deep: #0a0408;
-        --bg-surface: #1a0a10;
-        --bg-elevated: #2d0f1a;
-        --accent-burgundy: #a83242;
-        --accent-burgundy-deep: #8b1e32;
-        --accent-warm: #d4a574;
-        --accent-gold: #f5e6d0;
-        --text-primary: #f5e6d0;
-        --text-secondary: rgba(245, 230, 208, 0.55);
-        --text-muted: rgba(245, 230, 208, 0.3);
-        --border-subtle: rgba(180, 80, 100, 0.15);
-        --border-warm: rgba(200, 140, 80, 0.2);
-        --glow-burgundy: rgba(168, 50, 66, 0.3);
-        --glow-warm: rgba(200, 140, 80, 0.15);
-      }
+      /* ==========================================================
+         THEME TOKENS
+         Ten palettes, one per Binger theme. Swapping the
+         data-theme attribute on <html> repaints the entire page.
+         ========================================================== */
 
       html {
+        --ink: #0a0408;
+        --surface: #1a0a10;
+        --raised: #2d0f1a;
+        --accent: #a83242;
+        --accent-deep: #8b1e32;
+        --brass: #d4a574;
+        --paper: #f5e6d0;
+
+        --text-2: color-mix(in srgb, var(--paper) 55%, transparent);
+        --text-3: color-mix(in srgb, var(--paper) 30%, transparent);
+        --line: color-mix(in srgb, var(--accent) 22%, transparent);
+        --line-warm: color-mix(in srgb, var(--brass) 20%, transparent);
+        --glow: color-mix(in srgb, var(--accent) 30%, transparent);
+        --wash: color-mix(in srgb, var(--brass) 8%, transparent);
+
+        --shell: min(1120px, 100% - 3rem);
+        --step: clamp(4.5rem, 9vw, 7.5rem);
+
         scroll-behavior: smooth;
-        scrollbar-color: #5a1a28 #0a0408;
+        scrollbar-color: var(--accent-deep) var(--ink);
         scrollbar-width: thin;
       }
 
-      ::-webkit-scrollbar {
-        width: 6px;
+      html[data-theme="pink"] {
+        --ink: #14080e; --surface: #24101a; --raised: #351827;
+        --accent: #d8789b; --accent-deep: #b04f74; --brass: #f0b8cc; --paper: #fbe9f0;
+      }
+      html[data-theme="blackwhite"] {
+        --ink: #070707; --surface: #131313; --raised: #1f1f1f;
+        --accent: #8a8a8a; --accent-deep: #5a5a5a; --brass: #d8d8d8; --paper: #f2f2f2;
+      }
+      html[data-theme="ocean"] {
+        --ink: #03101c; --surface: #072338; --raised: #0b3350;
+        --accent: #00a8cc; --accent-deep: #00718f; --brass: #7fd8ea; --paper: #dff2f8;
+      }
+      html[data-theme="volcano"] {
+        --ink: #120704; --surface: #24100a; --raised: #351810;
+        --accent: #e85d2a; --accent-deep: #b93821; --brass: #ffb27a; --paper: #ffe6d2;
+      }
+      html[data-theme="sunset"] {
+        --ink: #1a0a18; --surface: #2e1024; --raised: #3f1730;
+        --accent: #e8703c; --accent-deep: #a32a4a; --brass: #ffc387; --paper: #ffe9d6;
+      }
+      html[data-theme="royal"] {
+        --ink: #100718; --surface: #1e0d30; --raised: #2b1345;
+        --accent: #8c55cd; --accent-deep: #5a2a95; --brass: #f0dcae; --paper: #f4e9ff;
+      }
+      html[data-theme="forest"] {
+        --ink: #071005; --surface: #10230d; --raised: #183413;
+        --accent: #4a9e35; --accent-deep: #2d6a1e; --brass: #a8dc78; --paper: #e6f5da;
+      }
+      html[data-theme="arctic"] {
+        --ink: #06101a; --surface: #0e2032; --raised: #153048;
+        --accent: #7fb6d8; --accent-deep: #4a7fa5; --brass: #cfeeff; --paper: #eaf7ff;
+      }
+      html[data-theme="midnight"] {
+        --ink: #0e0a04; --surface: #1c150a; --raised: #2a2010;
+        --accent: #c79868; --accent-deep: #8a6238; --brass: #e0bf95; --paper: #f3e3cd;
       }
 
-      ::-webkit-scrollbar-track {
-        background: #0a0408;
+      @supports not (color: color-mix(in srgb, red, blue)) {
+        html {
+          --text-2: rgba(245, 230, 208, 0.55);
+          --text-3: rgba(245, 230, 208, 0.3);
+          --line: rgba(168, 50, 66, 0.22);
+          --line-warm: rgba(212, 165, 116, 0.2);
+          --glow: rgba(168, 50, 66, 0.3);
+          --wash: rgba(212, 165, 116, 0.08);
+        }
       }
 
+      ::-webkit-scrollbar { width: 7px; }
+      ::-webkit-scrollbar-track { background: var(--ink); }
       ::-webkit-scrollbar-thumb {
-        background: linear-gradient(180deg, #5a1a28, #3d1018);
-        border-radius: 6px;
-        border: 1px solid #0a0408;
+        background: var(--accent-deep);
+        border-radius: 7px;
+        border: 2px solid var(--ink);
+      }
+      ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+      ::selection {
+        background: var(--accent-deep);
+        color: var(--paper);
       }
 
-      ::-webkit-scrollbar-thumb:hover {
-        background: linear-gradient(180deg, #7a2538, #5a1a28);
-      }
+      /* ==========================================================
+         BASE
+         ========================================================== */
 
       body {
-        font-family: "DM Sans", sans-serif;
-        background: var(--bg-deep);
-        color: var(--text-primary);
+        font-family: "DM Sans", system-ui, sans-serif;
+        background: var(--ink);
+        color: var(--paper);
+        line-height: 1.65;
         overflow-x: hidden;
-        line-height: 1.6;
+        transition: background-color 0.7s ease, color 0.7s ease;
       }
 
-      .page-bg {
+      a { color: inherit; }
+
+      :focus-visible {
+        outline: 2px solid var(--brass);
+        outline-offset: 3px;
+        border-radius: 4px;
+      }
+
+      /* ==========================================================
+         ATMOSPHERE
+         ========================================================== */
+
+      .ambience {
         position: fixed;
         inset: 0;
         z-index: 0;
@@ -72,1061 +146,2169 @@
         overflow: hidden;
       }
 
-      .page-bg::before {
+      .ambience::before,
+      .ambience::after {
         content: "";
         position: absolute;
-        top: -30%;
-        left: -15%;
-        width: 130%;
-        height: 130%;
-        background: radial-gradient(
-          ellipse at 25% 15%,
-          rgba(139, 30, 50, 0.25) 0%,
-          rgba(90, 15, 30, 0.12) 30%,
-          transparent 60%
-        );
-        animation: ambientDrift 16s ease-in-out infinite alternate;
+        border-radius: 50%;
+        transition: background 0.7s ease;
       }
 
-      .page-bg::after {
-        content: "";
-        position: absolute;
-        bottom: -25%;
-        right: -15%;
-        width: 110%;
-        height: 110%;
-        background: radial-gradient(
-          ellipse at 75% 80%,
-          rgba(180, 100, 50, 0.12) 0%,
-          rgba(100, 40, 20, 0.08) 35%,
-          transparent 55%
-        );
-        animation: ambientDrift 12s ease-in-out infinite alternate-reverse;
+      .ambience::before {
+        top: -35%;
+        left: -20%;
+        width: 90%;
+        height: 90%;
+        background: radial-gradient(circle, var(--glow) 0%, transparent 62%);
+        animation: drift 19s ease-in-out infinite alternate;
       }
 
-      @keyframes ambientDrift {
-        0% { transform: translate(0, 0) scale(1); }
-        100% { transform: translate(20px, -15px) scale(1.04); }
+      .ambience::after {
+        bottom: -30%;
+        right: -18%;
+        width: 75%;
+        height: 75%;
+        background: radial-gradient(circle, var(--wash) 0%, transparent 60%);
+        animation: drift 15s ease-in-out infinite alternate-reverse;
       }
 
-      .grain-overlay {
+      @keyframes drift {
+        0%   { transform: translate(0, 0) scale(1); }
+        100% { transform: translate(3rem, -2rem) scale(1.09); }
+      }
+
+      .grain {
         position: fixed;
         inset: 0;
         z-index: 1;
-        opacity: 0.025;
+        opacity: 0.028;
+        pointer-events: none;
         background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-        pointer-events: none;
       }
 
-      .content-wrapper {
-        position: relative;
-        z-index: 2;
-      }
-      .hero {
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 3rem 1.5rem;
-        text-align: center;
-        position: relative;
-      }
+      .shell { position: relative; z-index: 2; }
 
-      .hero-glow {
-        position: absolute;
-        width: 500px;
-        height: 500px;
-        border-radius: 50%;
-        background: radial-gradient(circle, rgba(168, 50, 66, 0.15) 0%, transparent 70%);
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -55%);
-        pointer-events: none;
-        animation: heroGlowPulse 6s ease-in-out infinite;
-      }
+      /* ==========================================================
+         PROGRESS RAIL
+         ========================================================== */
 
-      @keyframes heroGlowPulse {
-        0%, 100% { opacity: 0.6; transform: translate(-50%, -55%) scale(1); }
-        50% { opacity: 1; transform: translate(-50%, -55%) scale(1.08); }
-      }
-
-      .hero-logo {
-        width: 80px;
-        height: 80px;
-        margin-bottom: 1.5rem;
-        filter: drop-shadow(0 4px 20px rgba(168, 50, 66, 0.4));
-        animation: heroEntrance 0.8s ease-out both;
-      }
-
-      .hero-title {
-        font-family: "Playfair Display", serif;
-        font-size: clamp(3rem, 8vw, 5.5rem);
-        font-weight: 700;
-        letter-spacing: -0.02em;
-        background: linear-gradient(135deg, var(--text-primary), var(--accent-warm));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        margin-bottom: 1rem;
-        animation: heroEntrance 0.8s ease-out 0.1s both;
-      }
-
-      .hero-tagline {
-        font-size: clamp(1rem, 2.5vw, 1.25rem);
-        color: var(--text-secondary);
-        max-width: 500px;
-        margin-bottom: 3rem;
-        animation: heroEntrance 0.8s ease-out 0.2s both;
-      }
-
-      .hero-cta {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        padding: 16px 40px;
-        font-family: "DM Sans", sans-serif;
-        font-size: 1.05rem;
-        font-weight: 600;
-        color: var(--text-primary);
-        background: linear-gradient(135deg, var(--accent-burgundy), var(--accent-burgundy-deep));
-        border: 1px solid rgba(200, 100, 120, 0.3);
-        border-radius: 14px;
-        text-decoration: none;
-        cursor: pointer;
-        transition: all 0.35s ease;
-        position: relative;
-        overflow: hidden;
-        animation: heroEntrance 0.8s ease-out 0.3s both;
-      }
-
-      .hero-cta::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), transparent);
-        opacity: 0;
-        transition: opacity 0.35s ease;
-      }
-
-      .hero-cta:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 12px 40px var(--glow-burgundy), 0 0 60px rgba(168, 50, 66, 0.15);
-      }
-
-      .hero-cta:hover::before {
-        opacity: 1;
-      }
-
-      .hero-cta svg {
-        width: 18px;
-        height: 18px;
-        flex-shrink: 0;
-      }
-
-      .hero-version {
-        font-size: 0.85rem;
-        color: var(--text-muted);
-        margin-top: 1rem;
-        font-family: "JetBrains Mono", monospace;
-        animation: heroEntrance 0.8s ease-out 0.4s both;
-      }
-
-      .hero-scroll-hint {
-        position: absolute;
-        bottom: 2rem;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 8px;
-        color: var(--text-muted);
-        font-size: 0.75rem;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        animation: scrollBounce 2s ease-in-out infinite;
-      }
-
-      .hero-scroll-hint svg {
-        width: 16px;
-        height: 16px;
-        opacity: 0.4;
-      }
-
-      @keyframes heroEntrance {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-
-      @keyframes scrollBounce {
-        0%, 100% { transform: translateY(0); opacity: 0.4; }
-        50% { transform: translateY(6px); opacity: 0.7; }
-      }
-      section {
-        padding: 6rem 1.5rem;
-        max-width: 1100px;
-        margin: 0 auto;
-      }
-
-      .section-label {
-        font-family: "JetBrains Mono", monospace;
-        font-size: 0.7rem;
-        font-weight: 600;
-        letter-spacing: 2.5px;
-        text-transform: uppercase;
-        color: var(--accent-burgundy);
-        margin-bottom: 1rem;
-        text-align: center;
-      }
-
-      .section-title {
-        font-family: "Playfair Display", serif;
-        font-size: clamp(1.8rem, 4vw, 2.6rem);
-        font-weight: 700;
-        text-align: center;
-        margin-bottom: 1rem;
-        color: var(--text-primary);
-      }
-
-      .section-subtitle {
-        text-align: center;
-        color: var(--text-secondary);
-        max-width: 600px;
-        margin: 0 auto 4rem;
-        font-size: 1rem;
-      }
-      .features-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 1.5rem;
-      }
-
-      .feature-card {
-        padding: 2rem;
-        border-radius: 16px;
-        background:
-          radial-gradient(ellipse at 20% 0%, rgba(160, 50, 70, 0.06) 0%, transparent 60%),
-          linear-gradient(160deg, rgba(26, 10, 16, 0.8), rgba(45, 15, 26, 0.4));
-        border: 1px solid var(--border-subtle);
-        transition: all 0.4s ease;
-        position: relative;
-        overflow: hidden;
-      }
-
-      .feature-card::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(135deg, rgba(168, 50, 66, 0.05), transparent);
-        opacity: 0;
-        transition: opacity 0.4s ease;
-      }
-
-      .feature-card:hover {
-        transform: translateY(-4px);
-        border-color: rgba(180, 80, 100, 0.3);
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(168, 50, 66, 0.06);
-      }
-
-      .feature-card:hover::before {
-        opacity: 1;
-      }
-
-      .feature-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 1.25rem;
-        font-size: 1.3rem;
-        background: rgba(200, 140, 80, 0.1);
-        border: 1px solid rgba(200, 140, 80, 0.15);
-        color: var(--accent-warm);
-        position: relative;
-        z-index: 1;
-      }
-
-      .feature-card h3 {
-        font-family: "DM Sans", sans-serif;
-        font-size: 1.1rem;
-        font-weight: 700;
-        margin-bottom: 0.6rem;
-        color: var(--text-primary);
-        position: relative;
-        z-index: 1;
-      }
-
-      .feature-card p {
-        font-size: 0.9rem;
-        color: var(--text-secondary);
-        line-height: 1.6;
-        position: relative;
-        z-index: 1;
-      }
-      .themes-row {
-        display: flex;
-        justify-content: center;
-        gap: 1.25rem;
-        flex-wrap: wrap;
-        margin-top: 2rem;
-      }
-
-      .theme-pill {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 10px 20px 10px 14px;
-        border-radius: 40px;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        transition: all 0.3s ease;
-        cursor: default;
-      }
-
-      .theme-pill:hover {
-        background: rgba(255, 255, 255, 0.06);
-        transform: translateY(-2px);
-      }
-
-      .theme-swatch {
-        width: 22px;
-        height: 22px;
-        border-radius: 50%;
-        flex-shrink: 0;
-        border: 2px solid rgba(255, 255, 255, 0.1);
-      }
-
-      .theme-swatch.sw-burgundy { background: #8b1e32; }
-      .theme-swatch.sw-pink { background: linear-gradient(135deg, #f8c8dc, #e8a4be); }
-      .theme-swatch.sw-bw {
-        background: #111;
-        position: relative;
-        overflow: hidden;
-      }
-      .theme-swatch.sw-bw::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        border-radius: 50%;
-        background:
-          radial-gradient(1px 1px at 30% 25%, #fff, transparent),
-          radial-gradient(1px 1px at 60% 60%, #fff, transparent),
-          radial-gradient(1px 1px at 75% 35%, #fff, transparent);
-      }
-      .theme-swatch.sw-ocean { background: linear-gradient(135deg, #0077b6, #00b4d8); }
-      .theme-swatch.sw-volcano { background: linear-gradient(135deg, #b93821, #e85d2a); }
-      .theme-swatch.sw-sunset { background: linear-gradient(135deg, #d4502c, #a32a26); }
-      .theme-swatch.sw-royal { background: linear-gradient(135deg, #7a45b8, #4e2080); }
-      .theme-swatch.sw-arctic { background: linear-gradient(135deg, #dcf0fb, #a4cbe0); }
-      .theme-swatch.sw-midnight { background: linear-gradient(160deg, #3f2d1a, #150d04); }
-      .theme-swatch.sw-forest { background: linear-gradient(135deg, #2d6a1e, #4a9e35); }
-
-      .theme-pill span {
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: var(--text-secondary);
-      }
-      .bot-showcase {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 2rem;
-        align-items: start;
-        margin-top: 3rem;
-      }
-
-      .bot-info {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-      }
-
-      .bot-detail {
-        padding: 1.5rem;
-        border-radius: 14px;
-        background: rgba(26, 10, 16, 0.6);
-        border: 1px solid var(--border-subtle);
-      }
-
-      .bot-detail h4 {
-        font-family: "JetBrains Mono", monospace;
-        font-size: 0.7rem;
-        letter-spacing: 1.5px;
-        text-transform: uppercase;
-        color: var(--accent-burgundy);
-        margin-bottom: 0.75rem;
-      }
-
-      .bot-detail p {
-        font-size: 0.9rem;
-        color: var(--text-secondary);
-        line-height: 1.6;
-      }
-
-      .bot-chat-demo {
-        padding: 1.5rem;
-        border-radius: 16px;
-        background: rgba(15, 5, 10, 0.7);
-        border: 1px solid rgba(180, 80, 100, 0.12);
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-      }
-
-      .demo-msg {
-        max-width: 85%;
-        padding: 10px 14px;
-        border-radius: 12px;
-        font-size: 0.85rem;
-        line-height: 1.5;
-        animation: demoMsgIn 0.5s ease both;
-      }
-
-      .demo-msg.user {
-        align-self: flex-end;
-        background: linear-gradient(135deg, rgba(140, 40, 55, 0.6), rgba(100, 25, 40, 0.7));
-        color: var(--text-primary);
-        border: 1px solid rgba(180, 80, 100, 0.2);
-        position: relative;
-      }
-
-      .demo-msg.user .bot-badge {
-        position: absolute;
-        top: -5px;
-        right: -5px;
-        width: 16px;
-        height: 16px;
-        font-size: 8px;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        background: linear-gradient(135deg, rgba(255, 180, 50, 0.4), rgba(255, 140, 30, 0.5));
-        color: #fff8e0;
-        border: 1.5px solid rgba(10, 4, 8, 0.8);
-        box-shadow: 0 0 6px rgba(255, 160, 40, 0.25);
-      }
-
-      .demo-msg.bot {
-        align-self: flex-start;
-        background: rgba(200, 140, 80, 0.08);
-        color: var(--text-secondary);
-        border: 1px solid rgba(200, 140, 80, 0.1);
-        font-style: italic;
-      }
-
-      .demo-input {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-top: 4px;
-      }
-
-      .demo-input-field {
-        flex: 1;
-        padding: 8px 12px;
-        border-radius: 8px;
-        background: rgba(30, 12, 20, 0.8);
-        border: 1px solid rgba(180, 80, 100, 0.15);
-        color: var(--text-muted);
-        font-family: "DM Sans", sans-serif;
-        font-size: 0.8rem;
-        pointer-events: none;
-      }
-
-      .demo-bot-toggle {
-        width: 28px;
-        height: 28px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.7rem;
-        font-weight: 700;
-        background: linear-gradient(135deg, rgba(255, 180, 50, 0.2), rgba(255, 140, 30, 0.3));
-        border: 1px solid rgba(255, 160, 40, 0.4);
-        color: #fff8e0;
-        box-shadow: 0 0 10px rgba(255, 160, 40, 0.15);
-      }
-
-      .demo-send-btn {
-        padding: 7px 14px;
-        border-radius: 8px;
-        background: linear-gradient(135deg, rgba(160, 60, 70, 0.7), rgba(140, 45, 55, 0.8));
-        color: var(--text-primary);
-        font-size: 0.8rem;
-        font-weight: 600;
-        border: none;
-        pointer-events: none;
-      }
-
-      @keyframes demoMsgIn {
-        from { opacity: 0; transform: translateY(8px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-
-      .install-steps {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-      }
-
-      .install-step {
-        display: flex;
-        align-items: center;
-        gap: 2rem;
-        padding: 1.25rem 1.5rem;
-        border-radius: 16px;
-        background: rgba(26, 10, 16, 0.5);
-        border: 1px solid var(--border-subtle);
-        transition: all 0.35s ease;
-      }
-
-      .install-step:nth-child(even) {
-        flex-direction: row-reverse;
-      }
-
-      .install-step:hover {
-        border-color: rgba(180, 80, 100, 0.25);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-      }
-
-      .install-step:hover img {
-        transform: scale(1.03);
-      }
-
-      .install-step img {
-        width: 30vw;
-        max-width: 340px;
-        border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        object-fit: cover;
-        transition: transform 0.35s ease;
-        flex-shrink: 0;
-      }
-
-      .step-content {
-        flex: 1;
-        text-align: center;
-      }
-
-      .step-number {
-        font-family: "JetBrains Mono", monospace;
-        font-size: 0.65rem;
-        font-weight: 600;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        color: var(--accent-burgundy);
-        margin-bottom: 0.5rem;
-      }
-
-      .step-content p {
-        font-size: 1rem;
-        color: var(--text-secondary);
-        line-height: 1.6;
-      }
-
-      .step-content strong {
-        color: var(--text-primary);
-      }
-
-      .step-content code {
-        font-family: "JetBrains Mono", monospace;
-        font-size: 0.85rem;
-        padding: 2px 8px;
-        border-radius: 6px;
-        background: rgba(200, 140, 80, 0.1);
-        color: var(--accent-warm);
-      }
-      .faq-list {
-        max-width: 700px;
-        margin: 0 auto;
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-      }
-
-      .faq-item {
-        border-radius: 12px;
-        overflow: hidden;
-      }
-
-      .faq-question {
+      .rail {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 2px;
         width: 100%;
-        padding: 1rem 1.25rem;
-        background: rgba(26, 10, 16, 0.6);
-        border: 1px solid var(--border-subtle);
-        border-radius: 12px;
-        color: var(--text-primary);
-        font-family: "DM Sans", sans-serif;
-        font-size: 0.95rem;
-        font-weight: 600;
-        text-align: left;
-        cursor: pointer;
-        transition: all 0.3s ease;
+        transform: scaleX(0);
+        transform-origin: 0 50%;
+        background: linear-gradient(90deg, var(--accent-deep), var(--brass));
+        z-index: 60;
+      }
+
+      /* ==========================================================
+         MASTHEAD
+         ========================================================== */
+
+      .masthead {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 50;
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 1rem;
+        padding: 0.85rem max(1.5rem, calc((100% - var(--shell)) / 2));
+        border-bottom: 1px solid transparent;
+        transition: background 0.35s ease, border-color 0.35s ease, backdrop-filter 0.35s ease;
       }
 
-      .faq-question:hover {
-        background: rgba(26, 10, 16, 0.8);
-        border-color: rgba(180, 80, 100, 0.25);
+      .masthead.docked {
+        background: color-mix(in srgb, var(--ink) 82%, transparent);
+        backdrop-filter: blur(14px);
+        border-bottom-color: var(--line);
       }
 
-      .faq-question svg {
-        width: 16px;
-        height: 16px;
-        flex-shrink: 0;
-        color: var(--text-muted);
-        transition: transform 0.3s ease;
+      .mark {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-family: "Playfair Display", serif;
+        font-size: 1.15rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        text-decoration: none;
       }
 
-      .faq-item.open .faq-question svg {
-        transform: rotate(45deg);
+      .mark-cell {
+        width: 26px;
+        height: 26px;
+        border-radius: 5px;
+        display: grid;
+        place-items: center;
+        font-size: 0.8rem;
+        background: var(--surface);
+        border: 1.5px solid var(--accent);
+        color: var(--paper);
+        transition: background 0.5s ease, border-color 0.5s ease;
       }
 
-      .faq-answer {
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.4s ease, padding 0.3s ease;
-        padding: 0 1.25rem;
-        border-left: 2px solid var(--accent-burgundy);
-        margin-top: 0.4rem;
-        margin-left: 0.5rem;
+      .masthead-links {
+        display: flex;
+        align-items: center;
+        gap: 1.75rem;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.68rem;
+        font-weight: 500;
+        letter-spacing: 1.6px;
+        text-transform: uppercase;
       }
 
-      .faq-answer p {
-        font-size: 0.9rem;
-        color: var(--text-secondary);
-        line-height: 1.7;
-        padding: 0.75rem 0;
+      .masthead-links a {
+        color: var(--text-2);
+        text-decoration: none;
+        transition: color 0.25s ease;
       }
-      .final-cta {
-        text-align: center;
-        padding: 5rem 1.5rem 4rem;
+
+      .masthead-links a:hover { color: var(--brass); }
+
+      .mini-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 18px;
+        border-radius: 10px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        text-decoration: none;
+        color: var(--paper);
+        background: color-mix(in srgb, var(--accent) 22%, transparent);
+        border: 1px solid var(--line);
+        transition: background 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
+      }
+
+      .mini-cta:hover {
+        background: color-mix(in srgb, var(--accent) 40%, transparent);
+        border-color: var(--brass);
+        transform: translateY(-1px);
+      }
+
+      .mini-cta svg { width: 14px; height: 14px; }
+
+      /* ==========================================================
+         HERO
+         ========================================================== */
+
+      .hero {
         position: relative;
+        min-height: 100vh;
+        min-height: 100svh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 7rem 1.5rem 5rem;
+        overflow: hidden;
       }
 
-      .final-cta-glow {
+      .beam {
         position: absolute;
-        width: 400px;
-        height: 400px;
-        border-radius: 50%;
-        background: radial-gradient(circle, rgba(168, 50, 66, 0.1) 0%, transparent 70%);
-        top: 50%;
+        top: -8%;
         left: 50%;
-        transform: translate(-50%, -50%);
+        width: min(150vw, 1500px);
+        height: 125%;
+        transform: translateX(-50%);
+        clip-path: polygon(48.2% 0, 51.8% 0, 100% 100%, 0 100%);
+        background: linear-gradient(180deg, var(--glow) 0%, transparent 58%);
+        opacity: 0.5;
         pointer-events: none;
+        animation: flicker 7s ease-in-out infinite;
       }
 
-      .final-cta .hero-cta {
-        animation: none;
-        opacity: 1;
+      @keyframes flicker {
+        0%, 100% { opacity: 0.46; }
+        43%      { opacity: 0.6; }
+        47%      { opacity: 0.4; }
+        62%      { opacity: 0.56; }
       }
+
+      .mote {
+        position: absolute;
+        width: 3px;
+        height: 3px;
+        border-radius: 50%;
+        background: var(--brass);
+        opacity: 0;
+        pointer-events: none;
+        animation: mote-rise var(--dur) linear var(--delay) infinite;
+      }
+
+      @keyframes mote-rise {
+        0%   { opacity: 0; transform: translate(0, 0) scale(0.6); }
+        12%  { opacity: 0.5; }
+        80%  { opacity: 0.3; }
+        100% { opacity: 0; transform: translate(var(--dx), -70vh) scale(1.1); }
+      }
+
+      .hero > *:not(.beam):not(.mote):not(.scroll-hint) {
+        position: relative;
+        z-index: 2;
+      }
+
+      .cell {
+        width: 78px;
+        height: 78px;
+        margin-bottom: 1.75rem;
+        filter: drop-shadow(0 6px 26px var(--glow));
+        animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+      }
+
+      .cell-perf { fill: color-mix(in srgb, var(--accent) 30%, transparent); }
+      .cell-frame { fill: var(--surface); stroke: var(--accent); }
+      .cell-inner { fill: none; stroke: color-mix(in srgb, var(--accent) 20%, transparent); }
+      .cell-letter { fill: var(--paper); }
+
+      .hero-title {
+        font-family: "Playfair Display", serif;
+        font-size: clamp(3.4rem, 13vw, 7rem);
+        font-weight: 700;
+        line-height: 0.95;
+        letter-spacing: -0.035em;
+        background: linear-gradient(105deg, var(--paper) 20%, var(--brass) 50%, var(--paper) 80%);
+        background-size: 220% 100%;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.3, 1) 0.08s both,
+                   sheen 9s ease-in-out 1.2s infinite;
+      }
+
+      @keyframes sheen {
+        0%, 100% { background-position: 0% 50%; }
+        50%      { background-position: 100% 50%; }
+      }
+
+      .hero-sub {
+        margin-top: 1.1rem;
+        max-width: 30ch;
+        font-size: clamp(1.02rem, 2.4vw, 1.22rem);
+        color: var(--text-2);
+        animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.3, 1) 0.16s both;
+      }
+
+      .hero-stats {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 0.65rem 1.4rem;
+        margin: 2.1rem 0 2.4rem;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.7rem;
+        font-weight: 500;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: var(--text-3);
+        animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.3, 1) 0.24s both;
+      }
+
+      .hero-stats b {
+        color: var(--brass);
+        font-weight: 600;
+      }
+
+      .hero-stats span {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+      }
+
+      .hero-stats span + span::before {
+        content: "";
+        width: 3px;
+        height: 3px;
+        border-radius: 50%;
+        background: var(--line-warm);
+        margin-right: 0.95rem;
+      }
+
+      .cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 11px;
+        padding: 17px 42px;
+        font-size: 1.02rem;
+        font-weight: 600;
+        color: var(--paper);
+        text-decoration: none;
+        border-radius: 14px;
+        background: linear-gradient(135deg, var(--accent), var(--accent-deep));
+        border: 1px solid color-mix(in srgb, var(--brass) 32%, transparent);
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.3, 1) 0.32s both;
+      }
+
+      .cta::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(115deg, transparent 35%, color-mix(in srgb, var(--paper) 22%, transparent) 50%, transparent 65%);
+        transform: translateX(-120%);
+        transition: transform 0.7s ease;
+      }
+
+      .cta:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 16px 44px var(--glow);
+      }
+
+      .cta:hover::after { transform: translateX(120%); }
+
+      .cta svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+      .hero-version {
+        margin-top: 1.1rem;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.76rem;
+        color: var(--text-3);
+        animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.3, 1) 0.4s both;
+      }
+
+      .scroll-hint {
+        position: absolute;
+        bottom: 2rem;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 7px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.62rem;
+        letter-spacing: 2.4px;
+        text-transform: uppercase;
+        color: var(--text-3);
+        animation: bob 2.4s ease-in-out infinite;
+        z-index: 2;
+      }
+
+      .scroll-hint svg { width: 15px; height: 15px; }
+
+      @keyframes bob {
+        0%, 100% { transform: translate(-50%, 0); opacity: 0.45; }
+        50%      { transform: translate(-50%, 7px); opacity: 0.85; }
+      }
+
+      @keyframes rise {
+        from { opacity: 0; transform: translateY(26px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+
+      /* ==========================================================
+         SECTION FURNITURE
+         ========================================================== */
+
+      .band {
+        width: var(--shell);
+        margin: 0 auto;
+        padding: var(--step) 0;
+        scroll-margin-top: 5rem;
+      }
+
+      .eyebrow {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.66rem;
+        font-weight: 600;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: var(--accent);
+        text-align: center;
+        margin-bottom: 1rem;
+        transition: color 0.6s ease;
+      }
+
+      .band-title {
+        font-family: "Playfair Display", serif;
+        font-size: clamp(1.9rem, 4.6vw, 2.9rem);
+        font-weight: 700;
+        line-height: 1.15;
+        letter-spacing: -0.02em;
+        text-align: center;
+      }
+
+      .band-lede {
+        max-width: 60ch;
+        margin: 1.1rem auto 0;
+        text-align: center;
+        color: var(--text-2);
+        font-size: 1.01rem;
+      }
+
+      .band-lede strong { color: var(--brass); font-weight: 600; }
+
+      .divider {
+        width: var(--shell);
+        margin: 0 auto;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--line), transparent);
+      }
+
+      /* ==========================================================
+         PANELS
+         ========================================================== */
+
+      .panel {
+        border-radius: 18px;
+        border: 1px solid var(--line);
+        background:
+          radial-gradient(ellipse at 15% 0%, var(--wash) 0%, transparent 62%),
+          linear-gradient(165deg, color-mix(in srgb, var(--surface) 85%, transparent), color-mix(in srgb, var(--raised) 42%, transparent));
+        transition: background 0.6s ease, border-color 0.35s ease, transform 0.35s ease, box-shadow 0.35s ease;
+      }
+
+      /* ==========================================================
+         FEATURES
+         ========================================================== */
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+        gap: 1.35rem;
+        margin-top: 3.4rem;
+      }
+
+      .card {
+        position: relative;
+        padding: 2rem 1.85rem;
+        overflow: hidden;
+      }
+
+      .card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.4s ease;
+        background: radial-gradient(
+          380px circle at var(--mx, 50%) var(--my, 0%),
+          color-mix(in srgb, var(--accent) 14%, transparent),
+          transparent 68%
+        );
+      }
+
+      .card:hover {
+        transform: translateY(-4px);
+        border-color: color-mix(in srgb, var(--brass) 38%, transparent);
+        box-shadow: 0 16px 44px rgba(0, 0, 0, 0.42);
+      }
+
+      .card:hover::before { opacity: 1; }
+
+      .card-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        margin-bottom: 1.3rem;
+        color: var(--brass);
+        background: var(--wash);
+        border: 1px solid var(--line-warm);
+        position: relative;
+        z-index: 1;
+        transition: background 0.5s ease, border-color 0.5s ease, color 0.5s ease;
+      }
+
+      .card-icon svg { width: 21px; height: 21px; }
+
+      .card h3 {
+        font-size: 1.06rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 1;
+      }
+
+      .card p {
+        font-size: 0.9rem;
+        color: var(--text-2);
+        position: relative;
+        z-index: 1;
+      }
+
+      /* ==========================================================
+         SPLIT LAYOUT
+         ========================================================== */
+
+      .split {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2.4rem;
+        align-items: center;
+        margin-top: 3.4rem;
+      }
+
+      .split-copy h3 {
+        font-family: "Playfair Display", serif;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.7rem;
+        letter-spacing: -0.01em;
+      }
+
+      .split-copy > p {
+        color: var(--text-2);
+        font-size: 0.96rem;
+      }
+
+      .notes {
+        list-style: none;
+        margin-top: 1.6rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.05rem;
+      }
+
+      .notes li {
+        display: flex;
+        gap: 0.85rem;
+        font-size: 0.9rem;
+        color: var(--text-2);
+      }
+
+      .notes b {
+        display: block;
+        color: var(--paper);
+        font-weight: 600;
+        margin-bottom: 0.15rem;
+      }
+
+      .notes .tick {
+        flex-shrink: 0;
+        width: 19px;
+        height: 19px;
+        margin-top: 3px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        background: var(--wash);
+        border: 1px solid var(--line-warm);
+        color: var(--brass);
+        transition: background 0.5s ease, color 0.5s ease, border-color 0.5s ease;
+      }
+
+      .notes .tick svg { width: 10px; height: 10px; }
+
+      .stage {
+        padding: 2rem 1.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.15rem;
+      }
+
+      .stage-cap {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.63rem;
+        letter-spacing: 1.8px;
+        text-transform: uppercase;
+        color: var(--text-3);
+        text-align: center;
+      }
+
+      /* ==========================================================
+         ROOM STRIP REPLICA
+         ========================================================== */
+
+      .strip {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 9px 12px;
+        border-radius: 12px;
+        background: color-mix(in srgb, var(--ink) 70%, transparent);
+        border: 1px solid var(--line);
+        transition: background 0.6s ease, border-color 0.6s ease;
+      }
+
+      .strip-code {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.82rem;
+        font-weight: 600;
+        letter-spacing: 1.4px;
+        color: var(--brass);
+        padding: 3px 8px;
+        border-radius: 7px;
+        background: var(--wash);
+      }
+
+      .strip-rule {
+        width: 1px;
+        height: 17px;
+        background: var(--line);
+      }
+
+      .lock {
+        width: 26px;
+        height: 26px;
+        display: grid;
+        place-items: center;
+        border-radius: 6px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        position: relative;
+        transition: background 0.25s ease;
+      }
+
+      .lock:hover { background: var(--wash); }
+
+      .lock svg {
+        width: 18px;
+        height: 18px;
+        overflow: visible;
+        fill: none;
+        stroke: color-mix(in srgb, var(--brass) 52%, transparent);
+        stroke-width: 1.7;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        pointer-events: none;
+        transition: stroke 0.35s ease, transform 0.14s ease-out;
+      }
+
+      .lock:active svg { transform: scale(0.86); }
+
+      .lock[aria-pressed="true"] svg { stroke: var(--brass); }
+
+      .lock-shackle {
+        transform-box: view-box;
+        transform-origin: 8px 11.5px;
+        transform: rotate(-26deg) translateY(-1.2px);
+        transition: transform 0.42s cubic-bezier(0.34, 1.32, 0.5, 1);
+      }
+
+      .lock[aria-pressed="true"] .lock-shackle {
+        transform: rotate(0deg) translateY(0);
+      }
+
+      .lock-body {
+        fill: transparent;
+        transition: fill 0.35s ease;
+      }
+
+      .lock[aria-pressed="true"] .lock-body {
+        fill: color-mix(in srgb, var(--brass) 16%, transparent);
+      }
+
+      .lock-pin {
+        opacity: 0;
+        transform-box: view-box;
+        transform-origin: 12px 15.7px;
+        transform: scale(0.4);
+        transition: opacity 0.3s ease 0.12s, transform 0.34s cubic-bezier(0.34, 1.5, 0.64, 1) 0.12s;
+      }
+
+      .lock[aria-pressed="true"] .lock-pin {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      .lock-tip {
+        position: absolute;
+        bottom: calc(100% + 9px);
+        left: 50%;
+        transform: translateX(-50%) translateY(5px);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        padding: 7px 12px;
+        border-radius: 9px;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        background: color-mix(in srgb, var(--ink) 96%, transparent);
+        border: 1px solid var(--line-warm);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+        transition: opacity 0.22s ease, transform 0.28s cubic-bezier(0.34, 1.28, 0.64, 1), visibility 0.22s;
+        z-index: 5;
+      }
+
+      .lock:hover .lock-tip,
+      .lock:focus-visible .lock-tip {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(-50%) translateY(0);
+      }
+
+      .lock-tip-label {
+        font-family: "DM Sans", sans-serif;
+        font-size: 8.5px;
+        font-weight: 600;
+        letter-spacing: 0.6px;
+        text-transform: uppercase;
+        color: color-mix(in srgb, var(--brass) 58%, transparent);
+        line-height: 1;
+      }
+
+      .lock-tip-pass {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 4px;
+        color: var(--brass);
+        line-height: 1;
+        max-height: 16px;
+        overflow: hidden;
+        transition: max-height 0.3s ease, opacity 0.24s ease, margin-top 0.3s ease;
+      }
+
+      .lock[aria-pressed="false"] .lock-tip-pass {
+        max-height: 0;
+        opacity: 0;
+        margin-top: -3px;
+      }
+
+      .pips {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        margin-left: 2px;
+      }
+
+      .host-tag {
+        font-family: "DM Sans", sans-serif;
+        font-size: 7.5px;
+        font-weight: 700;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        color: var(--ink);
+        background: var(--brass);
+        padding: 2px 7px 2px 5px;
+        border-radius: 6px 0 0 6px;
+        margin-right: -5px;
+        transition: background 0.5s ease, color 0.5s ease;
+      }
+
+      .pip {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--ink);
+        background: var(--brass);
+        transition: background 0.5s ease, color 0.5s ease, border-color 0.5s ease;
+      }
+
+      .pip.guest {
+        background: var(--accent);
+        color: var(--paper);
+      }
+
+
+      .strip-count {
+        margin-left: auto;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--text-2);
+      }
+
+      .join-demo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 11px 14px;
+        border-radius: 12px;
+        background: color-mix(in srgb, var(--ink) 70%, transparent);
+        border: 1px solid var(--line);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.9rem;
+        font-weight: 600;
+        letter-spacing: 4px;
+        color: var(--brass);
+        transition: background 0.6s ease, border-color 0.6s ease;
+      }
+
+      .join-demo em {
+        font-family: "DM Sans", sans-serif;
+        font-style: normal;
+        font-size: 0.7rem;
+        font-weight: 500;
+        letter-spacing: 0;
+        color: var(--text-3);
+      }
+
+      .join-locked,
+      .join-open {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .join-open { display: none; }
+      .join-demo.unlocked .join-locked { display: none; }
+      .join-demo.unlocked .join-open { display: inline-flex; }
+
+      .caret {
+        display: inline-block;
+        width: 1.5px;
+        height: 15px;
+        background: var(--brass);
+        animation: blink 1.15s steps(1) infinite;
+      }
+
+      @keyframes blink {
+        0%, 49%   { opacity: 1; }
+        50%, 100% { opacity: 0; }
+      }
+
+      /* ==========================================================
+         MESH DIAGRAM
+         ========================================================== */
+
+      .mesh { width: 100%; max-width: 330px; margin: 0 auto; display: block; }
+
+      .mesh-edge {
+        stroke: var(--brass);
+        stroke-width: 1.6;
+        stroke-dasharray: 5 7;
+        opacity: 0.55;
+        animation: flow 2.4s linear infinite;
+      }
+
+      .mesh-edge.b { animation-delay: -0.8s; }
+      .mesh-edge.c { animation-delay: -1.6s; }
+
+      @keyframes flow {
+        to { stroke-dashoffset: -24; }
+      }
+
+      .mesh-node {
+        fill: var(--surface);
+        stroke: var(--accent);
+        stroke-width: 2;
+        transition: fill 0.6s ease, stroke 0.6s ease;
+      }
+
+      .mesh-node-halo {
+        fill: none;
+        stroke: var(--accent);
+        stroke-width: 1.4;
+        opacity: 0;
+        transform-box: fill-box;
+        transform-origin: center;
+        animation: ping 3s ease-out infinite;
+      }
+
+      .mesh-node-halo.b { animation-delay: -1s; }
+      .mesh-node-halo.c { animation-delay: -2s; }
+
+      @keyframes ping {
+        0%   { opacity: 0.5; transform: scale(1); }
+        70%  { opacity: 0; transform: scale(1.75); }
+        100% { opacity: 0; transform: scale(1.75); }
+      }
+
+      .mesh-label {
+        fill: var(--paper);
+        font-family: "DM Sans", sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        text-anchor: middle;
+        dominant-baseline: central;
+        transition: fill 0.6s ease;
+      }
+
+      /* ==========================================================
+         SYNC DEMO
+         ========================================================== */
+
+      .tracks {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+      }
+
+      .track-row {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+      }
+
+      .track-tag {
+        width: 22px;
+        height: 22px;
+        flex-shrink: 0;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-size: 9.5px;
+        font-weight: 700;
+        color: var(--ink);
+        background: var(--brass);
+        transition: background 0.5s ease, color 0.5s ease;
+      }
+
+      .track-tag.g2 { background: var(--accent); color: var(--paper); }
+      .track-tag.g3 { background: color-mix(in srgb, var(--brass) 62%, var(--accent)); }
+
+      .track {
+        position: relative;
+        flex: 1;
+        height: 5px;
+        border-radius: 3px;
+        background: color-mix(in srgb, var(--paper) 9%, transparent);
+        overflow: hidden;
+      }
+
+      .track-fill {
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: 100%;
+        border-radius: 3px;
+        background: linear-gradient(90deg, var(--accent-deep), var(--brass));
+        transform-origin: 0 50%;
+        animation: scrub 7s cubic-bezier(0.6, 0, 0.4, 1) infinite;
+      }
+
+      @keyframes scrub {
+        0%   { transform: scaleX(0.06); }
+        34%  { transform: scaleX(0.42); }
+        44%  { transform: scaleX(0.19); }
+        78%  { transform: scaleX(0.72); }
+        100% { transform: scaleX(0.94); }
+      }
+
+      .track-time {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.66rem;
+        color: var(--text-3);
+        width: 3.2rem;
+        text-align: right;
+        flex-shrink: 0;
+      }
+
+      /* ==========================================================
+         THEME PICKER
+         ========================================================== */
+
+      .swatches {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.7rem;
+        margin-top: 2.6rem;
+      }
+
+      .swatch {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        padding: 8px 17px 8px 9px;
+        border-radius: 40px;
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--text-2);
+        background: color-mix(in srgb, var(--paper) 4%, transparent);
+        border: 1px solid color-mix(in srgb, var(--paper) 8%, transparent);
+        transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+      }
+
+      .swatch:hover {
+        transform: translateY(-2px);
+        color: var(--paper);
+        background: color-mix(in srgb, var(--paper) 8%, transparent);
+      }
+
+      .swatch[aria-pressed="true"] {
+        color: var(--paper);
+        border-color: var(--brass);
+        background: var(--wash);
+      }
+
+      .chip {
+        width: 21px;
+        height: 21px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        border: 2px solid rgba(255, 255, 255, 0.12);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .swatch[aria-pressed="true"] .chip {
+        box-shadow: 0 0 0 2px var(--ink), 0 0 0 3.5px var(--brass);
+      }
+
+      .chip.c-burgundy   { background: linear-gradient(135deg, #a83242, #6d1526); }
+      .chip.c-pink       { background: linear-gradient(135deg, #f8c8dc, #d8789b); }
+      .chip.c-volcano    { background: linear-gradient(135deg, #e85d2a, #a52d14); }
+      .chip.c-ocean      { background: linear-gradient(135deg, #00b4d8, #005f7a); }
+      .chip.c-sunset     { background: linear-gradient(135deg, #ffab5e, #a32a4a); }
+      .chip.c-royal      { background: linear-gradient(135deg, #9b64dd, #46197a); }
+      .chip.c-forest     { background: linear-gradient(135deg, #4a9e35, #1d4d12); }
+      .chip.c-arctic     { background: linear-gradient(135deg, #eaf7ff, #8fbcd6); }
+      .chip.c-midnight   { background: linear-gradient(150deg, #3f2d1a, #120b03); }
+      .chip.c-blackwhite { background: #101010; }
+
+      .chip.c-blackwhite::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(1.1px 1.1px at 28% 26%, #fff, transparent),
+          radial-gradient(1.1px 1.1px at 62% 58%, #fff, transparent),
+          radial-gradient(1px 1px at 76% 33%, #fff, transparent),
+          radial-gradient(1px 1px at 40% 74%, #fff, transparent);
+      }
+
+      .picker-hint {
+        margin-top: 1.5rem;
+        text-align: center;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.65rem;
+        letter-spacing: 1.6px;
+        text-transform: uppercase;
+        color: var(--text-3);
+      }
+
+      /* ==========================================================
+         BOT
+         ========================================================== */
+
+      .thread {
+        padding: 1.6rem 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+      }
+
+      .bubble {
+        max-width: 86%;
+        padding: 10px 14px;
+        border-radius: 13px;
+        font-size: 0.86rem;
+        line-height: 1.5;
+      }
+
+      .bubble.mine {
+        align-self: flex-end;
+        position: relative;
+        color: var(--paper);
+        background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 62%, transparent), color-mix(in srgb, var(--accent-deep) 74%, transparent));
+        border: 1px solid var(--line);
+      }
+
+      .bubble.theirs {
+        align-self: flex-start;
+        color: var(--text-2);
+        background: var(--wash);
+        border: 1px solid var(--line-warm);
+        font-style: italic;
+      }
+
+      .badge-b {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        width: 17px;
+        height: 17px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-size: 8px;
+        font-weight: 700;
+        font-style: normal;
+        color: var(--ink);
+        background: var(--brass);
+        border: 1.5px solid var(--ink);
+        box-shadow: 0 0 8px var(--glow);
+      }
+
+      .composer {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 5px;
+      }
+
+      .composer-b {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        display: grid;
+        place-items: center;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: var(--ink);
+        background: var(--brass);
+        box-shadow: 0 0 12px var(--glow);
+        flex-shrink: 0;
+      }
+
+      .composer-field {
+        flex: 1;
+        min-width: 0;
+        padding: 8px 12px;
+        border-radius: 9px;
+        font-size: 0.8rem;
+        color: var(--text-3);
+        background: color-mix(in srgb, var(--ink) 62%, transparent);
+        border: 1px solid var(--line);
+      }
+
+      .composer-send {
+        padding: 8px 15px;
+        border-radius: 9px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--paper);
+        background: linear-gradient(135deg, var(--accent), var(--accent-deep));
+        flex-shrink: 0;
+      }
+
+      /* ==========================================================
+         REACTIONS
+         ========================================================== */
+
+      .reactions {
+        position: relative;
+        margin-top: 3rem;
+        min-height: 260px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: 2rem 1.5rem 1.7rem;
+        overflow: hidden;
+      }
+
+      .react-row {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.55rem;
+        position: relative;
+        z-index: 2;
+      }
+
+      .react-btn {
+        width: 46px;
+        height: 46px;
+        border-radius: 13px;
+        font-size: 1.28rem;
+        line-height: 1;
+        cursor: pointer;
+        background: color-mix(in srgb, var(--ink) 55%, transparent);
+        border: 1px solid var(--line);
+        transition: transform 0.2s ease, background 0.25s ease, border-color 0.25s ease;
+      }
+
+      .react-btn:hover {
+        transform: translateY(-4px) scale(1.06);
+        border-color: var(--brass);
+        background: var(--wash);
+      }
+
+      .react-btn:active { transform: translateY(-1px) scale(0.95); }
+
+      .float-emoji {
+        position: absolute;
+        font-size: 1.7rem;
+        pointer-events: none;
+        z-index: 1;
+        animation: lift 2s cubic-bezier(0.3, 0, 0.5, 1) forwards;
+      }
+
+      @keyframes lift {
+        0%   { opacity: 0; transform: translate(0, 10px) scale(0.5) rotate(0deg); }
+        18%  { opacity: 1; transform: translate(0, 0) scale(1.1) rotate(4deg); }
+        100% { opacity: 0; transform: translate(var(--dx), -150px) scale(1.25) rotate(var(--rot)); }
+      }
+
+      .react-hint {
+        margin-top: 1.4rem;
+        text-align: center;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.65rem;
+        letter-spacing: 1.6px;
+        text-transform: uppercase;
+        color: var(--text-3);
+        position: relative;
+        z-index: 2;
+      }
+
+      /* ==========================================================
+         INSTALL
+         ========================================================== */
+
+      .steps {
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+        margin-top: 3.4rem;
+        counter-reset: step;
+      }
+
+      .step {
+        display: flex;
+        align-items: center;
+        gap: 2.2rem;
+        padding: 1.3rem 1.6rem;
+      }
+
+      .step:nth-child(even) { flex-direction: row-reverse; }
+
+      .step:hover {
+        transform: translateY(-3px);
+        border-color: color-mix(in srgb, var(--brass) 30%, transparent);
+        box-shadow: 0 12px 34px rgba(0, 0, 0, 0.34);
+      }
+
+      .step img {
+        width: 30%;
+        min-width: 200px;
+        max-width: 330px;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+        object-fit: cover;
+        flex-shrink: 0;
+        transition: transform 0.35s ease;
+      }
+
+      .step:hover img { transform: scale(1.025); }
+
+      .step-body { flex: 1; text-align: center; }
+
+      .step-no {
+        counter-increment: step;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.63rem;
+        font-weight: 600;
+        letter-spacing: 2.4px;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-bottom: 0.45rem;
+        transition: color 0.6s ease;
+      }
+
+      .step-no::before { content: "Step 0" counter(step); }
+
+      .step-body p { font-size: 1rem; color: var(--text-2); }
+      .step-body strong { color: var(--paper); }
+
+      .step-body code {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.84rem;
+        padding: 2px 8px;
+        border-radius: 6px;
+        background: var(--wash);
+        color: var(--brass);
+      }
+
+      /* ==========================================================
+         FAQ
+         ========================================================== */
+
+      .faq {
+        max-width: 720px;
+        margin: 3.2rem auto 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.7rem;
+      }
+
+      .qa { border-radius: 13px; }
+
+      .q {
+        width: 100%;
+        padding: 1.05rem 1.3rem;
+        border: none;
+        background: none;
+        cursor: pointer;
+        color: var(--paper);
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.95rem;
+        font-weight: 600;
+        text-align: left;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        border-radius: 13px;
+      }
+
+      .q svg {
+        width: 15px;
+        height: 15px;
+        flex-shrink: 0;
+        color: var(--text-3);
+        transition: transform 0.35s cubic-bezier(0.34, 1.3, 0.64, 1), color 0.3s ease;
+      }
+
+      .qa.open .q svg {
+        transform: rotate(135deg);
+        color: var(--brass);
+      }
+
+      .a {
+        display: grid;
+        grid-template-rows: 0fr;
+        transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .qa.open .a { grid-template-rows: 1fr; }
+
+      .a > div { overflow: hidden; }
+
+      .a p {
+        padding: 0 1.3rem 1.15rem;
+        margin-left: 0.2rem;
+        border-left: 2px solid var(--accent);
+        padding-left: 1.1rem;
+        font-size: 0.9rem;
+        color: var(--text-2);
+        transition: border-color 0.6s ease;
+      }
+
+      /* ==========================================================
+         CLOSING
+         ========================================================== */
+
+      .closing {
+        position: relative;
+        text-align: center;
+        padding: var(--step) 1.5rem calc(var(--step) * 0.7);
+        overflow: hidden;
+      }
+
+      .closing .cta { animation: none; }
+
+      .closing-title {
+        font-family: "Playfair Display", serif;
+        font-style: italic;
+        font-size: clamp(1.7rem, 4.4vw, 2.5rem);
+        font-weight: 600;
+        margin-bottom: 2rem;
+        letter-spacing: -0.01em;
+      }
+
       footer {
         text-align: center;
-        padding: 2rem 1.5rem;
-        border-top: 1px solid rgba(180, 80, 100, 0.08);
+        padding: 2.2rem 1.5rem 2.6rem;
+        border-top: 1px solid var(--line);
       }
 
       footer p {
-        font-size: 0.8rem;
-        color: var(--text-muted);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.68rem;
+        letter-spacing: 1.4px;
+        color: var(--text-3);
       }
+
+      /* ==========================================================
+         REVEAL
+         ========================================================== */
+
       .reveal {
         opacity: 0;
-        transform: translateY(24px);
-        transition: opacity 0.7s ease, transform 0.7s ease;
+        transform: translateY(22px);
+        transition: opacity 0.75s ease, transform 0.75s cubic-bezier(0.2, 0.7, 0.3, 1);
       }
 
-      .reveal.visible {
+      .reveal.shown {
         opacity: 1;
-        transform: translateY(0);
+        transform: none;
       }
 
-      .reveal-delay-1 { transition-delay: 0.1s; }
-      .reveal-delay-2 { transition-delay: 0.2s; }
-      .reveal-delay-3 { transition-delay: 0.3s; }
-      .reveal-delay-4 { transition-delay: 0.4s; }
-      .reveal-delay-5 { transition-delay: 0.5s; }
-      @media (max-width: 768px) {
-        .install-step,
-        .install-step:nth-child(even) {
-          flex-direction: column !important;
+      .d1 { transition-delay: 0.07s; }
+      .d2 { transition-delay: 0.14s; }
+      .d3 { transition-delay: 0.21s; }
+
+      /* ==========================================================
+         RESPONSIVE
+         ========================================================== */
+
+      @media (max-width: 900px) {
+        html { --shell: min(1120px, 100% - 2.25rem); }
+
+        .split {
+          grid-template-columns: 1fr;
+          gap: 2rem;
+        }
+      }
+
+      @media (min-width: 901px) {
+        .split-flip > .stage { order: -1; }
+      }
+
+      @media (max-width: 720px) {
+        .masthead-links { display: none; }
+
+        .step,
+        .step:nth-child(even) {
+          flex-direction: column;
+          gap: 1.3rem;
+          padding: 1.2rem;
         }
 
-        .install-step img {
+        .step img {
           width: 100%;
+          min-width: 0;
           max-width: 100%;
         }
 
-        .bot-showcase {
-          grid-template-columns: 1fr;
+        .hero { padding: 6rem 1.25rem 6rem; }
+        .hero-stats { gap: 0.5rem 1rem; }
+        .hero-stats span + span::before { margin-right: 0.6rem; }
+
+        .grid { grid-template-columns: 1fr; }
+
+        .band { scroll-margin-top: 4.25rem; }
+
+        .stage { padding: 1.5rem 1.15rem; }
+
+        .react-btn {
+          width: 42px;
+          height: 42px;
+          font-size: 1.15rem;
+        }
+      }
+
+      @media (max-width: 420px) {
+        html { --shell: min(1120px, 100% - 1.75rem); }
+
+        .cta { padding: 15px 30px; font-size: 0.95rem; }
+        .strip { gap: 6px; padding: 8px 9px; }
+        .strip-count { font-size: 0.64rem; }
+        .pip, .track-tag { width: 21px; height: 21px; font-size: 9px; }
+      }
+
+      @media (hover: none) {
+        .card:hover { transform: none; }
+        .step:hover { transform: none; }
+        .step:hover img { transform: none; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+
+        *, *::before, *::after {
+          animation-duration: 0.001ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.001ms !important;
         }
 
-        .features-grid {
-          grid-template-columns: 1fr;
-        }
-
-        section {
-          padding: 4rem 1.25rem;
-        }
-
-        .hero {
-          min-height: 90vh;
-          overflow: hidden;
-        }
-
-        .final-cta {
-          overflow: hidden;
-        }
+        .reveal { opacity: 1; transform: none; }
+        .mote, .beam { display: none; }
       }
     </style>
   </head>
   <body>
-    <div class="page-bg"></div>
-    <div class="grain-overlay"></div>
+    <div class="ambience"></div>
+    <div class="grain"></div>
+    <div class="rail" id="rail"></div>
 
-    <div class="content-wrapper">
+    <header class="masthead" id="masthead">
+      <a class="mark" href="#top">
+        <span class="mark-cell">B</span>
+        Binger
+      </a>
+      <nav class="masthead-links">
+        <a href="#features">Features</a>
+        <a href="#themes">Themes</a>
+        <a href="#bot">Bot</a>
+        <a href="#install">Install</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+      <a class="mini-cta" href="Binger v8.0.0.zip" download>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download
+      </a>
+    </header>
 
-<section class="hero">
-        <div class="hero-glow"></div>
-        <svg class="hero-logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="heroBorder" x1="0" y1="0" x2="100" y2="100">
-              <stop offset="0%" stop-color="#d44058"/>
-              <stop offset="50%" stop-color="#a83242"/>
-              <stop offset="100%" stop-color="#7a1828"/>
-            </linearGradient>
-            <linearGradient id="heroInner" x1="20" y1="15" x2="80" y2="85">
-              <stop offset="0%" stop-color="#1f0c14"/>
-              <stop offset="100%" stop-color="#140810"/>
-            </linearGradient>
-            <filter id="heroGlow">
-              <feGaussianBlur stdDeviation="1.8" result="blur"/>
-              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-            </filter>
-          </defs>
-          <rect x="6" y="2" width="88" height="96" rx="7" fill="url(#heroInner)"/>
-          <rect x="6" y="2" width="88" height="96" rx="7" fill="none" stroke="url(#heroBorder)" stroke-width="3"/>
-          <rect x="11" y="8" width="7" height="5" rx="1.5" fill="rgba(200,100,120,0.25)"/>
-          <rect x="11" y="19" width="7" height="5" rx="1.5" fill="rgba(200,100,120,0.25)"/>
-          <rect x="11" y="30" width="7" height="5" rx="1.5" fill="rgba(200,100,120,0.25)"/>
-          <rect x="11" y="41" width="7" height="5" rx="1.5" fill="rgba(200,100,120,0.25)"/>
-          <rect x="11" y="52" width="7" height="5" rx="1.5" fill="rgba(200,100,120,0.25)"/>
-          <rect x="11" y="63" width="7" height="5" rx="1.5" fill="rgba(200,100,120,0.25)"/>
-          <rect x="11" y="74" width="7" height="5" rx="1.5" fill="rgba(200,100,120,0.25)"/>
-          <rect x="11" y="85" width="7" height="5" rx="1.5" fill="rgba(200,100,120,0.25)"/>
-          <rect x="82" y="8" width="7" height="5" rx="1.5" fill="rgba(200,100,120,0.25)"/>
-          <rect x="82" y="19" width="7" height="5" rx="1.5" fill="rgba(200,100,120,0.25)"/>
-          <rect x="82" y="30" width="7" height="5" rx="1.5" fill="rgba(200,100,120,0.25)"/>
-          <rect x="82" y="41" width="7" height="5" rx="1.5" fill="rgba(200,100,120,0.25)"/>
-          <rect x="82" y="52" width="7" height="5" rx="1.5" fill="rgba(200,100,120,0.25)"/>
-          <rect x="82" y="63" width="7" height="5" rx="1.5" fill="rgba(200,100,120,0.25)"/>
-          <rect x="82" y="74" width="7" height="5" rx="1.5" fill="rgba(200,100,120,0.25)"/>
-          <rect x="82" y="85" width="7" height="5" rx="1.5" fill="rgba(200,100,120,0.25)"/>
-          <rect x="22" y="12" width="56" height="76" rx="3" fill="none" stroke="rgba(200,100,120,0.1)" stroke-width="1"/>
-          <text x="50" y="68" text-anchor="middle" font-family="Playfair Display, serif" font-weight="700" font-size="52" fill="#f5e6d0" filter="url(#heroGlow)">B</text>
+    <main class="shell" id="top">
+
+      <!-- ================= HERO ================= -->
+      <section class="hero">
+        <div class="beam"></div>
+        <div class="mote" style="left: 22%; bottom: 8%;  --dx: 40px;  --dur: 17s; --delay: 0s;"></div>
+        <div class="mote" style="left: 38%; bottom: 2%;  --dx: -32px; --dur: 21s; --delay: 3s;"></div>
+        <div class="mote" style="left: 54%; bottom: 12%; --dx: 55px;  --dur: 19s; --delay: 6s;"></div>
+        <div class="mote" style="left: 68%; bottom: 4%;  --dx: -48px; --dur: 23s; --delay: 1.5s;"></div>
+        <div class="mote" style="left: 81%; bottom: 15%; --dx: 26px;  --dur: 15s; --delay: 8s;"></div>
+
+        <svg class="cell" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Binger">
+          <rect class="cell-frame" x="6" y="2" width="88" height="96" rx="7" stroke-width="3" />
+          <g class="cell-perf">
+            <rect x="11" y="8"  width="7" height="5" rx="1.5" /><rect x="11" y="19" width="7" height="5" rx="1.5" />
+            <rect x="11" y="30" width="7" height="5" rx="1.5" /><rect x="11" y="41" width="7" height="5" rx="1.5" />
+            <rect x="11" y="52" width="7" height="5" rx="1.5" /><rect x="11" y="63" width="7" height="5" rx="1.5" />
+            <rect x="11" y="74" width="7" height="5" rx="1.5" /><rect x="11" y="85" width="7" height="5" rx="1.5" />
+            <rect x="82" y="8"  width="7" height="5" rx="1.5" /><rect x="82" y="19" width="7" height="5" rx="1.5" />
+            <rect x="82" y="30" width="7" height="5" rx="1.5" /><rect x="82" y="41" width="7" height="5" rx="1.5" />
+            <rect x="82" y="52" width="7" height="5" rx="1.5" /><rect x="82" y="63" width="7" height="5" rx="1.5" />
+            <rect x="82" y="74" width="7" height="5" rx="1.5" /><rect x="82" y="85" width="7" height="5" rx="1.5" />
+          </g>
+          <rect class="cell-inner" x="22" y="12" width="56" height="76" rx="3" stroke-width="1" />
+          <text class="cell-letter" x="50" y="68" text-anchor="middle" font-family="Playfair Display, serif" font-weight="700" font-size="52">B</text>
         </svg>
+
         <h1 class="hero-title">Binger</h1>
-        <p class="hero-tagline">Watch together. Chat. Call. All in sync.</p>
-        <a href="Binger v8.0.0.zip" download class="hero-cta">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <p class="hero-sub">Watch together. Chat, call, and stay in sync down to the second.</p>
+
+        <p class="hero-stats">
+          <span><b>3</b> to a room</span>
+          <span><b>10</b> themes</span>
+          <span><b>0</b> fees</span>
+        </p>
+
+        <a class="cta" href="Binger v8.0.0.zip" download>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           Download Binger
         </a>
-        <p id="version-text" class="hero-version">version v8.0.0</p>
-        <div class="hero-scroll-hint">
+        <p class="hero-version">version v8.0.0</p>
+
+        <div class="scroll-hint" aria-hidden="true">
           <span>Scroll</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
       </section>
 
-<section id="features">
-        <p class="section-label reveal">What you get</p>
-        <h2 class="section-title reveal">Everything you need for movie night</h2>
-        <p class="section-subtitle reveal">A Chrome Extension that turns <strong>phimbro.com</strong> into a synchronized cinema for you and a friend.</p>
+      <div class="divider"></div>
 
-        <div class="features-grid">
-          <div class="feature-card reveal reveal-delay-1">
-            <div class="feature-icon">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            </div>
-            <h3>Real-Time Sync</h3>
-            <p>Play, pause, and seek together. Buffering pauses everyone until all users are ready. No one misses a scene.</p>
-          </div>
+      <!-- ================= FEATURES ================= -->
+      <section class="band" id="features">
+        <p class="eyebrow reveal">What you get</p>
+        <h2 class="band-title reveal">Everything you need for movie night</h2>
+        <p class="band-lede reveal">A Chrome extension that turns <strong>phimbro.com</strong> into a synchronized cinema for up to three people.</p>
 
-          <div class="feature-card reveal reveal-delay-2">
-            <div class="feature-icon">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            </div>
-            <h3>Live Chat</h3>
-            <p>Real-time messaging with typing indicators, themed message bubbles, and an AI bot that can seek to any scene you describe.</p>
-          </div>
+        <div class="grid">
+          <article class="panel card reveal">
+            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+            <h3>Playback in lockstep</h3>
+            <p>Play, pause, and seek for everyone at once. If one person starts buffering, the room waits. Nobody watches a scene alone.</p>
+          </article>
 
-          <div class="feature-card reveal reveal-delay-3">
-            <div class="feature-icon">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
-            </div>
-            <h3>Video Calls</h3>
-            <p>Peer-to-peer WebRTC calls with STUN/TURN fallback. See your friend's reactions right inside the overlay.</p>
-          </div>
+          <article class="panel card reveal d1">
+            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+            <h3>Live chat</h3>
+            <p>Typing indicators, grouped messages, hover an avatar to see who sent what, and message bubbles that take on whatever theme the room is wearing.</p>
+          </article>
 
-          <div class="feature-card reveal reveal-delay-1">
-            <div class="feature-icon">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            </div>
-            <h3>Private Rooms</h3>
-            <p>Create or join rooms with 6-digit codes. Max 2 users per room with atomic join transactions so nothing breaks.</p>
-          </div>
+          <article class="panel card reveal d2">
+            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg></div>
+            <h3>Video calls</h3>
+            <p>Peer to peer video and audio for the whole room, with STUN and TURN fallback for awkward networks. Speaker and headphone modes for clean movie audio.</p>
+          </article>
 
-          <div class="feature-card reveal reveal-delay-2">
-            <div class="feature-icon">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-            </div>
+          <article class="panel card reveal">
+            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+            <h3>Rooms you can lock</h3>
+            <p>Six digit codes, up to three people, and a lock the host can flip at any time. Locked rooms ask newcomers for a four digit password.</p>
+          </article>
+
+          <article class="panel card reveal d1">
+            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
             <h3>Soundboard</h3>
-            <p>5 synced sound effects, 10 floating visual reactions, and pin mode to drop emojis at exact spots on the video.</p>
+            <p>Five synced sound effects, ten floating reactions, and pin mode to stick an emoji on the exact spot of the frame you are yelling about.</p>
+          </article>
+
+          <article class="panel card reveal d2">
+            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+            <h3>Fullscreen mode</h3>
+            <p>Video call, chat, and soundboard snap into one connected panel beneath the film. Toggling fullscreen no longer drops the call for anyone.</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- ================= SYNC ================= -->
+      <section class="band" id="sync">
+        <p class="eyebrow reveal">Sync</p>
+        <h2 class="band-title reveal">One timeline, three players</h2>
+
+        <div class="split split-flip">
+          <div class="panel stage reveal">
+            <div class="tracks" aria-hidden="true">
+              <div class="track-row">
+                <span class="track-tag">T</span>
+                <span class="track"><span class="track-fill"></span></span>
+                <span class="track-time">01:12:04</span>
+              </div>
+              <div class="track-row">
+                <span class="track-tag g2">M</span>
+                <span class="track"><span class="track-fill"></span></span>
+                <span class="track-time">01:12:04</span>
+              </div>
+              <div class="track-row">
+                <span class="track-tag g3">K</span>
+                <span class="track"><span class="track-fill"></span></span>
+                <span class="track-time">01:12:04</span>
+              </div>
+            </div>
+            <p class="stage-cap">Anyone scrubs, everyone lands together</p>
           </div>
 
-          <div class="feature-card reveal reveal-delay-3">
-            <div class="feature-icon">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-            </div>
-            <h3>Fullscreen Mode</h3>
-            <p>Connected panel layout with video call, chat overlay, and soundboard snapped together. Zero-gap, smooth slide animations.</p>
+          <div class="split-copy reveal d1">
+            <h3>Nobody drifts</h3>
+            <p>Every play, pause, and seek is stamped with who did it, so the person who clicked never gets yanked around by the echo of their own action.</p>
+            <ul class="notes">
+              <li>
+                <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                <span><b>Buffering pauses the room</b>When one person stalls, everyone holds until all three report ready.</span>
+              </li>
+              <li>
+                <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                <span><b>Every session starts at zero</b>The site's saved checkpoint gets overridden, so no one opens mid-film by accident.</span>
+              </li>
+              <li>
+                <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                <span><b>Deadlocks get broken</b>Four separate guards stop the room from freezing if a ready signal goes missing.</span>
+              </li>
+            </ul>
           </div>
         </div>
       </section>
 
-<section id="themes">
-        <p class="section-label reveal">Personalize</p>
-        <h2 class="section-title reveal">10 cinematic themes</h2>
-        <p class="section-subtitle reveal">Every element of Binger transforms - the overlay, chat bubbles, buttons, video call frame, and soundboard. Themes sync between room members in real-time. Four of them spawn their own particle effects, from drifting leaves to smoke and growing frost.</p>
+      <!-- ================= ROOMS ================= -->
+      <section class="band" id="rooms">
+        <p class="eyebrow reveal">Rooms</p>
+        <h2 class="band-title reveal">Public by default, private on demand</h2>
 
-        <div class="themes-row reveal">
-          <div class="theme-pill"><div class="theme-swatch sw-burgundy"></div><span>Burgundy</span></div>
-          <div class="theme-pill"><div class="theme-swatch sw-pink"></div><span>Pink</span></div>
-          <div class="theme-pill"><div class="theme-swatch sw-volcano"></div><span>Volcano</span></div>
-          <div class="theme-pill"><div class="theme-swatch sw-ocean"></div><span>Ocean</span></div>
-          <div class="theme-pill"><div class="theme-swatch sw-sunset"></div><span>Sunset</span></div>
-          <div class="theme-pill"><div class="theme-swatch sw-bw"></div><span>Black &amp; White</span></div>
-          <div class="theme-pill"><div class="theme-swatch sw-royal"></div><span>Royal</span></div>
-          <div class="theme-pill"><div class="theme-swatch sw-forest"></div><span>Forest</span></div>
-          <div class="theme-pill"><div class="theme-swatch sw-arctic"></div><span>Arctic</span></div>
-          <div class="theme-pill"><div class="theme-swatch sw-midnight"></div><span>Midnight</span></div>
-        </div>
-      </section>
-
-<section id="bot">
-        <p class="section-label reveal">AI-Powered</p>
-        <h2 class="section-title reveal">Meet Binger Bot</h2>
-        <p class="section-subtitle reveal">Toggle bot mode in chat to ask questions, get movie trivia with live web search, or describe a scene and Binger will seek to it using AI-generated subtitle embeddings.</p>
-
-        <div class="bot-showcase">
-          <div class="bot-info reveal">
-            <div class="bot-detail">
-              <h4>Live Web Search</h4>
-              <p>Binger decides for itself when a question needs current information. Ask about cast, ratings, box office, or anything else film-related and it searches the web mid-answer, then replies with what it found.</p>
-            </div>
-            <div class="bot-detail">
-              <h4>Scene Seeking</h4>
-              <p>Describe any scene and Binger fetches subtitles, rewrites them into descriptions, generates embeddings, and finds the closest match using cosine similarity. Then it seeks the video for you.</p>
-            </div>
-            <div class="bot-detail">
-              <h4>Context Aware</h4>
-              <p>Binger Bot knows what movie you're watching, the current timestamp, and your recent chat history. It keeps responses short and conversational, like a friend on the couch.</p>
-            </div>
+        <div class="split">
+          <div class="split-copy reveal">
+            <h3>The host holds the key</h3>
+            <p>Rooms start open so a friend can drop in with just the code. Flip the lock and Binger starts asking newcomers for a four digit password instead.</p>
+            <ul class="notes">
+              <li>
+                <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                <span><b>Locking never kicks anyone</b>People already in the room stay in the room, session and all.</span>
+              </li>
+              <li>
+                <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                <span><b>Change it whenever</b>Only the host can flip the lock or edit the password, and it lands on every screen instantly.</span>
+              </li>
+              <li>
+                <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                <span><b>A wrong guess costs nothing</b>Type the wrong password and the field just shakes. You stay exactly where you were.</span>
+              </li>
+            </ul>
           </div>
 
-          <div class="bot-chat-demo reveal reveal-delay-2">
-            <div class="demo-msg user" style="animation-delay: 0.1s">
-              <span class="bot-badge">B</span>
-              what scene does the main character first cry?
+          <div class="panel stage reveal d1">
+            <div class="strip">
+              <span class="strip-code">418702</span>
+              <span class="strip-rule"></span>
+              <button class="lock" id="lockDemo" type="button" aria-pressed="true" aria-label="Toggle room privacy">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path class="lock-shackle" d="M8 11.5V7.6a4 4 0 0 1 8 0v3.9"/>
+                  <rect class="lock-body" x="4.6" y="11" width="14.8" height="9.4" rx="2.7"/>
+                  <circle class="lock-pin" cx="12" cy="15.7" r="1.15"/>
+                </svg>
+                <span class="lock-tip">
+                  <span class="lock-tip-label" id="lockLabel">Room password</span>
+                  <span class="lock-tip-pass">4913</span>
+                </span>
+              </button>
+              <span class="pips">
+                <span class="host-tag">host</span>
+                <span class="pip">T</span>
+                <span class="pip guest">M</span>
+                <span class="pip guest">K</span>
+              </span>
+              <span class="strip-count">3/3</span>
             </div>
-            <div class="demo-msg bot" style="animation-delay: 0.3s">
-              Oh that moment hits hard. Taking you there now.
-            </div>
-            <div class="demo-msg user" style="animation-delay: 0.5s">
-              <span class="bot-badge">B</span>
-              who directed this movie?
-            </div>
-            <div class="demo-msg bot" style="animation-delay: 0.7s">
-              This film was directed by Park Chan-wook, released in 2003. It's considered one of the greatest Korean films ever made.
-            </div>
-            <div class="demo-input">
-              <div class="demo-bot-toggle">B</div>
-              <div class="demo-input-field">Ask Binger...</div>
-              <div class="demo-send-btn">Send</div>
-            </div>
-          </div>
-        </div>
-      </section>
 
-<section id="soundboard">
-        <p class="section-label reveal">React together</p>
-        <h2 class="section-title reveal">Sounds, visuals, and pins</h2>
-        <p class="section-subtitle reveal">All effects are synced to both users in real-time. Floating emojis last 2 seconds. Pins stick to exact video coordinates for 5 seconds with unique animations per emoji.</p>
-      </section>
-
-<section id="install">
-        <p class="section-label reveal">Get started</p>
-        <h2 class="section-title reveal">Install in under a minute</h2>
-        <p class="section-subtitle reveal">No accounts needed beyond a username and password. No emails, no fees. Just install and go.</p>
-
-        <div class="install-steps">
-          <div class="install-step reveal">
-            <img src="steps/step1.png" alt="Download the zip file" />
-            <div class="step-content">
-              <p class="step-number">Step 01</p>
-              <p>Click the download button above to grab <code>Binger.zip</code></p>
+            <div class="join-demo" id="joinDemo">
+              <span class="join-locked">
+                <span>4913</span><span class="caret" aria-hidden="true"></span>
+                <em>password to join</em>
+              </span>
+              <span class="join-open">
+                <em>anyone with the code walks straight in</em>
+              </span>
             </div>
-          </div>
 
-          <div class="install-step reveal">
-            <img src="steps/step2.png" alt="Extract the zip" />
-            <div class="step-content">
-              <p class="step-number">Step 02</p>
-              <p>Right-click the ZIP file, select <strong>Extract All</strong>, and open the folder</p>
-            </div>
-          </div>
-
-          <div class="install-step reveal">
-            <img src="steps/step3.png" alt="Chrome extensions page" />
-            <div class="step-content">
-              <p class="step-number">Step 03</p>
-              <p>Open <code>chrome://extensions</code> and enable <strong>Developer mode</strong></p>
-            </div>
-          </div>
-
-          <div class="install-step reveal">
-            <img src="steps/step4.png" alt="Load unpacked extension" />
-            <div class="step-content">
-              <p class="step-number">Step 04</p>
-              <p>Click <strong>Load unpacked</strong> and select the extracted Binger folder</p>
-            </div>
-          </div>
-
-          <div class="install-step reveal">
-            <img src="steps/step5.png" alt="Binger installed" />
-            <div class="step-content">
-              <p class="step-number">Step 05</p>
-              <p>That's it. Binger is in your browser, ready to go.</p>
-            </div>
+            <p class="stage-cap">Hover the lock. Click it to flip the room.</p>
           </div>
         </div>
       </section>
 
-<section id="faq">
-        <p class="section-label reveal">Questions</p>
-        <h2 class="section-title reveal">FAQ</h2>
+      <!-- ================= CALL ================= -->
+      <section class="band" id="call">
+        <p class="eyebrow reveal">Video call</p>
+        <h2 class="band-title reveal">Everyone connects to everyone</h2>
 
-        <div class="faq-list reveal">
-          <div class="faq-item">
-            <button class="faq-question">
-              Do all users need to install Binger?
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            </button>
-            <div class="faq-answer"><p>Yes. Each person watching together needs the extension installed to sync playback, chat, and video calls.</p></div>
+        <div class="split split-flip">
+          <div class="panel stage reveal">
+            <svg class="mesh" viewBox="0 0 240 200" role="img" aria-label="Three people, three direct connections">
+              <line class="mesh-edge a" x1="120" y1="46" x2="52" y2="156" />
+              <line class="mesh-edge b" x1="120" y1="46" x2="188" y2="156" />
+              <line class="mesh-edge c" x1="52"  y1="156" x2="188" y2="156" />
+              <circle class="mesh-node-halo a" cx="120" cy="46" r="21" />
+              <circle class="mesh-node-halo b" cx="52" cy="156" r="21" />
+              <circle class="mesh-node-halo c" cx="188" cy="156" r="21" />
+              <circle class="mesh-node" cx="120" cy="46"  r="21" />
+              <circle class="mesh-node" cx="52"  cy="156" r="21" />
+              <circle class="mesh-node" cx="188" cy="156" r="21" />
+              <text class="mesh-label" x="120" y="46">T</text>
+              <text class="mesh-label" x="52"  y="156">M</text>
+              <text class="mesh-label" x="188" y="156">K</text>
+            </svg>
+            <p class="stage-cap">Three people, three direct links, no server in the middle</p>
           </div>
 
-          <div class="faq-item">
-            <button class="faq-question">
-              Do I need to create an account?
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            </button>
-            <div class="faq-answer"><p>Sort of. You pick a username and a password when you first open Binger. No email required. Clean and instant.</p></div>
+          <div class="split-copy reveal d1">
+            <h3>Straight between browsers</h3>
+            <p>Video and audio travel directly from each person to each other person. Nothing is routed through a server unless your network refuses to cooperate, and then a relay quietly steps in.</p>
+            <ul class="notes">
+              <li>
+                <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                <span><b>Fullscreen keeps the call alive</b>Toggling fullscreen moves the call panel instead of rebuilding it, so nobody reconnects.</span>
+              </li>
+              <li>
+                <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                <span><b>Speaker or headphones</b>Speaker mode strips echo so nobody hears the film twice. Headphone mode turns all filtering off for the cleanest audio.</span>
+              </li>
+              <li>
+                <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                <span><b>Camera off is still a face</b>Mute or go dark and your tile shows your initial and a muted mic badge rather than a black box.</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= THEMES ================= -->
+      <section class="band" id="themes">
+        <p class="eyebrow reveal">Personalize</p>
+        <h2 class="band-title reveal">Ten themes, and the room wears them together</h2>
+        <p class="band-lede reveal">Pick one and Binger repaints everything: overlay, chat bubbles, buttons, the video call frame, and the soundboard. Change it and the whole room changes with you. Four themes bring their own weather.</p>
+
+        <div class="swatches reveal d1" id="swatches" role="group" aria-label="Preview a Binger theme">
+          <button class="swatch" type="button" data-theme="burgundy"   aria-pressed="true"><span class="chip c-burgundy"></span>Burgundy</button>
+          <button class="swatch" type="button" data-theme="pink"       aria-pressed="false"><span class="chip c-pink"></span>Pink</button>
+          <button class="swatch" type="button" data-theme="volcano"    aria-pressed="false"><span class="chip c-volcano"></span>Volcano</button>
+          <button class="swatch" type="button" data-theme="ocean"      aria-pressed="false"><span class="chip c-ocean"></span>Ocean</button>
+          <button class="swatch" type="button" data-theme="sunset"     aria-pressed="false"><span class="chip c-sunset"></span>Sunset</button>
+          <button class="swatch" type="button" data-theme="blackwhite" aria-pressed="false"><span class="chip c-blackwhite"></span>Black &amp; White</button>
+          <button class="swatch" type="button" data-theme="royal"      aria-pressed="false"><span class="chip c-royal"></span>Royal</button>
+          <button class="swatch" type="button" data-theme="forest"     aria-pressed="false"><span class="chip c-forest"></span>Forest</button>
+          <button class="swatch" type="button" data-theme="arctic"     aria-pressed="false"><span class="chip c-arctic"></span>Arctic</button>
+          <button class="swatch" type="button" data-theme="midnight"   aria-pressed="false"><span class="chip c-midnight"></span>Midnight</button>
+        </div>
+
+        <p class="picker-hint reveal d2">This page is wearing them too. Go on.</p>
+      </section>
+
+      <!-- ================= BOT ================= -->
+      <section class="band" id="bot">
+        <p class="eyebrow reveal">In the chat</p>
+        <h2 class="band-title reveal">Meet Binger Bot</h2>
+        <p class="band-lede reveal">Flip bot mode on in the chat bar and the room gains a fourth voice. Ask it anything about the film, or describe a scene and it will take you there.</p>
+
+        <div class="split">
+          <div class="split-copy reveal">
+            <ul class="notes" style="margin-top: 0;">
+              <li>
+                <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                <span><b>It looks things up</b>Cast, ratings, box office, trivia. It decides on its own when a question needs the live web and searches mid answer.</span>
+              </li>
+              <li>
+                <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                <span><b>It finds scenes by description</b>Binger pulls the subtitles, rewrites them into scene descriptions, and matches yours against them. Then it seeks the film for the whole room.</span>
+              </li>
+              <li>
+                <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                <span><b>It knows the room</b>Who is here, what is playing, the current timestamp, and the last few things anyone said. Replies stay short, like a friend on the couch.</span>
+              </li>
+            </ul>
           </div>
 
-          <div class="faq-item">
-            <button class="faq-question">
-              Does this work in fullscreen?
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <div class="panel thread reveal d1" aria-hidden="true">
+            <div class="bubble mine">
+              <span class="badge-b">B</span>
+              take me to where she finds the letter
+            </div>
+            <div class="bubble theirs">Oh that moment wrecks me. Taking you there now.</div>
+            <div class="bubble mine">
+              <span class="badge-b">B</span>
+              wait who directed this
+            </div>
+            <div class="bubble theirs">Park Chan-wook, back in 2003. Still one of the best things Korean cinema has ever put out.</div>
+            <div class="composer">
+              <span class="composer-b">B</span>
+              <span class="composer-field">Ask Binger...</span>
+              <span class="composer-send">Send</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= REACTIONS ================= -->
+      <section class="band" id="reactions">
+        <p class="eyebrow reveal">React together</p>
+        <h2 class="band-title reveal">Sounds, reactions, and pins</h2>
+        <p class="band-lede reveal">Everything fires on every screen at once. Reactions float for two seconds. Pins stick to the exact spot on the frame for five, each with its own animation.</p>
+
+        <div class="panel reactions reveal d1" id="reactStage">
+          <div class="react-row">
+            <button class="react-btn" type="button" aria-label="Send a reaction">&#129324;</button>
+            <button class="react-btn" type="button" aria-label="Send a reaction">&#128169;</button>
+            <button class="react-btn" type="button" aria-label="Send a reaction">&#129394;</button>
+            <button class="react-btn" type="button" aria-label="Send a reaction">&#129315;</button>
+            <button class="react-btn" type="button" aria-label="Send a reaction">&#128296;</button>
+            <button class="react-btn" type="button" aria-label="Send a reaction">&#129392;</button>
+            <button class="react-btn" type="button" aria-label="Send a reaction">&#128512;</button>
+            <button class="react-btn" type="button" aria-label="Send a reaction">&#129496;</button>
+            <button class="react-btn" type="button" aria-label="Send a reaction">&#129402;</button>
+            <button class="react-btn" type="button" aria-label="Send a reaction">&#129768;</button>
+          </div>
+          <p class="react-hint">Try one</p>
+        </div>
+      </section>
+
+      <!-- ================= INSTALL ================= -->
+      <section class="band" id="install">
+        <p class="eyebrow reveal">Get started</p>
+        <h2 class="band-title reveal">Installed in under a minute</h2>
+        <p class="band-lede reveal">No email, no account beyond a username and a password, no fees. Everyone watching together needs it installed.</p>
+
+        <div class="steps">
+          <article class="panel step reveal">
+            <img src="steps/step1.png" alt="Downloading the Binger zip file" loading="lazy" />
+            <div class="step-body">
+              <p class="step-no"></p>
+              <p>Hit the download button above to grab <code>Binger.zip</code></p>
+            </div>
+          </article>
+
+          <article class="panel step reveal">
+            <img src="steps/step2.png" alt="Extracting the zip file" loading="lazy" />
+            <div class="step-body">
+              <p class="step-no"></p>
+              <p>Right click the zip, choose <strong>Extract All</strong>, and open the folder</p>
+            </div>
+          </article>
+
+          <article class="panel step reveal">
+            <img src="steps/step3.png" alt="The Chrome extensions page with developer mode on" loading="lazy" />
+            <div class="step-body">
+              <p class="step-no"></p>
+              <p>Open <code>chrome://extensions</code> and switch on <strong>Developer mode</strong></p>
+            </div>
+          </article>
+
+          <article class="panel step reveal">
+            <img src="steps/step4.png" alt="Loading the unpacked extension" loading="lazy" />
+            <div class="step-body">
+              <p class="step-no"></p>
+              <p>Click <strong>Load unpacked</strong> and pick the folder you just extracted</p>
+            </div>
+          </article>
+
+          <article class="panel step reveal">
+            <img src="steps/step5.png" alt="Binger installed and running" loading="lazy" />
+            <div class="step-body">
+              <p class="step-no"></p>
+              <p>That is it. Open phimbro.com, pick a username, and make a room.</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ================= FAQ ================= -->
+      <section class="band" id="faq">
+        <p class="eyebrow reveal">Questions</p>
+        <h2 class="band-title reveal">Before you ask</h2>
+
+        <div class="faq">
+          <div class="panel qa reveal">
+            <button class="q" type="button" aria-expanded="false">
+              How many people fit in a room?
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             </button>
-            <div class="faq-answer"><p>Absolutely. The overlay, chat, video call, and soundboard all snap into a connected panel layout in fullscreen with smooth animations.</p></div>
+            <div class="a"><div><p>Three. Two of you can start a session without waiting for a third, and the third can walk in later.</p></div></div>
           </div>
 
-          <div class="faq-item">
-            <button class="faq-question">
-              Why do some features seem slightly out of sync?
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <div class="panel qa reveal">
+            <button class="q" type="button" aria-expanded="false">
+              Does everyone need the extension?
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             </button>
-            <div class="faq-answer"><p>Make sure both you and your partner are on the latest version of the extension, or at least the same version.</p></div>
+            <div class="a"><div><p>Yes. Playback sync, chat, and the video call all run through the extension, so everyone watching together needs it installed.</p></div></div>
           </div>
 
-          <div class="faq-item">
-            <button class="faq-question">
+          <div class="panel qa reveal">
+            <button class="q" type="button" aria-expanded="false">
+              What does locking a room actually do?
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <div class="a"><div><p>It puts a four digit password in front of the door. Anyone already inside is untouched, and only the host can flip the lock or change the password. It stops someone who guessed your room code, not a determined attacker.</p></div></div>
+          </div>
+
+          <div class="panel qa reveal">
+            <button class="q" type="button" aria-expanded="false">
+              Do I need to make an account?
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <div class="a"><div><p>Sort of. You pick a username and a password the first time you open Binger. No email, nothing to confirm.</p></div></div>
+          </div>
+
+          <div class="panel qa reveal">
+            <button class="q" type="button" aria-expanded="false">
+              Does the video call survive fullscreen?
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <div class="a"><div><p>It does. Going in and out of fullscreen moves the call panel rather than tearing it down, so your camera stays on and nobody else has to reconnect.</p></div></div>
+          </div>
+
+          <div class="panel qa reveal">
+            <button class="q" type="button" aria-expanded="false">
+              How does scene seeking work?
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <div class="a"><div><p>Binger fetches the film's subtitles, cuts them into one minute chunks, rewrites each chunk into a plain description of what happens, and compares your description against all of them. The closest match wins and the room seeks there. Results are cached per film, so a second seek is instant.</p></div></div>
+          </div>
+
+          <div class="panel qa reveal">
+            <button class="q" type="button" aria-expanded="false">
+              Something feels out of sync. What now?
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <div class="a"><div><p>Check that everyone is on the same version of the extension. Mismatched versions are the usual cause.</p></div></div>
+          </div>
+
+          <div class="panel qa reveal">
+            <button class="q" type="button" aria-expanded="false">
               Is Binger free?
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             </button>
-            <div class="faq-answer"><p>Always. No fees, no premium tiers, no ads. Just movies and vibes.</p></div>
-          </div>
-
-          <div class="faq-item">
-            <button class="faq-question">
-              How does the AI scene seeking work?
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            </button>
-            <div class="faq-answer"><p>Binger fetches subtitles, groups them into 60-second chunks, rewrites each chunk into a scene description, generates vector embeddings, and matches your description using cosine similarity. Results are cached per movie so repeat seeks are instant.</p></div>
+            <div class="a"><div><p>Always. No fees, no tiers, no ads. Movies and vibes.</p></div></div>
           </div>
         </div>
       </section>
 
-<div class="final-cta">
-        <div class="final-cta-glow"></div>
-        <a href="Binger v8.0.0.zip" download class="hero-cta">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Download Binger
-        </a>
-      </div>
+      <!-- ================= CLOSING ================= -->
+      <section class="closing">
+        <h2 class="closing-title reveal">The good part is watching it with someone.</h2>
+        <div class="reveal d1">
+          <a class="cta" href="Binger v8.0.0.zip" download>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download Binger
+          </a>
+        </div>
+      </section>
 
-<footer>
-        <p>&copy; 2025 Binger</p>
+      <footer>
+        <p>Binger &middot; v8.0.0 &middot; built for movie nights</p>
       </footer>
 
-    </div>
+    </main>
 
     <script>
-      var observer = new IntersectionObserver(function(entries) {
-        entries.forEach(function(entry) {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-          }
-        });
-      }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+      (function () {
+        "use strict";
 
-      document.querySelectorAll('.reveal').forEach(function(el) {
-        observer.observe(el);
-      });
+        var root = document.documentElement;
+        var calmQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+        var hoverQuery = window.matchMedia("(hover: hover) and (pointer: fine)");
 
-      document.querySelectorAll('.faq-question').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-          var item = btn.parentElement;
-          var answer = item.querySelector('.faq-answer');
-          var isOpen = item.classList.contains('open');
+        /* ---------- scroll reveal ---------- */
 
-          if (isOpen) {
-            answer.style.maxHeight = answer.scrollHeight + 'px';
-            requestAnimationFrame(function() {
-              answer.style.maxHeight = '0px';
+        var reveals = document.querySelectorAll(".reveal");
+
+        if (calmQuery.matches || !("IntersectionObserver" in window)) {
+          Array.prototype.forEach.call(reveals, function (el) {
+            el.classList.add("shown");
+          });
+        } else {
+          var revealObserver = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+              if (!entry.isIntersecting) return;
+              entry.target.classList.add("shown");
+              revealObserver.unobserve(entry.target);
             });
-            item.classList.remove('open');
-          } else {
-            item.classList.add('open');
-            answer.style.maxHeight = answer.scrollHeight + 'px';
-          }
-        });
-      });
+          }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
 
-      document.querySelectorAll('.faq-answer').forEach(function(answer) {
-        answer.addEventListener('transitionend', function() {
-          if (!answer.parentElement.classList.contains('open')) {
-            answer.style.maxHeight = '';
-          }
+          Array.prototype.forEach.call(reveals, function (el) {
+            revealObserver.observe(el);
+          });
+        }
+
+        /* ---------- progress rail and masthead ---------- */
+
+        var rail = document.getElementById("rail");
+        var masthead = document.getElementById("masthead");
+        var ticking = false;
+
+        function paintScroll() {
+          var top = window.scrollY || window.pageYOffset || 0;
+          var span = document.documentElement.scrollHeight - window.innerHeight;
+          var ratio = span > 0 ? Math.min(top / span, 1) : 0;
+
+          if (rail) rail.style.transform = "scaleX(" + ratio + ")";
+          if (masthead) masthead.classList.toggle("docked", top > 40);
+
+          ticking = false;
+        }
+
+        function onScroll() {
+          if (ticking) return;
+          ticking = true;
+          window.requestAnimationFrame(paintScroll);
+        }
+
+        window.addEventListener("scroll", onScroll, { passive: true });
+        window.addEventListener("resize", onScroll, { passive: true });
+        paintScroll();
+
+        /* ---------- theme picker ---------- */
+
+        var swatches = document.querySelectorAll(".swatch");
+
+        Array.prototype.forEach.call(swatches, function (btn) {
+          btn.addEventListener("click", function () {
+            var next = btn.getAttribute("data-theme");
+            if (!next) return;
+
+            root.setAttribute("data-theme", next);
+
+            Array.prototype.forEach.call(swatches, function (other) {
+              other.setAttribute("aria-pressed", other === btn ? "true" : "false");
+            });
+          });
         });
-      });
+
+        /* ---------- room lock demo ---------- */
+
+        var lock = document.getElementById("lockDemo");
+        var lockLabel = document.getElementById("lockLabel");
+        var joinDemo = document.getElementById("joinDemo");
+
+        if (lock && lockLabel) {
+          lock.addEventListener("click", function () {
+            var wasLocked = lock.getAttribute("aria-pressed") === "true";
+
+            lock.setAttribute("aria-pressed", wasLocked ? "false" : "true");
+            lockLabel.textContent = wasLocked ? "Room is public" : "Room password";
+            if (joinDemo) joinDemo.classList.toggle("unlocked", wasLocked);
+          });
+        }
+
+        /* ---------- sync clock, read from the real bar position ---------- */
+
+        var syncBand = document.getElementById("sync");
+        var fills = document.querySelectorAll(".track-fill");
+        var stamps = document.querySelectorAll(".track-time");
+        var clockOn = false;
+
+        function clockFrame() {
+          if (!clockOn) return;
+
+          var scale = 0;
+
+          if (fills.length) {
+            var matrix = window.getComputedStyle(fills[0]).transform;
+            if (matrix && matrix !== "none") {
+              var parts = matrix.slice(matrix.indexOf("(") + 1, -1).split(",");
+              scale = parseFloat(parts[0]) || 0;
+            }
+          }
+
+          var seconds = Math.round(scale * 7620);
+          var text = String(Math.floor(seconds / 3600)).padStart(2, "0") + ":" +
+                     String(Math.floor(seconds / 60) % 60).padStart(2, "0") + ":" +
+                     String(seconds % 60).padStart(2, "0");
+
+          Array.prototype.forEach.call(stamps, function (el) {
+            el.textContent = text;
+          });
+
+          window.requestAnimationFrame(clockFrame);
+        }
+
+        if (syncBand && fills.length && !calmQuery.matches && "IntersectionObserver" in window) {
+          new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting && !clockOn) {
+                clockOn = true;
+                window.requestAnimationFrame(clockFrame);
+              } else if (!entry.isIntersecting) {
+                clockOn = false;
+              }
+            });
+          }, { threshold: 0.05 }).observe(syncBand);
+        }
+
+        /* ---------- faq ---------- */
+
+        var questions = document.querySelectorAll(".q");
+
+        Array.prototype.forEach.call(questions, function (btn) {
+          btn.addEventListener("click", function () {
+            var item = btn.parentElement;
+            if (!item) return;
+
+            var willOpen = !item.classList.contains("open");
+            item.classList.toggle("open", willOpen);
+            btn.setAttribute("aria-expanded", willOpen ? "true" : "false");
+          });
+        });
+
+        /* ---------- reactions ---------- */
+
+        var reactStage = document.getElementById("reactStage");
+
+        if (reactStage) {
+          reactStage.addEventListener("click", function (event) {
+            var btn = event.target.closest(".react-btn");
+            if (!btn || calmQuery.matches) return;
+
+            var stageBox = reactStage.getBoundingClientRect();
+            var btnBox = btn.getBoundingClientRect();
+
+            var puff = document.createElement("span");
+            puff.className = "float-emoji";
+            puff.setAttribute("aria-hidden", "true");
+            puff.textContent = btn.textContent.trim();
+            puff.style.left = (btnBox.left - stageBox.left + btnBox.width / 2 - 14) + "px";
+            puff.style.bottom = (stageBox.bottom - btnBox.top + 4) + "px";
+            puff.style.setProperty("--dx", (Math.random() * 90 - 45).toFixed(1) + "px");
+            puff.style.setProperty("--rot", (Math.random() * 60 - 30).toFixed(1) + "deg");
+
+            reactStage.appendChild(puff);
+
+            window.setTimeout(function () {
+              if (puff.parentNode) puff.parentNode.removeChild(puff);
+            }, 2100);
+          });
+        }
+
+        /* ---------- card spotlight, pointer devices only ---------- */
+
+        if (hoverQuery.matches && !calmQuery.matches) {
+          var cards = document.querySelectorAll(".card");
+
+          Array.prototype.forEach.call(cards, function (card) {
+            card.addEventListener("mousemove", function (event) {
+              var box = card.getBoundingClientRect();
+              card.style.setProperty("--mx", (event.clientX - box.left) + "px");
+              card.style.setProperty("--my", (event.clientY - box.top) + "px");
+            });
+          });
+        }
+      })();
     </script>
   </body>
 </html>
