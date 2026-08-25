@@ -5,6 +5,17 @@
     let pendingJoinRoomId = null;
 
     const BUBBLE_ERROR_MS = 700;
+    const BUBBLE_SWAP_MS = 190;
+
+    function showRoomLoader() {
+        const loader = BingerOverlayDOM.getElement("roomLoader");
+        if (loader) loader.hidden = false;
+    }
+
+    function hideRoomLoader() {
+        const loader = BingerOverlayDOM.getElement("roomLoader");
+        if (loader) loader.hidden = true;
+    }
 
     function unsubscribeFromAllListeners(roomId) {
         if (!roomId) return;
@@ -60,6 +71,8 @@
     }
 
     function createRoom() {
+        showRoomLoader();
+
         BingerConnection.getCurrentRoomId()
             .then((oldRoomId) => {
                 return leaveOldRoom(oldRoomId).then(() => oldRoomId);
@@ -69,6 +82,7 @@
                     .then((response) => {
                         if (response?.status !== "success") {
                             console.error("[Binger] Failed to create room:", response?.error);
+                            hideRoomLoader();
                             alert("Failed to create room: " + (response?.error || "Unknown error"));
                             return null;
                         }
@@ -83,6 +97,7 @@
                 return BingerConnection.sendMessage({ command: "joinRoom", roomId })
                     .then((joinResponse) => {
                         if (joinResponse?.status !== "success") {
+                            hideRoomLoader();
                             alert("Failed to join new room: " + (joinResponse?.error || "Unknown error"));
                             return;
                         }
@@ -97,15 +112,18 @@
             })
             .catch((err) => {
                 console.error("[Binger] Error creating room:", err);
+                hideRoomLoader();
                 alert("Failed to create room. Please try again.");
             });
     }
 
     function joinRoom(newRoomId, password) {
         if (!BingerHelpers.isValidRoomCode(newRoomId)) {
-            alert("Please enter a valid 6-digit room code.");
+            flashBubbleError();
             return;
         }
+
+        showRoomLoader();
 
         BingerConnection.getCurrentRoomId()
             .then((oldRoomId) => {
@@ -117,17 +135,13 @@
 
                 return BingerConnection.sendMessage(payload)
                     .then((response) => {
-                        if (response?.status === "wrong-password") {
+                        if (response?.status !== "success") {
+                            hideRoomLoader();
                             flashBubbleError();
                             return;
                         }
 
-                        if (response?.status !== "success") {
-                            closeJoinBubble();
-                            alert(`Failed to join room: ${response?.error || "Unknown error"}`);
-                            return;
-                        }
-
+                        closeJoinBubble();
                         unsubscribeFromAllListeners(oldRoomId);
 
                         return Promise.all([
@@ -140,8 +154,8 @@
             })
             .catch((err) => {
                 console.error("[Binger] Error joining room:", err);
-                closeJoinBubble();
-                alert("Failed to join room. Please try again.");
+                hideRoomLoader();
+                flashBubbleError();
             });
     }
 
@@ -152,51 +166,52 @@
         pendingJoinRoomId = null;
 
         if (bubble) {
-            bubble.classList.remove("binger-bubble-password", "binger-bubble-error");
+            bubble.classList.remove("binger-bubble-password", "binger-bubble-error", "binger-bubble-collapsing");
         }
 
         if (input) {
             input.value = "";
             input.maxLength = 6;
-            input.placeholder = "";
+            input.placeholder = "Room No.";
         }
     }
 
     function setBubblePasswordMode(roomId) {
         const bubble = BingerOverlayDOM.getElement("joinBubble");
         const input = BingerOverlayDOM.getElement("joinBubbleInput");
+        if (!bubble || !input) return;
 
         pendingJoinRoomId = roomId;
 
-        if (bubble) {
-            bubble.classList.add("binger-bubble-password");
-        }
+        bubble.classList.add("binger-bubble-collapsing");
 
-        if (input) {
+        setTimeout(() => {
             input.value = "";
             input.maxLength = 4;
             input.placeholder = "Password";
+            bubble.classList.add("binger-bubble-password");
+            bubble.classList.remove("binger-bubble-collapsing");
             requestAnimationFrame(() => input.focus());
-        }
+        }, BUBBLE_SWAP_MS);
     }
 
     function flashBubbleError() {
         const bubble = BingerOverlayDOM.getElement("joinBubble");
         const input = BingerOverlayDOM.getElement("joinBubbleInput");
 
-        if (input) input.value = "";
+        if (!bubble || !input) return;
 
-        if (bubble) {
+        input.value = "";
+
+        bubble.classList.remove("binger-bubble-error");
+        void input.offsetWidth;
+        bubble.classList.add("binger-bubble-error");
+
+        setTimeout(() => {
             bubble.classList.remove("binger-bubble-error");
-            void bubble.offsetWidth;
-            bubble.classList.add("binger-bubble-error");
+        }, BUBBLE_ERROR_MS);
 
-            setTimeout(() => {
-                bubble.classList.remove("binger-bubble-error");
-            }, BUBBLE_ERROR_MS);
-        }
-
-        if (input) input.focus();
+        input.focus();
     }
 
     function toggleJoinBubble() {
@@ -265,15 +280,14 @@
         }
 
         if (!BingerHelpers.isValidRoomCode(value)) {
-            alert("Please enter a valid 6-digit room code.");
+            flashBubbleError();
             return;
         }
 
         BingerConnection.sendMessage({ command: "checkRoomPrivacy", roomId: value })
             .then((res) => {
                 if (res?.status !== "success") {
-                    closeJoinBubble();
-                    alert(`Failed to join room: ${res?.error || "Unknown error"}`);
+                    flashBubbleError();
                     return;
                 }
 
@@ -282,17 +296,17 @@
                     return;
                 }
 
-                closeJoinBubble();
                 joinRoom(value);
             })
             .catch((err) => {
                 console.error("[Binger] Error checking room privacy:", err);
-                closeJoinBubble();
-                alert("Failed to join room. Please try again.");
+                flashBubbleError();
             });
     }
 
     function leaveRoom() {
+        showRoomLoader();
+
         BingerConnection.getCurrentRoomId()
             .then((roomId) => {
                 if (!roomId) return;
@@ -300,6 +314,7 @@
                 return BingerConnection.sendMessage({ command: "leaveRoom", roomId })
                     .then((response) => {
                         if (response?.status !== "success") {
+                            hideRoomLoader();
                             alert("Failed to leave room: " + (response?.error || "Unknown error"));
                             return;
                         }
@@ -315,6 +330,7 @@
             })
             .catch((err) => {
                 console.error("[Binger] Error leaving room:", err);
+                hideRoomLoader();
                 alert("Failed to leave room. Please try again.");
             });
     }

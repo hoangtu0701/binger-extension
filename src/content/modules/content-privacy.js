@@ -2,7 +2,7 @@
     "use strict";
 
     const TIP_GAP = 10;
-    const ERROR_FLASH_MS = 700;
+    const TIP_CLOSE_DELAY = 130;
 
     const state = {
         roomId: null,
@@ -12,78 +12,139 @@
         initialized: false
     };
 
+    let tipEl = null;
+    let closeTimer = null;
     let outsideHandler = null;
 
     function getLock() {
         return BingerOverlayDOM.getElement("roomLock");
     }
 
-    function getTip() {
-        return getLock()?.querySelector(".binger-lock-tip") || null;
-    }
-
     function getTipInput() {
-        return getLock()?.querySelector(".binger-lock-tip-input") || null;
+        return tipEl?.querySelector(".binger-lock-tip-input") || null;
     }
 
     function getTipLabel() {
-        return getLock()?.querySelector(".binger-lock-tip-label") || null;
+        return tipEl?.querySelector(".binger-lock-tip-label") || null;
     }
 
     function isHost() {
         return BingerState.isCurrentUserHost();
     }
 
+    function canEdit() {
+        return isHost() && state.isPrivate;
+    }
+
+    function cancelCloseTimer() {
+        if (closeTimer) {
+            clearTimeout(closeTimer);
+            closeTimer = null;
+        }
+    }
+
+    function findFixedContainer(node) {
+        let current = node?.parentElement || null;
+
+        while (current && current !== document.documentElement) {
+            const style = getComputedStyle(current);
+
+            const traps = style.transform !== "none"
+                || style.filter !== "none"
+                || (style.backdropFilter && style.backdropFilter !== "none")
+                || style.perspective !== "none"
+                || (style.willChange && /transform|filter|perspective/.test(style.willChange))
+                || (style.contain && /paint|layout|strict|content/.test(style.contain));
+
+            if (traps) return current;
+
+            current = current.parentElement;
+        }
+
+        return null;
+    }
+
     function positionTip() {
         const lock = getLock();
-        const tip = getTip();
-        if (!lock || !tip) return;
+        if (!lock || !tipEl) return;
 
         const rect = lock.getBoundingClientRect();
-        const tipRect = tip.getBoundingClientRect();
-
-        let left = rect.left + rect.width / 2;
+        const tipRect = tipEl.getBoundingClientRect();
         const half = tipRect.width / 2;
 
+        const container = findFixedContainer(lock);
+
+        let left = rect.left + rect.width / 2;
         left = Math.max(half + 6, Math.min(left, window.innerWidth - half - 6));
 
-        tip.style.left = `${left}px`;
-        tip.style.bottom = `${window.innerHeight - rect.top + TIP_GAP}px`;
+        let top = rect.top - TIP_GAP;
+
+        if (container) {
+            const base = container.getBoundingClientRect();
+            left -= base.left;
+            top -= base.top;
+        }
+
+        tipEl.style.left = `${left}px`;
+        tipEl.style.top = `${top}px`;
+        tipEl.style.bottom = "auto";
+    }
+
+    function isTipHeld() {
+        return state.editing || document.activeElement === getTipInput();
     }
 
     function openTip() {
         const lock = getLock();
-        if (!lock || lock.hidden) return;
+        if (!lock || !tipEl || lock.hidden) return;
 
-        lock.classList.add("tip-open");
+        cancelCloseTimer();
+
+        if (tipEl.classList.contains("tip-open")) {
+            positionTip();
+            return;
+        }
+
+        tipEl.classList.add("tip-open");
         positionTip();
         requestAnimationFrame(positionTip);
     }
 
-    function closeTip(force) {
-        const lock = getLock();
-        if (!lock) return;
+    function scheduleClose() {
+        if (isTipHeld()) return;
 
-        if (state.editing && force !== true) return;
+        cancelCloseTimer();
+        closeTimer = setTimeout(() => {
+            closeTimer = null;
+            if (isTipHeld()) return;
+            tipEl?.classList.remove("tip-open");
+        }, TIP_CLOSE_DELAY);
+    }
 
-        lock.classList.remove("tip-open");
+    function forceCloseTip() {
+        cancelCloseTimer();
+        tipEl?.classList.remove("tip-open");
     }
 
     function render() {
         const lock = getLock();
-        if (!lock) return;
+        if (!lock || !tipEl) return;
 
         const active = Boolean(state.roomId);
 
         lock.hidden = !active;
 
         if (!active) {
-            lock.classList.remove("tip-open", "is-private", "is-host");
+            lock.classList.remove("is-private", "is-host");
+            forceCloseTip();
             return;
         }
 
         lock.classList.toggle("is-private", state.isPrivate);
         lock.classList.toggle("is-host", isHost());
+
+        tipEl.classList.toggle("is-private", state.isPrivate);
+        tipEl.classList.toggle("is-editable", canEdit());
 
         const label = getTipLabel();
         const input = getTipInput();
@@ -93,13 +154,13 @@
         }
 
         if (input) {
-            input.readOnly = !isHost();
+            input.readOnly = !canEdit();
             if (!state.editing) {
                 input.value = state.password || "";
             }
         }
 
-        if (lock.classList.contains("tip-open")) {
+        if (tipEl.classList.contains("tip-open")) {
             positionTip();
         }
     }
@@ -109,14 +170,9 @@
         if (!input) return;
 
         const value = input.value.replace(/\D/g, "").slice(0, 4);
-
-        if (value.length !== 4 || value === state.password) {
-            input.value = state.password || "";
-            return;
-        }
-
         const roomId = state.roomId;
-        if (!roomId) {
+
+        if (value.length !== 4 || value === state.password || !roomId) {
             input.value = state.password || "";
             return;
         }
@@ -140,7 +196,12 @@
     }
 
     function stopEditing(save) {
-        if (!state.editing) return;
+        if (!state.editing) {
+            getTipInput()?.blur();
+            detachOutsideHandler();
+            forceCloseTip();
+            return;
+        }
 
         state.editing = false;
 
@@ -151,11 +212,9 @@
             if (input) input.value = state.password || "";
         }
 
-        const input = getTipInput();
-        if (input) input.blur();
-
-        closeTip(true);
+        getTipInput()?.blur();
         detachOutsideHandler();
+        forceCloseTip();
     }
 
     function attachOutsideHandler() {
@@ -163,8 +222,8 @@
 
         outsideHandler = (event) => {
             const lock = getLock();
-            if (!lock) return;
-            if (lock.contains(event.target)) return;
+            if (tipEl && tipEl.contains(event.target)) return;
+            if (lock && lock.contains(event.target)) return;
 
             stopEditing(true);
         };
@@ -204,31 +263,44 @@
         const lock = getLock();
         if (!lock) return;
 
-        lock.addEventListener("mouseenter", openTip);
-        lock.addEventListener("mouseleave", () => closeTip(false));
+        tipEl = lock.querySelector(".binger-lock-tip");
+        if (!tipEl) return;
 
-        lock.addEventListener("click", (event) => {
-            if (event.target.closest(".binger-lock-tip")) return;
-            togglePrivacy();
+        lock.addEventListener("mouseenter", openTip);
+        lock.addEventListener("mouseleave", scheduleClose);
+
+        window.addEventListener("scroll", () => {
+            if (tipEl?.classList.contains("tip-open")) positionTip();
+        }, true);
+
+        lock.addEventListener("mousedown", (event) => {
+            event.preventDefault();
         });
+
+        lock.addEventListener("click", togglePrivacy);
+
+        tipEl.addEventListener("mouseenter", cancelCloseTimer);
+        tipEl.addEventListener("mouseleave", scheduleClose);
 
         const input = getTipInput();
 
         if (input) {
-            input.addEventListener("mousedown", (event) => {
-                if (!isHost() || !state.isPrivate) {
-                    event.preventDefault();
+            input.addEventListener("mousedown", () => {
+                cancelCloseTimer();
+                attachOutsideHandler();
+
+                if (canEdit()) {
+                    state.editing = true;
                 }
             });
 
             input.addEventListener("focus", () => {
-                if (!isHost() || !state.isPrivate) {
-                    input.blur();
-                    return;
-                }
-                state.editing = true;
-                openTip();
+                cancelCloseTimer();
                 attachOutsideHandler();
+
+                if (canEdit()) {
+                    state.editing = true;
+                }
             });
 
             input.addEventListener("input", () => {
@@ -248,7 +320,13 @@
         }
 
         window.addEventListener("resize", () => {
-            if (lock.classList.contains("tip-open")) positionTip();
+            if (tipEl?.classList.contains("tip-open")) positionTip();
+        });
+
+        document.addEventListener("fullscreenchange", () => {
+            forceCloseTip();
+            state.editing = false;
+            detachOutsideHandler();
         });
 
         state.initialized = true;
@@ -272,6 +350,7 @@
 
         stopEditing(false);
         detachOutsideHandler();
+        forceCloseTip();
 
         if (roomId) {
             BingerConnection.sendMessageAsync({
@@ -296,6 +375,10 @@
             state.password = typeof msg.password === "string" ? msg.password : "";
         }
 
+        if (!state.isPrivate && state.editing) {
+            stopEditing(false);
+        }
+
         render();
     }
 
@@ -308,8 +391,7 @@
         activatePrivacy,
         deactivatePrivacy,
         handlePrivacyUpdate,
-        refreshLockRole,
-        ERROR_FLASH_MS
+        refreshLockRole
     };
 
 })();

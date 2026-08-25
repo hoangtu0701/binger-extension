@@ -202,7 +202,23 @@
         layoutContainer.appendChild(rightPane);
         layoutContainer.appendChild(bottomButtons);
 
+        const roomLoader = document.createElement("div");
+        roomLoader.id = "bingerRoomLoader";
+        roomLoader.hidden = true;
+
+        const roomLoaderDots = document.createElement("div");
+        roomLoaderDots.className = "binger-room-loader-dots";
+
+        for (let i = 0; i < 3; i++) {
+            const dot = document.createElement("span");
+            dot.className = "binger-room-loader-dot";
+            roomLoaderDots.appendChild(dot);
+        }
+
+        roomLoader.appendChild(roomLoaderDots);
+
         overlay.appendChild(layoutContainer);
+        overlay.appendChild(roomLoader);
 
         overlay.style.display = "none";
         overlay.style.zIndex = "2147483647";
@@ -246,6 +262,7 @@
             roomBadge: document.getElementById("bingerRoomBadge"),
             avatarGroup: document.getElementById("bingerAvatarGroup"),
             roomLock: document.getElementById("bingerRoomLock"),
+            roomLoader: document.getElementById("bingerRoomLoader"),
             userCount: document.getElementById("bingerUserCount"),
             chatLog: document.getElementById("bingerChatLog"),
             chatInputBar: document.getElementById("bingerChatInputBar"),
