@@ -57,6 +57,12 @@
                 BingerTheme.handleRoomThemeUpdate(msg.theme);
                 break;
 
+            case "privacyUpdated":
+                if (window.BingerPrivacy?.handlePrivacyUpdate) {
+                    window.BingerPrivacy.handlePrivacyUpdate(msg);
+                }
+                break;
+
             case "showMultiTabWarning":
                 BingerOverlayDOM.showMultiTabWarning();
                 break;
@@ -93,6 +99,10 @@
         BingerState.setCurrentUsersInRoom(msg.users);
         BingerRoom.checkWatchTogetherEligibility();
         BingerOverlayDOM.setUserListDisplay(msg.users);
+
+        if (window.BingerPrivacy?.refreshLockRole) {
+            window.BingerPrivacy.refreshLockRole();
+        }
 
         if (window.BingerSession?.syncCallIframeUserCount) {
             window.BingerSession.syncCallIframeUserCount();

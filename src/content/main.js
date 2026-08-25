@@ -71,6 +71,7 @@
         safeInit("Navigation", () => BingerNavigation.initNavigation());
         safeInit("OverlayDOM", () => BingerOverlayDOM.initOverlayDOM());
         safeInit("Theme", () => BingerTheme.initTheme());
+        safeInit("Privacy", () => BingerPrivacy.initPrivacy());
         safeInit("RoomButtons", () => BingerRoom.setupRoomButtons());
         safeInit("WatchTogetherButton", () => BingerInvite.setupWatchTogetherButton());
         safeInit("MessageRouter", () => BingerMessageRouter.initMessageRouter());

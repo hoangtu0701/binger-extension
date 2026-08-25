@@ -12,6 +12,7 @@
     const pinListeners = {};
     const themeListeners = {};
     const typingListeners = {};
+    const privacyListeners = {};
 
     let currentMovieEmbeddingCache = null;
 
@@ -28,6 +29,7 @@
     function getPinListeners() { return pinListeners; }
     function getThemeListeners() { return themeListeners; }
     function getTypingListeners() { return typingListeners; }
+    function getPrivacyListeners() { return privacyListeners; }
 
     function getMovieEmbeddingCache() {
         return currentMovieEmbeddingCache;
@@ -84,6 +86,7 @@
         clearListenerMap(pinListeners);
         clearListenerMap(themeListeners);
         clearListenerMap(typingListeners);
+        clearListenerMap(privacyListeners);
 
         currentMovieEmbeddingCache = null;
         activePorts = 0;
@@ -101,6 +104,7 @@
         getPinListeners,
         getThemeListeners,
         getTypingListeners,
+        getPrivacyListeners,
 
         getMovieEmbeddingCache,
         setMovieEmbeddingCache,

@@ -104,6 +104,17 @@
             <div id="bingerChatRoomHeader">
                 <div id="bingerRoomBadge" class="binger-room-badge binger-room-badge--empty">------</div>
                 <div class="binger-strip-divider binger-strip-divider--empty"></div>
+                <div id="bingerRoomLock" class="binger-room-lock" hidden>
+                    <svg class="binger-lock-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path class="binger-lock-shackle" d="M8 11.5V7.6a4 4 0 0 1 8 0v3.9"/>
+                        <rect class="binger-lock-body" x="4.6" y="11" width="14.8" height="9.4" rx="2.7"/>
+                        <circle class="binger-lock-pin" cx="12" cy="15.7" r="1.15"/>
+                    </svg>
+                    <div class="binger-lock-tip">
+                        <span class="binger-lock-tip-label">Room is public</span>
+                        <input class="binger-lock-tip-input" type="text" maxlength="4" inputmode="numeric" readonly />
+                    </div>
+                </div>
                 <div id="bingerAvatarGroup" class="binger-avatar-group">
                     <div class="binger-avatar binger-avatar--empty">?</div>
                     <div class="binger-avatar binger-avatar--empty">?</div>
@@ -234,6 +245,7 @@
             chatWrapper: document.getElementById("bingerChatWrapper"),
             roomBadge: document.getElementById("bingerRoomBadge"),
             avatarGroup: document.getElementById("bingerAvatarGroup"),
+            roomLock: document.getElementById("bingerRoomLock"),
             userCount: document.getElementById("bingerUserCount"),
             chatLog: document.getElementById("bingerChatLog"),
             chatInputBar: document.getElementById("bingerChatInputBar"),

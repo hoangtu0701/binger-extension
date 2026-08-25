@@ -129,6 +129,12 @@
                             theme: hostTheme,
                             createdAt: BingerBGFirebase.ServerValue.TIMESTAMP,
                             inSession: false,
+                            privacy: {
+                                isPrivate: false,
+                                password: self.BingerBGPrivacy
+                                    ? self.BingerBGPrivacy.generatePassword()
+                                    : String(Math.floor(1000 + Math.random() * 9000))
+                            },
                             users: {
                                 [user.uid]: {
                                     email: user.email,
@@ -170,6 +176,37 @@
 
         if (!user) {
             BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Not signed in" });
+            return;
+        }
+
+        try {
+            const gateRef = BingerBGFirebase.ref(`rooms/${roomId}`);
+            if (!gateRef) {
+                BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Failed to create room reference" });
+                return;
+            }
+
+            const gateSnapshot = await gateRef.once("value");
+
+            if (!gateSnapshot.exists()) {
+                BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: "Room not found" });
+                return;
+            }
+
+            const gateData = gateSnapshot.val() || {};
+            const alreadyInRoom = Boolean(gateData.users && gateData.users[user.uid]);
+            const gatePrivacy = gateData.privacy || {};
+
+            if (!alreadyInRoom && gatePrivacy.isPrivate === true) {
+                const supplied = typeof msg.password === "string" ? msg.password.trim() : "";
+                if (supplied === "" || supplied !== String(gatePrivacy.password || "")) {
+                    BingerBGHelpers.safeSendResponse(sendResponse, { status: "wrong-password" });
+                    return;
+                }
+            }
+        } catch (err) {
+            console.error("[Binger] Room privacy gate failed:", err);
+            BingerBGHelpers.safeSendResponse(sendResponse, { status: "error", error: err.message });
             return;
         }
 

@@ -91,6 +91,15 @@
         return state.currentUser !== null;
     }
 
+    function isCurrentUserHost() {
+        const me = getCurrentUsername();
+        if (!me || !Array.isArray(state.currentUsersInRoom)) return false;
+
+        return state.currentUsersInRoom.some(
+            (user) => user && user.isHost === true && user.name === me
+        );
+    }
+
     function hasEnoughUsers() {
         if (!Array.isArray(state.currentUsersInRoom)) {
             return false;
@@ -117,6 +126,7 @@
         getCurrentUserUid,
         getCurrentUsername,
         isSignedIn,
+        isCurrentUserHost,
         hasEnoughUsers
     };
 

@@ -543,6 +543,10 @@
 
         BingerTheme.activateThemeListener(roomId);
 
+        if (window.BingerPrivacy?.activatePrivacy) {
+            window.BingerPrivacy.activatePrivacy(roomId);
+        }
+
         BingerConnection.sendMessageAsync({
             command: "subscribeToTyping",
             roomId
@@ -584,6 +588,10 @@
         elements.chatInput.disabled = true;
         elements.sendBtn.disabled = true;
         elements.leaveRoomBtn.disabled = true;
+
+        if (window.BingerPrivacy?.deactivatePrivacy) {
+            window.BingerPrivacy.deactivatePrivacy();
+        }
 
         BingerOverlayDOM.setRoomIdDisplay(null);
         BingerOverlayDOM.setUserListDisplay(null);

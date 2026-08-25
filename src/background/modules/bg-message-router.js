@@ -72,6 +72,17 @@
             case "refreshUserList":
                 return executeHandler("BingerBGRooms", "handleRefreshUserList", [msg], sendResponse);
 
+            case "checkRoomPrivacy":
+                return executeHandler("BingerBGPrivacy", "handleCheckRoomPrivacy", [msg, sendResponse], sendResponse);
+            case "setRoomPrivacy":
+                return executeHandler("BingerBGPrivacy", "handleSetRoomPrivacy", [msg, sendResponse], sendResponse);
+            case "setRoomPassword":
+                return executeHandler("BingerBGPrivacy", "handleSetRoomPassword", [msg, sendResponse], sendResponse);
+            case "subscribeToPrivacy":
+                return executeHandler("BingerBGPrivacy", "handleSubscribeToPrivacy", [msg, sendResponse], sendResponse);
+            case "unsubscribeFromPrivacy":
+                return executeHandler("BingerBGPrivacy", "handleUnsubscribeFromPrivacy", [msg, sendResponse], sendResponse);
+
             case "subscribeToUsers":
                 return executeHandler("BingerBGUsers", "handleSubscribeToUsers", [msg, sendResponse], sendResponse);
             case "unsubscribeFromUsers":

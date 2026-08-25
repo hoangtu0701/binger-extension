@@ -31,6 +31,7 @@
         "src/content/modules/content-navigation.js",
         "src/content/modules/content-overlay-dom.js",
         "src/content/modules/content-theme.js",
+        "src/content/modules/content-privacy.js",
         "src/content/modules/content-chatbox.js",
         "src/content/modules/content-room.js",
         "src/content/modules/content-invite.js",
@@ -49,7 +50,8 @@
         "src/styles/session.css",
         "src/styles/fullscreen.css",
         "src/styles/components.css",
-        "src/styles/soundboard.css"
+        "src/styles/soundboard.css",
+        "src/styles/privacy.css"
       ],
       "run_at": "document_idle"
     }

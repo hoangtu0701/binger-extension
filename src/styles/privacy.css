@@ -1,0 +1,297 @@
+/* ========================================================================
+   ROOM LOCK
+   ======================================================================== */
+
+.binger-room-lock {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+  border-radius: 5px;
+  transition: background 0.25s ease, transform 0.25s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+.binger-room-lock.is-host {
+  cursor: pointer;
+}
+
+.binger-room-lock.is-host:hover {
+  background: rgba(200, 140, 80, 0.12);
+}
+
+.binger-room-lock.is-host:active {
+  transform: scale(0.9);
+}
+
+.binger-lock-icon {
+  width: 14px;
+  height: 14px;
+  overflow: visible;
+  fill: none;
+  stroke: rgba(212, 165, 116, 0.5);
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke 0.35s ease;
+}
+
+.binger-room-lock.is-private .binger-lock-icon {
+  stroke: #d4a574;
+}
+
+.binger-lock-shackle {
+  transform-box: view-box;
+  transform-origin: 8px 11.5px;
+  transform: rotate(-26deg) translateY(-1.2px);
+  transition: transform 0.42s cubic-bezier(0.34, 1.32, 0.5, 1);
+}
+
+.binger-room-lock.is-private .binger-lock-shackle {
+  transform: rotate(0deg) translateY(0);
+}
+
+.binger-lock-body {
+  transition: fill 0.35s ease;
+  fill: transparent;
+}
+
+.binger-room-lock.is-private .binger-lock-body {
+  fill: rgba(200, 140, 80, 0.14);
+}
+
+.binger-lock-pin {
+  opacity: 0;
+  transform-box: view-box;
+  transform-origin: 12px 15.7px;
+  transform: scale(0.4);
+  transition: opacity 0.3s ease 0.12s, transform 0.34s cubic-bezier(0.34, 1.5, 0.64, 1) 0.12s;
+}
+
+.binger-room-lock.is-private .binger-lock-pin {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ========================================================================
+   LOCK TOOLTIP
+   ======================================================================== */
+
+.binger-lock-tip {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  transform: translateX(-50%) translateY(6px);
+  z-index: 2147483647;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 7px 11px;
+  border-radius: 9px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.22s ease, transform 0.28s cubic-bezier(0.34, 1.28, 0.64, 1), visibility 0.22s;
+  background: rgba(18, 8, 12, 0.96);
+  border: 1px solid rgba(150, 96, 60, 0.5);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+}
+
+.binger-lock-tip::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 12px;
+}
+
+.binger-room-lock.tip-open .binger-lock-tip {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
+.binger-lock-tip-label {
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: rgba(212, 165, 116, 0.55);
+  line-height: 1;
+}
+
+.binger-lock-tip-input {
+  width: 62px;
+  padding: 2px 0;
+  border: none;
+  border-bottom: 1px solid transparent;
+  outline: none;
+  background: transparent;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 4px;
+  color: #d4a574;
+  transition: border-color 0.25s ease, color 0.25s ease;
+  cursor: default;
+}
+
+.binger-lock-tip-input:read-only {
+  pointer-events: none;
+}
+
+.binger-room-lock.is-host.is-private .binger-lock-tip-input {
+  cursor: text;
+}
+
+.binger-room-lock.is-host.is-private .binger-lock-tip-input:hover {
+  border-bottom-color: rgba(150, 96, 60, 0.45);
+}
+
+.binger-room-lock.is-host.is-private .binger-lock-tip-input:focus {
+  border-bottom-color: #d4a574;
+}
+
+.binger-room-lock:not(.is-private) .binger-lock-tip-input {
+  display: none;
+}
+
+.binger-room-lock.is-private .binger-lock-tip-label {
+  opacity: 0.75;
+}
+
+/* ========================================================================
+   JOIN BUBBLE - PASSWORD MODE
+   ======================================================================== */
+
+#bingerJoinBubble.binger-bubble-password #bingerJoinBubbleInput {
+  letter-spacing: 4px;
+  text-align: center;
+}
+
+#bingerJoinBubble.binger-bubble-error {
+  animation: bingerBubbleShake 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+
+#bingerJoinBubble.binger-bubble-error #bingerJoinBubbleInput {
+  animation: bingerBubbleFlash 0.7s ease-out;
+}
+
+@keyframes bingerBubbleShake {
+  0%, 100% { transform: translateX(0); }
+  15% { transform: translateX(-5px); }
+  30% { transform: translateX(5px); }
+  45% { transform: translateX(-4px); }
+  60% { transform: translateX(4px); }
+  75% { transform: translateX(-2px); }
+  90% { transform: translateX(2px); }
+}
+
+@keyframes bingerBubbleFlash {
+  0% { box-shadow: 0 0 0 1px rgba(220, 70, 70, 0.85); }
+  40% { box-shadow: 0 0 0 1px rgba(220, 70, 70, 0.7); }
+  100% { box-shadow: 0 0 0 1px rgba(220, 70, 70, 0); }
+}
+
+/* ========================================================================
+   THEMES
+   ======================================================================== */
+
+.theme-pink .binger-lock-icon { stroke: rgba(232, 160, 181, 0.5); }
+.theme-pink .binger-room-lock.is-private .binger-lock-icon { stroke: #e8a0b5; }
+.theme-pink .binger-room-lock.is-private .binger-lock-body { fill: rgba(210, 110, 140, 0.14); }
+.theme-pink .binger-room-lock.is-host:hover { background: rgba(210, 110, 140, 0.12); }
+.theme-pink .binger-lock-tip { background: rgba(28, 12, 20, 0.96); border-color: rgba(158, 88, 112, 0.5); }
+.theme-pink .binger-lock-tip-label { color: rgba(232, 160, 181, 0.55); }
+.theme-pink .binger-lock-tip-input { color: #e8a0b5; }
+.theme-pink .binger-room-lock.is-host.is-private .binger-lock-tip-input:hover { border-bottom-color: rgba(158, 88, 112, 0.45); }
+.theme-pink .binger-room-lock.is-host.is-private .binger-lock-tip-input:focus { border-bottom-color: #e8a0b5; }
+
+.theme-blackwhite .binger-lock-icon { stroke: rgba(255, 255, 255, 0.35); }
+.theme-blackwhite .binger-room-lock.is-private .binger-lock-icon { stroke: rgba(255, 255, 255, 0.85); }
+.theme-blackwhite .binger-room-lock.is-private .binger-lock-body { fill: rgba(255, 255, 255, 0.1); }
+.theme-blackwhite .binger-room-lock.is-host:hover { background: rgba(255, 255, 255, 0.08); }
+.theme-blackwhite .binger-lock-tip { background: rgba(10, 10, 10, 0.96); border-color: rgba(255, 255, 255, 0.22); }
+.theme-blackwhite .binger-lock-tip-label { color: rgba(255, 255, 255, 0.4); }
+.theme-blackwhite .binger-lock-tip-input { color: rgba(255, 255, 255, 0.85); }
+.theme-blackwhite .binger-room-lock.is-host.is-private .binger-lock-tip-input:hover { border-bottom-color: rgba(255, 255, 255, 0.3); }
+.theme-blackwhite .binger-room-lock.is-host.is-private .binger-lock-tip-input:focus { border-bottom-color: rgba(255, 255, 255, 0.85); }
+
+.theme-ocean .binger-lock-icon { stroke: rgba(0, 200, 230, 0.45); }
+.theme-ocean .binger-room-lock.is-private .binger-lock-icon { stroke: rgba(0, 200, 230, 0.9); }
+.theme-ocean .binger-room-lock.is-private .binger-lock-body { fill: rgba(0, 180, 220, 0.12); }
+.theme-ocean .binger-room-lock.is-host:hover { background: rgba(0, 180, 220, 0.12); }
+.theme-ocean .binger-lock-tip { background: rgba(3, 16, 28, 0.96); border-color: rgba(28, 118, 142, 0.5); }
+.theme-ocean .binger-lock-tip-label { color: rgba(0, 200, 230, 0.5); }
+.theme-ocean .binger-lock-tip-input { color: rgba(0, 200, 230, 0.9); }
+.theme-ocean .binger-room-lock.is-host.is-private .binger-lock-tip-input:hover { border-bottom-color: rgba(28, 118, 142, 0.45); }
+.theme-ocean .binger-room-lock.is-host.is-private .binger-lock-tip-input:focus { border-bottom-color: rgba(0, 200, 230, 0.9); }
+
+.theme-volcano .binger-lock-icon { stroke: rgba(255, 140, 60, 0.45); }
+.theme-volcano .binger-room-lock.is-private .binger-lock-icon { stroke: rgba(255, 140, 60, 0.9); }
+.theme-volcano .binger-room-lock.is-private .binger-lock-body { fill: rgba(255, 100, 30, 0.12); }
+.theme-volcano .binger-room-lock.is-host:hover { background: rgba(255, 100, 30, 0.12); }
+.theme-volcano .binger-lock-tip { background: rgba(18, 7, 4, 0.96); border-color: rgba(150, 72, 34, 0.5); }
+.theme-volcano .binger-lock-tip-label { color: rgba(255, 140, 60, 0.5); }
+.theme-volcano .binger-lock-tip-input { color: rgba(255, 140, 60, 0.9); }
+.theme-volcano .binger-room-lock.is-host.is-private .binger-lock-tip-input:hover { border-bottom-color: rgba(150, 72, 34, 0.45); }
+.theme-volcano .binger-room-lock.is-host.is-private .binger-lock-tip-input:focus { border-bottom-color: rgba(255, 140, 60, 0.9); }
+
+.theme-forest .binger-lock-icon { stroke: rgba(160, 220, 120, 0.45); }
+.theme-forest .binger-room-lock.is-private .binger-lock-icon { stroke: rgba(160, 220, 120, 0.9); }
+.theme-forest .binger-room-lock.is-private .binger-lock-body { fill: rgba(100, 200, 100, 0.12); }
+.theme-forest .binger-room-lock.is-host:hover { background: rgba(100, 200, 100, 0.12); }
+.theme-forest .binger-lock-tip { background: rgba(7, 16, 5, 0.96); border-color: rgba(72, 128, 60, 0.5); }
+.theme-forest .binger-lock-tip-label { color: rgba(160, 220, 120, 0.5); }
+.theme-forest .binger-lock-tip-input { color: rgba(160, 220, 120, 0.9); }
+.theme-forest .binger-room-lock.is-host.is-private .binger-lock-tip-input:hover { border-bottom-color: rgba(72, 128, 60, 0.45); }
+.theme-forest .binger-room-lock.is-host.is-private .binger-lock-tip-input:focus { border-bottom-color: rgba(160, 220, 120, 0.9); }
+
+.theme-midnight .binger-lock-icon { stroke: rgba(216, 176, 132, 0.45); }
+.theme-midnight .binger-room-lock.is-private .binger-lock-icon { stroke: rgba(216, 176, 132, 0.92); }
+.theme-midnight .binger-room-lock.is-private .binger-lock-body { fill: rgba(199, 152, 104, 0.12); }
+.theme-midnight .binger-room-lock.is-host:hover { background: rgba(199, 152, 104, 0.1); }
+.theme-midnight .binger-lock-tip { background: rgba(14, 10, 4, 0.97); border-color: rgba(93, 75, 55, 0.72); }
+.theme-midnight .binger-lock-tip-label { color: rgba(216, 176, 132, 0.5); }
+.theme-midnight .binger-lock-tip-input { color: rgba(216, 176, 132, 0.92); }
+.theme-midnight .binger-room-lock.is-host.is-private .binger-lock-tip-input:hover { border-bottom-color: rgba(93, 75, 55, 0.6); }
+.theme-midnight .binger-room-lock.is-host.is-private .binger-lock-tip-input:focus { border-bottom-color: rgba(216, 176, 132, 0.92); }
+
+.theme-sunset .binger-lock-icon { stroke: rgba(255, 195, 135, 0.45); }
+.theme-sunset .binger-room-lock.is-private .binger-lock-icon { stroke: rgba(255, 195, 135, 0.92); }
+.theme-sunset .binger-room-lock.is-private .binger-lock-body { fill: rgba(255, 158, 74, 0.13); }
+.theme-sunset .binger-room-lock.is-host:hover { background: rgba(255, 158, 74, 0.12); }
+.theme-sunset .binger-lock-tip { background: rgba(26, 10, 24, 0.96); border-color: rgba(152, 88, 60, 0.55); }
+.theme-sunset .binger-lock-tip-label { color: rgba(255, 195, 135, 0.5); }
+.theme-sunset .binger-lock-tip-input { color: rgba(255, 195, 135, 0.92); }
+.theme-sunset .binger-room-lock.is-host.is-private .binger-lock-tip-input:hover { border-bottom-color: rgba(152, 88, 60, 0.5); }
+.theme-sunset .binger-room-lock.is-host.is-private .binger-lock-tip-input:focus { border-bottom-color: rgba(255, 195, 135, 0.92); }
+
+.theme-arctic .binger-lock-icon { stroke: rgba(215, 240, 255, 0.45); }
+.theme-arctic .binger-room-lock.is-private .binger-lock-icon { stroke: rgba(215, 240, 255, 0.92); }
+.theme-arctic .binger-room-lock.is-private .binger-lock-body { fill: rgba(207, 238, 255, 0.12); }
+.theme-arctic .binger-room-lock.is-host:hover { background: rgba(207, 238, 255, 0.11); }
+.theme-arctic .binger-lock-tip { background: rgba(6, 16, 26, 0.96); border-color: rgba(96, 134, 162, 0.55); }
+.theme-arctic .binger-lock-tip-label { color: rgba(215, 240, 255, 0.5); }
+.theme-arctic .binger-lock-tip-input { color: rgba(215, 240, 255, 0.92); }
+.theme-arctic .binger-room-lock.is-host.is-private .binger-lock-tip-input:hover { border-bottom-color: rgba(96, 134, 162, 0.5); }
+.theme-arctic .binger-room-lock.is-host.is-private .binger-lock-tip-input:focus { border-bottom-color: rgba(215, 240, 255, 0.92); }
+
+.theme-royal .binger-lock-icon { stroke: rgba(240, 210, 150, 0.45); }
+.theme-royal .binger-room-lock.is-private .binger-lock-icon { stroke: rgba(240, 210, 150, 0.92); }
+.theme-royal .binger-room-lock.is-private .binger-lock-body { fill: rgba(232, 194, 122, 0.12); }
+.theme-royal .binger-room-lock.is-host:hover { background: rgba(232, 194, 122, 0.11); }
+.theme-royal .binger-lock-tip { background: rgba(15, 6, 26, 0.96); border-color: rgba(138, 112, 68, 0.55); }
+.theme-royal .binger-lock-tip-label { color: rgba(240, 210, 150, 0.5); }
+.theme-royal .binger-lock-tip-input { color: rgba(240, 210, 150, 0.92); }
+.theme-royal .binger-room-lock.is-host.is-private .binger-lock-tip-input:hover { border-bottom-color: rgba(138, 112, 68, 0.5); }
+.theme-royal .binger-room-lock.is-host.is-private .binger-lock-tip-input:focus { border-bottom-color: rgba(240, 210, 150, 0.92); }

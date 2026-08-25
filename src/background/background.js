@@ -6,6 +6,7 @@ try {
     self.importScripts("./modules/bg-connection.js");
     self.importScripts("./modules/bg-auth.js");
     self.importScripts("./modules/bg-rooms.js");
+    self.importScripts("./modules/bg-privacy.js");
     self.importScripts("./modules/bg-chat.js");
     self.importScripts("./modules/bg-users.js");
     self.importScripts("./modules/bg-invites.js");
