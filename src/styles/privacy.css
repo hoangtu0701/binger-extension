@@ -113,7 +113,12 @@
   left: -8px;
   right: -8px;
   top: 100%;
-  height: 14px;
+  height: 12px;
+  pointer-events: none;
+}
+
+.binger-lock-tip.tip-open::before {
+  pointer-events: auto;
 }
 
 .binger-lock-tip.tip-open {
@@ -167,12 +172,17 @@
   transition: border-color 0.25s ease,
               max-height 0.32s cubic-bezier(0.4, 0, 0.2, 1),
               opacity 0.24s ease,
+              padding 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+              border-bottom-width 0.32s cubic-bezier(0.4, 0, 0.2, 1),
               margin-top 0.32s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .binger-lock-tip:not(.is-private) .binger-lock-tip-input {
   max-height: 0;
   opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-bottom-width: 0;
   margin-top: -3px;
   pointer-events: none;
 }

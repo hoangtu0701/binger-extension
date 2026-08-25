@@ -11,7 +11,8 @@
         isPrivate: false,
         password: "",
         editing: false,
-        pointerInside: false,
+        overLock: false,
+        overTip: false,
         initialized: false
     };
 
@@ -107,7 +108,8 @@
 
     function isTipHeld() {
         return state.editing
-            || state.pointerInside
+            || state.overLock
+            || state.overTip
             || document.activeElement === getTipInput();
     }
 
@@ -137,7 +139,8 @@
 
     function forceCloseTip() {
         cancelCloseTimer();
-        state.pointerInside = false;
+        state.overLock = false;
+        state.overTip = false;
         tipEl?.classList.remove("tip-open");
     }
 
@@ -234,9 +237,10 @@
             });
     }
 
-    function stopEditing(save) {
+    function endEditing(save, closeTip) {
         if (!state.editing) {
             detachOutsideHandler();
+            if (closeTip) forceCloseTip();
             return;
         }
 
@@ -251,7 +255,8 @@
 
         getTipInput()?.blur();
         detachOutsideHandler();
-        forceCloseTip();
+
+        if (closeTip) forceCloseTip();
     }
 
     function attachOutsideHandler() {
@@ -262,7 +267,7 @@
             if (tipEl && tipEl.contains(event.target)) return;
             if (lock && lock.contains(event.target)) return;
 
-            stopEditing(true);
+            endEditing(true, true);
         };
 
         document.addEventListener("mousedown", outsideHandler, true);
@@ -308,12 +313,12 @@
         if (!tipEl) return;
 
         lock.addEventListener("mouseenter", () => {
-            state.pointerInside = true;
+            state.overLock = true;
             openTip();
         });
 
         lock.addEventListener("mouseleave", () => {
-            state.pointerInside = false;
+            state.overLock = false;
             scheduleClose();
         });
 
@@ -324,16 +329,18 @@
 
         lock.addEventListener("click", (event) => {
             if (isInsideTip(event.target)) return;
+
+            endEditing(true, false);
             togglePrivacy();
         });
 
         tipEl.addEventListener("mouseenter", () => {
-            state.pointerInside = true;
+            state.overTip = true;
             cancelCloseTimer();
         });
 
         tipEl.addEventListener("mouseleave", () => {
-            state.pointerInside = false;
+            state.overTip = false;
             scheduleClose();
         });
 
@@ -365,11 +372,11 @@
             input.addEventListener("keydown", (event) => {
                 if (event.key === "Enter") {
                     event.preventDefault();
-                    stopEditing(true);
+                    endEditing(true, true);
                 }
                 if (event.key === "Escape") {
                     event.preventDefault();
-                    stopEditing(false);
+                    endEditing(false, true);
                 }
             });
         }
@@ -383,9 +390,9 @@
         }, true);
 
         document.addEventListener("fullscreenchange", () => {
-            forceCloseTip();
             state.editing = false;
             detachOutsideHandler();
+            forceCloseTip();
             ensureTipParent();
         });
 
@@ -408,9 +415,8 @@
     function deactivatePrivacy() {
         const roomId = state.roomId;
 
-        stopEditing(false);
+        endEditing(false, true);
         detachOutsideHandler();
-        forceCloseTip();
 
         if (roomId) {
             BingerConnection.sendMessageAsync({
@@ -436,7 +442,7 @@
         }
 
         if (!state.isPrivate && state.editing) {
-            stopEditing(false);
+            endEditing(false, false);
         }
 
         render();
