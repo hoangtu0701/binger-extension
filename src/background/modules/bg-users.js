@@ -54,6 +54,16 @@
         });
     }
 
+    function cancelActiveInviteOnLeave(roomId) {
+        const inviteRef = BingerBGFirebase.ref(`rooms/${roomId}/activeInvite`);
+        if (!inviteRef) return;
+
+        inviteRef.remove()
+            .catch((err) => {
+                console.warn("[Binger] Failed to cancel invite after leave:", err);
+            });
+    }
+
     function broadcastUserList(roomId, hostUid) {
         const state = roomState[roomId];
         if (!state) return;
@@ -162,6 +172,7 @@
                         state.pendingLeaves[uid] = {
                             timeoutId: setTimeout(() => {
                                 broadcastNotification("leave", username);
+                                cancelActiveInviteOnLeave(roomId);
                                 delete state.pendingLeaves[uid];
                                 broadcastUserList(roomId, hostUid);
                             }, LEAVE_DEBOUNCE_MS),
