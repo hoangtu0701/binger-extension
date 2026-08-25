@@ -13,8 +13,7 @@
   cursor: default;
   border-radius: 5px;
   user-select: none;
-  transform-origin: 50% 50%;
-  transition: background 0.25s ease, transform 0.14s ease-out;
+  transition: background 0.25s ease;
 }
 
 .binger-room-lock.is-host {
@@ -25,7 +24,7 @@
   background: rgba(200, 140, 80, 0.12);
 }
 
-.binger-room-lock.is-host:active {
+.binger-room-lock.is-host:active .binger-lock-icon {
   transform: scale(0.86);
 }
 
@@ -39,7 +38,8 @@
   stroke-linecap: round;
   stroke-linejoin: round;
   pointer-events: none;
-  transition: stroke 0.35s ease;
+  transform-origin: 50% 50%;
+  transition: stroke 0.35s ease, transform 0.14s ease-out;
 }
 
 .binger-room-lock.is-private .binger-lock-icon {
